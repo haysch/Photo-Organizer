@@ -10,20 +10,24 @@ namespace PhotoOrganizer {
             if (propItem == null) return null;
 
             int size;
+            byte[] value = propItem.Value;
+            
+            // if (BitConverter.IsLittleEndian)
+            //     Array.Reverse(value);
 
             switch ((TagType)propItem.Type) {
                 case TagType.Byte:
-                    if (propItem.Value.Length == 1) return propItem.Value[0];
-                    return propItem.Value;
+                    if (value.Length == 1) return value[0];
+                    return value;
                 
                 case TagType.ASCII:
-                    return encoder.GetString(propItem.Value, 0, propItem.Len - 1);
+                    return encoder.GetString(value, 0, propItem.Len - 1);
                 
                 case TagType.Short:
                     size = 16 / 8;
                     ushort[] resUShort = new ushort[propItem.Len / size];
                     for (int i = 0; i < resUShort.Length; i++) {
-                        resUShort[i] = BitConverter.ToUInt16(propItem.Value, i * size);
+                        resUShort[i] = BitConverter.ToUInt16(value, i * size);
                     }
                     if (resUShort.Length == 1) return resUShort[0];
                     return resUShort;
@@ -32,7 +36,7 @@ namespace PhotoOrganizer {
                     size = 32 / 8;
                     uint[] resUInt32 = new uint[propItem.Len / size];
                     for (int i = 0; i < resUInt32.Length; i++) {
-                        resUInt32[i] = BitConverter.ToUInt32(propItem.Value, i * size);
+                        resUInt32[i] = BitConverter.ToUInt32(value, i * size);
                     }
                     if (resUInt32.Length == 1) return resUInt32[0];
                     return resUInt32;
@@ -44,8 +48,8 @@ namespace PhotoOrganizer {
                     long den;
 
                     for (int i = 0; i < resRational.Length; i++) {
-                        num = BitConverter.ToUInt32(propItem.Value, i * size);
-                        den = BitConverter.ToUInt32(propItem.Value, (i * size) + (size / 2));
+                        num = BitConverter.ToUInt32(value, i * size);
+                        den = BitConverter.ToUInt32(value, (i * size) + (size / 2));
 
                         resRational[i] = new Rational(num, den);
                     }
@@ -53,14 +57,14 @@ namespace PhotoOrganizer {
                     return resRational;
                 
                 case TagType.Undefined:
-                    if (propItem.Value.Length == 1) return propItem.Value[0];
-                    return propItem.Value;
+                    if (value.Length == 1) return value[0];
+                    return value;
                 
                 case TagType.SLong:
                     size = 32 / 8;
                     int[] resInt32 = new int[propItem.Len / size];
                     for (int i = 0; i < resInt32.Length; i++) {
-                        resInt32[i] = BitConverter.ToInt32(propItem.Value, i * size);
+                        resInt32[i] = BitConverter.ToInt32(value, i * size);
                     }
                     if (resInt32.Length == 1) return resInt32[0];
                     return resInt32;
@@ -72,8 +76,8 @@ namespace PhotoOrganizer {
                     uint sDen;
 
                     for (int i = 0; i < resSRational.Length; i++) {
-                        sNum = BitConverter.ToUInt32(propItem.Value, i * size);
-                        sDen = BitConverter.ToUInt32(propItem.Value, (i * size) + (size / 2));
+                        sNum = BitConverter.ToUInt32(value, i * size);
+                        sDen = BitConverter.ToUInt32(value, (i * size) + (size / 2));
 
                         resSRational[i] = new Rational(sNum, sDen);
                     }
@@ -81,8 +85,8 @@ namespace PhotoOrganizer {
                     return resSRational;
                 
                 default:
-                    if (propItem.Value.Length == 1) return propItem.Value[0];
-                    return propItem.Value;
+                    if (value.Length == 1) return value[0];
+                    return value;
             }
         }
     }
