@@ -16,15 +16,15 @@ namespace PhotoOrganizer {
         }
 
         public override string ToString() {
-            if (this.Denominator == 1) return String.Format("{0}", this.Numerator);
-            return String.Format("{0}/{1}", Numerator, Denominator);
+            if (this.Denominator == 1) return $"{this.Numerator}";
+            return $"{Numerator}/{Denominator}";
+        }
+
+        public string ToFNumber() {
+            return $"f/{(Numerator / Denominator)}";
         }
 
         /// <summary> Implicit casts Rational to double. </summary>
-        public static implicit operator double(Rational f) {
-            return (double) f.Numerator / f.Denominator;
-        }
-
-        // public double ToDouble() => Numerator == 0 ? 0.0 : Numerator / (double) Denominator;
+        public static implicit operator double(Rational r) => r.Numerator == 0 ? 0.0 : (double)r.Numerator / r.Denominator;
     }
 }
