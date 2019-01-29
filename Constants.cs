@@ -1,7 +1,7 @@
 namespace PhotoOrganizer {
     public enum TagConstants : int {
         /// <summary> ASCII </summary>
-        DateTime = 0x0132, //DTOrig = 0x9003,
+        DTOrig = 0x9003,
         /// <summary> Short </summary>
         ISO = 0x8827,
         /// <summary> Rational </summary>
@@ -16,12 +16,6 @@ namespace PhotoOrganizer {
         Make = 0x010F,
         /// <summary> ASCII </summary>
         Model = 0x0110,
-        /// <summary> Short or Long </summary>
-        XResolution = 0x011A,
-        /// <summary> Short or Long </summary>
-        YResolution = 0x011B,
-        /// <summary> Short </summary>
-        ResolutionUnit = 0x0128,
         /// <summary> ASCII </summary>
         GpsLatitudeRef = 0x0001,
         /// <summary> Rational </summary>
@@ -30,6 +24,9 @@ namespace PhotoOrganizer {
         GpsLongitudeRef = 0x0003,
         /// <summary> Rational </summary>
         Longitude = 0x0004,
+
+        /// <summary> Byte </summary>
+        GpsAltitudeRef = 0x0005,
         /// <summary> Rational </summary>
         Altitude = 0x0006
     };
