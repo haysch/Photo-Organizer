@@ -5,11 +5,7 @@ namespace PhotoOrganizer.Primitives {
         /// <summary> Short </summary>
         ISO = 0x8827,
         /// <summary> Rational </summary>
-        Aperture = 0x9202,
-        /// <summary> Rational </summary>
         FNumber = 0x829D,
-        /// <summary> SRational </summary>
-        ShutterSpeed = 0x9201,
         /// <summary> Rational </summary>
         FocalLength = 0x920A,
         /// <summary> ASCII </summary>
@@ -24,11 +20,6 @@ namespace PhotoOrganizer.Primitives {
         GpsLongitudeRef = 0x0003,
         /// <summary> Rational </summary>
         Longitude = 0x0004,
-
-        /// <summary> Byte </summary>
-        GpsAltitudeRef = 0x0005,
-        /// <summary> Rational </summary>
-        Altitude = 0x0006
     };
 
     public enum TagType : short {
