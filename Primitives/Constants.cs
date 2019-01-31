@@ -1,4 +1,4 @@
-namespace PhotoOrganizer {
+namespace PhotoOrganizer.Primitives {
     public enum TagConstants : int {
         /// <summary> ASCII </summary>
         DTOrig = 0x9003,
