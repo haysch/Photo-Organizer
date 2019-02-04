@@ -5,27 +5,33 @@ using System.Text;
 using PhotoOrganizer.Primitives;
 
 namespace PhotoOrganizer.Util {
+    /// <summary>Base class for property tag value conversion from byte[] to relevant value of the property tag type.</summary>
     public class PropertyTag {
         private static System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
         
+        /// <summary>Constructor for PropertyTag.</summary>
         public PropertyTag () {
         }
 
+        /// <summary>Finds value of input property item.</summary>
+        /// <returns>Object of the value of input propItem.</returns>
+        /// <param name="propItem">A PropertyItem.</param>
+        /// <remarks>Return object can be of multiple types and lengths. Can be null.</remarks>
         public static Object GetValue(PropertyItem propItem) {
             if (propItem == null) return null;
 
             int size;
             byte[] value = propItem.Value;
 
-            switch ((TagType)propItem.Type) {
-                case TagType.Byte:
+            switch ((PropertyTagType)propItem.Type) {
+                case PropertyTagType.Byte:
                     if (value.Length == 1) return value[0];
                     return value;
                 
-                case TagType.ASCII:
+                case PropertyTagType.ASCII:
                     return encoder.GetString(value, 0, propItem.Len - 1);
                 
-                case TagType.Short:
+                case PropertyTagType.Short:
                     if (BitConverter.IsLittleEndian)
                         Array.Reverse(value);
                         
@@ -39,24 +45,34 @@ namespace PhotoOrganizer.Util {
                     if (resultUShort.Length == 1) return resultUShort[0];
                     return resultUShort;
                 
-                case TagType.Long:
+                case PropertyTagType.Long:
                     size = 32 / 8;
                     uint[] resultULong = new uint[propItem.Len / size];
+                    
                     for (int i = 0; i < resultULong.Length; i++) {
                         resultULong[i] = BitConverter.ToUInt32(value, i * size);
                     }
+
                     if (resultULong.Length == 1) return resultULong[0];
                     return resultULong;
                 
-                case TagType.Rational:
+                case PropertyTagType.Rational:
                     size = 64 / 8;
                     Rational[] resultURational = new Rational[propItem.Len / size];
                     uint num;
                     uint den;
 
                     for (int i = 0; i < resultURational.Length; i++) {
-                        num = BitConverter.ToUInt32(value, i * size);
-                        den = BitConverter.ToUInt32(value, (i * size) + (size / 2));
+                        // Apparently this is needed to correctly compute byte[] to fraction correctly
+                        // TODO figure out why
+                        if (propItem.Id == 33434 && BitConverter.IsLittleEndian) {
+                            Array.Reverse(value);
+                            num = BitConverter.ToUInt32(value, (i * size) + (size / 2));
+                            den = BitConverter.ToUInt32(value, i * size);
+                        } else {                        
+                            num = BitConverter.ToUInt32(value, i * size);
+                            den = BitConverter.ToUInt32(value, (i * size) + (size / 2));
+                        }
 
                         resultURational[i] = new Rational(num, den);
                     }
@@ -64,11 +80,11 @@ namespace PhotoOrganizer.Util {
                     if (resultURational.Length == 1) return resultURational[0];
                     return resultURational;
                 
-                case TagType.Undefined:
+                case PropertyTagType.Undefined:
                     if (value.Length == 1) return value[0];
                     return value;
                 
-                case TagType.SLong:
+                case PropertyTagType.SLong:
                     size = 32 / 8;
                     int[] resultSLong = new int[propItem.Len / size];
                     
@@ -79,9 +95,7 @@ namespace PhotoOrganizer.Util {
                     if (resultSLong.Length == 1) return resultSLong[0];
                     return resultSLong;
                 
-                case TagType.SRational:
-                    if (BitConverter.IsLittleEndian)
-                        Array.Reverse(value);
+                case PropertyTagType.SRational:
                     size = 64 / 8;
                     Rational[] resultSRational = new Rational[propItem.Len / size];
                     int sNum;
