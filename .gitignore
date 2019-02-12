@@ -6,6 +6,7 @@
 # Project-specific files and folder
 .DS_Store
 testdata/
+.vscode
 
 # User-specific files
 *.rsuser
