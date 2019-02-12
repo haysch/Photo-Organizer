@@ -1,6 +1,8 @@
-namespace PhotoOrganizer.Primitives {
-        /// <summary>Contants for possible property tag types.</summary>
-        public enum PropertyTagType : short {
+namespace PhotoOrganizer.Primitives
+{
+    /// <summary>Contants for possible property tag types.</summary>
+    public enum PropertyTagType : short
+    {
         /// <summary>Specifies that the format is 4 bits per pixel, indexed.</summary>
         PixelFormat4bppIndexed = 0,
         /// <summary>Specifies that the value data member is an array of bytes.</summary>
@@ -22,7 +24,8 @@ namespace PhotoOrganizer.Primitives {
     };
 
     /// <summary>Contants for the property tag IDs of an image.</summary>
-    public enum PropertyTagId : int {
+    public enum PropertyTagId : int
+    {
         /// <summary>ASCII</summary>
         GpsLatitudeRef = 0x0001,
         /// <summary>Rational</summary>
@@ -31,10 +34,16 @@ namespace PhotoOrganizer.Primitives {
         GpsLongitudeRef = 0x0003,
         /// <summary>Rational</summary>
         Longitude = 0x0004,
+        /// <summary>Short or Long</summary>
+        ImageWidth = 0x0100,
+        /// <summary>Short or Long</summary>
+        ImageHeight = 0x0101,
         /// <summary>ASCII</summary>
         EquipMake = 0x010F,
         /// <summary>ASCII</summary>
         EquipModel = 0x0110,
+        /// <summary>ASCII</summary>
+        DateTime = 0x0132,
         /// <summary>Rational</summary>
         FNumber = 0x829D,
         /// <summary>Short</summary>
