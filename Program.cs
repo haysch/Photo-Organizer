@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
+
+using PhotoOrganizer.Util;
 
 namespace PhotoOrganizer
 {
@@ -8,43 +11,118 @@ namespace PhotoOrganizer
     {
         static void Main(string[] args)
         {
-            int i = 0;
-            List<Image> imgList = new List<Image>();
-            imgList.Add(new Image("fakeImg.jpg", "testdata"));
-            imgList.Add(new Image("img1.jpg", "testdata"));
-            imgList.Add(new Image("Food.jpg", "testdata"));
-            imgList.Add(new Image("img2.jpg", "testdata"));
+            Renamer renamer = new Renamer();
+            List<ImageData> imageList;
 
-            foreach (Image img in imgList) {
-                img.ExtractMetadata();
-                i++;
+            // Hashtable hashtable = new Hashtable();
 
-                PrintMetadata(img, i, imgList.Count);
-            }
+            // hashtable.Add("DateTimeOriginal", DateTime.Now);
+            // hashtable.Add("ISO", 640);
+            // hashtable.Add("FocalLength", 6.6);
+
+            // foreach (DictionaryEntry entry in hashtable)
+            // {
+            //     Console.WriteLine("{0} {1}", entry.Key, entry.Value);
+            // }
+
+            string[] files = RetrieveFileList();
+
+            imageList = LoadImages(files);
+
+            ExtractImageInformation(imageList);
         }
 
-        private List<Image> LoadImages() {
-            List<Image> imageList = new List<Image>();
+        private static string[] RetrieveFileList()
+        {
+            Queue<string> directoryQueue = new Queue<string>();
+            List<string> fileList = new List<string>();
 
-            // TODO enumerate folders at i depth and 
+            Console.Write("Enter full or relative path to working directory: ");
+            string workingDirectory = "testdata";// TODO uncomment Console.ReadLine();
+
+            while (true)
+            {
+                if (Directory.Exists(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + workingDirectory))
+                { // Relative path
+                    workingDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + workingDirectory;
+                    break;
+                }
+                else if (Directory.Exists(workingDirectory))
+                { // Full path
+                    break;
+                }
+
+                Console.WriteLine("Path {0} does not exist.", workingDirectory);
+                Console.Write("Try again: ");
+                workingDirectory = Console.ReadLine();
+            }
+
+            directoryQueue.Enqueue(workingDirectory);
+
+            // Queue subfolders and find all files
+            while (directoryQueue.Count != 0)
+            {
+                string currDirectory = directoryQueue.Dequeue();
+
+                foreach (string path in Directory.EnumerateDirectories(currDirectory))
+                {
+                    directoryQueue.Enqueue(path);
+                }
+
+                foreach (string file in Directory.EnumerateFiles(currDirectory))
+                {
+                    fileList.Add(file);
+                }
+            }
+
+            return fileList.ToArray();
+        }
+
+        private static List<ImageData> LoadImages(string[] fileList)
+        {
+            List<ImageData> imageList = new List<ImageData>();
+
+            // TODO enumerate folders at i depth
+            foreach (string file in fileList)
+            {
+                int fileSplitIndex = file.LastIndexOf('/');
+
+                string fileName = file.Substring(fileSplitIndex + 1);
+                string filePath = file.Substring(0, fileSplitIndex);
+
+                string fileType = Path.GetExtension(file).ToLower();
+
+                // TODO add fileType acceptance
+                switch (fileType)
+                {
+                    // Supported filetypes
+                    case ".jpg":
+                    case ".jpeg":
+                        //if (fileName == "img4.jpg")
+                        imageList.Add(new ImageData(fileName, filePath));
+                        continue;
+                    // Not supported filetypes
+                    default:
+                        continue;
+                }
+            }
 
             return imageList;
         }
 
-        public static void PrintMetadata(Image image, int current, int max) {
-            Console.WriteLine("================={0}/{1}=================", current, max);
-            Console.WriteLine("DateTime Original: {0}", image.DateTimeOriginal);
-            Console.WriteLine("ISO: {0}", image.ISO);
-            Console.WriteLine("Aperture: {0}", image.Aperture);
-            Console.WriteLine("F-Number: {0}", image.FNumber);
-            Console.WriteLine("Shutter Speed: {0}", image.ShutterSpeed);
-            Console.WriteLine("Focal Length: {0}", image.FocalLength);
-            Console.WriteLine("Make: {0}\tModel: {1}", image.Make, image.Model);
-            Console.WriteLine("Width: {0}\tHeight: {1}", image.Width, image.Height);
-            Console.WriteLine("Lat/Long: {0:N6}, {1:N6}", image.Latitude, image.Longitude);
-            Console.WriteLine("Altitude (meters): {0}", image.Altitude);
-            Console.WriteLine("Hash value (MD5): {0}", image.HashValue);
-            Console.WriteLine("=====================================\n");
+        private static void ExtractImageInformation(List<ImageData> imageList)
+        {
+            int imageCounter = 0;
+            Extractor extractor = new Extractor();
+
+            foreach (ImageData image in imageList)
+            {
+                image.ImageMetadata = extractor.ExtractMetadata(image, Algorithm.MD5);
+                imageCounter++;
+
+                Console.WriteLine("{0}/{1}", imageCounter, imageList.Count);
+                image.PrintImageInfo();
+            }
         }
     }
 }
