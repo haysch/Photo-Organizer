@@ -11,7 +11,7 @@ namespace PhotoOrganizer
     {
         static void Main(string[] args)
         {
-            Renamer renamer = new Renamer();
+            Rename renamer = new Rename(RenameType.Copy);
             List<ImageData> imageList;
 
             // Hashtable hashtable = new Hashtable();
@@ -120,8 +120,11 @@ namespace PhotoOrganizer
                 image.ImageMetadata = extractor.ExtractMetadata(image, Algorithm.MD5);
                 imageCounter++;
 
+                // TODO add method for loading image dictionaries into database model
+                // TODO add call for renaming of file
+
                 Console.WriteLine("{0}/{1}", imageCounter, imageList.Count);
-                image.PrintImageInfo();
+                image.PrintArrayExifData();
             }
         }
     }
