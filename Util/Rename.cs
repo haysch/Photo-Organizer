@@ -42,5 +42,9 @@ namespace PhotoOrganizer.Util
                     throw new InvalidOperationException();
             }
         }
+
+        private void SetInternalImageName(ImageData image) {
+            
+        }
     }
 }
