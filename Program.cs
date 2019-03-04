@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 
 using PhotoOrganizer.Util;
+using PhotoOrganizer.DataModel;
 
 namespace PhotoOrganizer
 {
@@ -11,25 +11,15 @@ namespace PhotoOrganizer
     {
         static void Main(string[] args)
         {
-            Rename renamer = new Rename(RenameType.Copy);
             List<ImageData> imageList;
-
-            // Hashtable hashtable = new Hashtable();
-
-            // hashtable.Add("DateTimeOriginal", DateTime.Now);
-            // hashtable.Add("ISO", 640);
-            // hashtable.Add("FocalLength", 6.6);
-
-            // foreach (DictionaryEntry entry in hashtable)
-            // {
-            //     Console.WriteLine("{0} {1}", entry.Key, entry.Value);
-            // }
 
             string[] files = RetrieveFileList();
 
             imageList = LoadImages(files);
 
             ExtractImageInformation(imageList);
+
+            // RenameImageFiles(imageList);
         }
 
         private static string[] RetrieveFileList()
@@ -98,8 +88,8 @@ namespace PhotoOrganizer
                     // Supported filetypes
                     case ".jpg":
                     case ".jpeg":
-                        //if (fileName == "img4.jpg")
-                        imageList.Add(new ImageData(fileName, filePath));
+                        // if (fileName == "img4.jpg")
+                            imageList.Add(new ImageData(fileName, filePath));
                         continue;
                     // Not supported filetypes
                     default:
@@ -113,18 +103,68 @@ namespace PhotoOrganizer
         private static void ExtractImageInformation(List<ImageData> imageList)
         {
             int imageCounter = 0;
-            Extractor extractor = new Extractor();
+            Extractor extractor = new Extractor(Algorithm.MD5);
 
             foreach (ImageData image in imageList)
             {
-                image.ImageMetadata = extractor.ExtractMetadata(image, Algorithm.MD5);
+                image.ImageMetadata = extractor.ExtractMetadata(image);
                 imageCounter++;
 
-                // TODO add method for loading image dictionaries into database model
-                // TODO add call for renaming of file
+                Console.Write("\rExtracting: {0}/{1}", imageCounter, imageList.Count);
+            }
 
-                Console.WriteLine("{0}/{1}", imageCounter, imageList.Count);
-                image.PrintArrayExifData();
+            if (ShowOutput()) {
+                foreach (ImageData image in imageList)
+                    image.PrintArrayExifData();
+            }
+        }
+
+        private static bool ShowOutput()
+        {
+            Console.Write("\nDo you want to show metadata from extraction? [y/N] ");
+            string answer = Console.ReadLine();
+
+            if (answer.ToUpper() == "Y")
+                return true;
+
+            return false;
+        }
+
+        private static void RenameImageFiles(List<ImageData> imageList)
+        {
+            RenameType type = RenameType.None;
+            bool done = false;
+
+            while (!done)
+            {
+                Console.Write("\nDo you want to [copy] or [move] files? (if blank, no renaming will be done) ");
+                string renameType = Console.ReadLine();
+
+                switch (renameType.ToUpper())
+                {
+                    case "":
+                        done = true;
+                        break;
+                    case "COPY":
+                        type = RenameType.Copy;
+                        done = true;
+                        break;
+                    case "MOVE":
+                        type = RenameType.Move;
+                        done = true;
+                        break;
+                    default:
+                        Console.WriteLine("Option {0} not supported.", renameType);
+                        continue;
+                }
+            }
+
+            Rename renamer = new Rename(type);
+
+            // TODO atm only jpeg images are supported
+            foreach (ImageData image in imageList)
+            {
+                renamer.RenameJpeg(image);
             }
         }
     }
