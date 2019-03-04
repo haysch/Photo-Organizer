@@ -34,7 +34,7 @@ namespace PhotoOrganizer.Util
                 {
                     case PropertyTagId.ExifDTOrig:
                     case PropertyTagId.DateTime:
-                        metadata.TryAdd("DateTimeOriginal", ExifDTToDateTime((string)PropertyTag.GetValue(item)));
+                        metadata.Add(((PropertyTagId)item.Id).ToString(), ExifDTToDateTime((string)PropertyTag.GetValue(item)));
                         continue;
 
                     case PropertyTagId.ISO:
@@ -94,13 +94,13 @@ namespace PhotoOrganizer.Util
 
             int width, height;
             ExtractResolution(image, out width, out height);
-            metadata.TryAdd("Width", width);
-            metadata.TryAdd("Height", height);
+            metadata.Add("Width", width);
+            metadata.Add("Height", height);
 
             string hashAlgo, hashValue;
-            ComputeHash(hashAlgorithm, image.AbsoluteFilePath, out hashAlgo, out hashValue);
-            metadata.TryAdd("Hash Algorithm", hashAlgo);
-            metadata.TryAdd("Hash Value", hashValue);
+            ComputeHash(hashAlgorithm, image.AbsoluteFolderPath, out hashAlgo, out hashValue);
+            metadata.Add("HashAlgorithm", hashAlgo);
+            metadata.Add("HashValue", hashValue);
 
             return metadata;
         }
