@@ -3,7 +3,7 @@ using System.Drawing.Imaging;
 using System.Collections.Generic;
 
 using PhotoOrganizer.Primitives;
-using PhotoOrganizer.Util;
+using PhotoOrganizer.DataModel;
 
 namespace PhotoOrganizer.Util
 {
@@ -11,17 +11,28 @@ namespace PhotoOrganizer.Util
     public class Extractor
     {
         private int _extractCounter;
-        /// <summary>Initializing a new instance Extractor.</summary>
+        private Checksum _checksum;
+
+        /// <summary>Simple constructor for initializing an Extractor.</summary>
+        /// <remarks>Defaults checksum algorithm to MD5.</remarks>
         public Extractor()
         {
+            _checksum = new Checksum(Algorithm.MD5);
+            _extractCounter = 0;
+        }
+
+        /// <summary>Initializing a new instance Extractor.</summary>
+        /// <param name="hashAlgorithm">Algorithm used for computing hash. See <see cref="Util.Algorithm"/> for available hash algorithms</param>
+        public Extractor(Algorithm hashAlgorithm)
+        {
+            _checksum = new Checksum(hashAlgorithm);
             _extractCounter = 0;
         }
 
         /// <summary>Method for extracting metadata from image file.</summary>
         /// <returns>Dictionary containing the extracted, <see cref="Primitives.PropertyTagId"/>, property items.</returns>
         /// <param name="image">ImageData class of image object. See <see cref="ImageData"/> for structure.</param>
-        /// <param name="hashAlgorithm">Hashing algorithm to be used for computing the hash value of the image.</param>
-        public Dictionary<string, object> ExtractMetadata(ImageData image, Algorithm hashAlgorithm)
+        public Dictionary<string, object> ExtractMetadata(ImageData image)
         {
             Dictionary<string, object> metadata = new Dictionary<string, object>();
             PropertyItem[] propItems = image.ImageProperty.PropertyItems;
@@ -98,7 +109,7 @@ namespace PhotoOrganizer.Util
             metadata.Add("Height", height);
 
             string hashAlgo, hashValue;
-            ComputeHash(hashAlgorithm, image.AbsoluteFolderPath, out hashAlgo, out hashValue);
+            ComputeHash(image.AbsolutePathToFile, out hashAlgo, out hashValue);
             metadata.Add("HashAlgorithm", hashAlgo);
             metadata.Add("HashValue", hashValue);
 
@@ -132,15 +143,13 @@ namespace PhotoOrganizer.Util
         }
 
         /// <summary>Wrapper for computing the hash value of input image.</summary>
-        /// <param name="hashAlgorithm">Algorithm used for computing hash. See <see cref="Util.Algorithm"/> for available hash algorithms</param>
         /// <param name="imagePath">Path to the image.</param>
         /// <param name="hashAlgo">Out variable for the hash algorithm.</param>
         /// <param name="hashValue">Out variable for the hash value.</param>
-        private void ComputeHash(Algorithm hashAlgorithm, string imagePath, out string hashAlgo, out string hashValue)
+        private void ComputeHash(string imagePath, out string hashAlgo, out string hashValue)
         {
-            Checksum chksum = new Checksum(hashAlgorithm);
-            hashAlgo = hashAlgorithm.ToString();
-            hashValue = chksum.ComputeHash(imagePath);
+            hashAlgo = _checksum.HashAlg;
+            hashValue = _checksum.ComputeHash(imagePath);
         }
 
         /// <summary>Private method for converting the Exif DateTime string to DateTime format.</summary>
