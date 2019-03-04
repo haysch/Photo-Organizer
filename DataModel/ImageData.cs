@@ -3,7 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Collections.Generic;
 
-namespace PhotoOrganizer
+namespace PhotoOrganizer.DataModel
 {
     /// <summary>This class represents an image and contains functionality to extract metadata.</summary>
     public class ImageData
@@ -26,7 +26,7 @@ namespace PhotoOrganizer
         }
 
         // TODO add hashmap when initializing to get all propItems and call when needed ?
-        /// <summary>Initializing a new instance of the <see cref="ImageData"/> class.</summary>
+        /// <summary>Initializing a new instance of the <see cref="ImageData" /> class.</summary>
         public ImageData(string fileName, string absoluteDirectoryPath)
         {
             ImageMetadata = new Dictionary<string, object>();
