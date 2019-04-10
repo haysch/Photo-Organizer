@@ -1,4 +1,4 @@
-using PhotoOrganizer.DataModel;
+using PhotoOrganizer.Primitives;
 
 namespace PhotoOrganizer.Util
 {
