@@ -16,13 +16,17 @@ namespace PhotoOrganizer.Util
         public string HashAlg { get; }
 
         /// <summary>Constructor for the algorithm used for computing file hash.</summary>
-        /// <exception cref="System.ArgumentException">Throws an ArgumentException if input algorithm is not available.</exception>
+        /// <exception cref="System.ArgumentException">Throws an ArgumentException if input algorithm is not supported.</exception>
         /// <param name="algorithm">Algorithm to be used.</param>
-        /// See <see cref="Util.Algorithm" /> for available hash algorithms.
+        /// See <see cref="Primitives.Algorithm" /> for available hash algorithms.
         public Checksum(Algorithm algorithm)
         {
             switch (algorithm)
             {
+                case Algorithm.None:
+                    _cryptoAlgorithm = null;
+                    HashAlg = "None";
+                    break;
                 case Algorithm.MD5:
                     _cryptoAlgorithm = new MD5CryptoServiceProvider();
                     HashAlg = "MD5";
