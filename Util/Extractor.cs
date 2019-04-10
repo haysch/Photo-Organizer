@@ -22,7 +22,7 @@ namespace PhotoOrganizer.Util
         }
 
         /// <summary>Initializing a new instance Extractor.</summary>
-        /// <param name="hashAlgorithm">Algorithm used for computing hash. See <see cref="Util.Algorithm"/> for available hash algorithms</param>
+        /// <param name="hashAlgorithm">Algorithm used for computing hash. See <see cref="Primitives.Algorithm"/>for available hash algorithms</param>
         public Extractor(Algorithm hashAlgorithm)
         {
             _checksum = new Checksum(hashAlgorithm);
