@@ -3,7 +3,7 @@ using System.Drawing.Imaging;
 using System.Collections.Generic;
 
 using PhotoOrganizer.Primitives;
-using PhotoOrganizer.DataModel;
+// using PhotoOrganizer.DataModel;
 
 namespace PhotoOrganizer.Util
 {
