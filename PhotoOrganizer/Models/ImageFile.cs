@@ -3,15 +3,15 @@ using System.Drawing;
 using System.IO;
 using System.Collections.Generic;
 
-namespace PhotoOrganizer
+namespace PhotoOrganizer.Models
 {
     /// <summary>This class represents an image and contains functionality to extract metadata.</summary>
-    public class ImageData
+    public class ImageFile
     {
         /// <summary>Gets and sets the hashtable containing the image's metadata.</summary>
         public Dictionary<string, object> ImageMetadata { get; set; }
         /// <summary> Gets the Image property of the object.</summary>
-        public Image ImageProperty { get; }
+        public Image ImageData { get; }
         /// <summary>Gets and sets the name of the image.</summary>
         public string ImageName { get; set; }
         /// <summary>Gets and set the absolute path to the folder containing the file (path/to/filefolder).</summary>
@@ -25,15 +25,26 @@ namespace PhotoOrganizer
             }
         }
 
-        // TODO add hashmap when initializing to get all propItems and call when needed ?
-        /// <summary>Initializing a new instance of the <see cref="ImageData"/> class.</summary>
-        public ImageData(string fileName, string absoluteDirectoryPath)
+        /// <summary>Initializing a new instance of the <see cref="Models.ImageFile" /> class.</summary>
+        public ImageFile(string fileName, string absoluteDirectoryPath)
         {
             ImageMetadata = new Dictionary<string, object>();
             AbsoluteFolderPath = absoluteDirectoryPath;
             ImageName = fileName;
 
-            ImageProperty = Image.FromStream(File.OpenRead(AbsolutePathToFile));
+            ImageData = Image.FromStream(File.OpenRead(AbsolutePathToFile));
+
+            // byte[] byteArray;
+            // using (var ms = new MemoryStream())
+            // {
+            //     ImageProperty.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            //     byteArray = ms.ToArray();
+            // }
+
+            // string base64String = Convert.ToBase64String(byteArray);
+            // byte[] dataArray = Encoding.Default.GetBytes(base64String);
+
+            // File.WriteAllBytes(ImageName + ".txt", dataArray);
         }
 
         /// <summary>Prints image metadata according to input key.</summary>

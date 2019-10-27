@@ -52,6 +52,8 @@ namespace PhotoOrganizer.Util
                     return resultUShort;
 
                 case PropertyTagType.Long:
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(value);
                     size = 32 / 8;
                     uint[] resultULong = new uint[propItem.Len / size];
 
@@ -73,7 +75,7 @@ namespace PhotoOrganizer.Util
                     {
                         // Apparently this is needed to correctly compute byte[] to fraction correctly
                         // TODO figure out why
-                        if (propItem.Id == 33434 && BitConverter.IsLittleEndian)
+                        if (BitConverter.IsLittleEndian && (propItem.Id != (int)PropertyTagId.Latitude && propItem.Id != (int)PropertyTagId.Longitude))
                         {
                             Array.Reverse(value);
                             num = BitConverter.ToUInt32(value, (i * size) + (size / 2));
