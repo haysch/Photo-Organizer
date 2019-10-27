@@ -95,8 +95,7 @@ namespace PhotoOrganizer
                     // Supported filetypes
                     case ".jpg":
                     case ".jpeg":
-                        if (fileName == "img4.jpg")
-                            imageList.Add(new ImageFile(fileName, filePath));
+                        imageList.Add(new ImageFile(fileName, filePath));
                         continue;
                     // Not supported filetypes
                     default:
@@ -143,6 +142,9 @@ namespace PhotoOrganizer
                 case "REPLACE":
                     type = RenameType.Replace;
                     break;
+                case "NONE":
+                    type = RenameType.None;
+                    break;
                 default:
                     if (_configuration.TraceEnabled)
                         Console.WriteLine("No renaming will be done.");
@@ -160,7 +162,7 @@ namespace PhotoOrganizer
 
                 try
                 {
-                    switch (fileExtension)
+                    switch (fileExtension.ToLower())
                     {
                         case ".jpg":
                         case ".jpeg":
