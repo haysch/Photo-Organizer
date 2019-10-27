@@ -18,14 +18,14 @@ namespace PhotoOrganizerTest
 
         public ExtractorTests()
         {
-            using (var reader = new StreamReader("testdata/testdata.json"))
+            using (var reader = new StreamReader("TestFiles/testdata.json"))
             {
                 var jsonString = reader.ReadToEnd();
                 _expectedImage = JsonConvert.DeserializeObject<ExpectedImage>(jsonString);
             }
 
             var _extractor = new Extractor();
-            var testImage = new ImageFile(_expectedImage.FileName, "testdata");
+            var testImage = new ImageFile(_expectedImage.FileName, "TestFiles");
             _dict = _extractor.ExtractMetadata(testImage);
         }
         
