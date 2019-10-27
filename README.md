@@ -14,7 +14,9 @@ This project is still heavily under development since the underlying functionali
 - [] Add all extracted metadata to test suite.
 - [] Add functionality to save metadata to CSV/JSON or database
 
-- [] Maybe rewrite use of Dictionary to actual values in ImageFile.
+- [] Maybe rewrite use of Dictionary to actual values in ImageFile
+
+- [] Figure out `libgdiplus` dependency in `ImageFile` (`Image.FromFile`)
 
 ## Disclaimer
 
