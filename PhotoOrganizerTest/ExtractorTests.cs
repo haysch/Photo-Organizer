@@ -1,18 +1,31 @@
 using System;
+using System.IO;
+using System.Collections.Generic;
 using Xunit;
+
 using PhotoOrganizer.Models;
 using PhotoOrganizer.Util;
-using System.Collections.Generic;
+using PhotoOrganizerTest.Models;
+
+using Newtonsoft.Json;
 
 namespace PhotoOrganizerTest
 {
     public class ExtractorTests
     {
         private Dictionary<string, object> _dict;
+        private ExpectedImage _expectedImage;
+
         public ExtractorTests()
         {
+            using (var reader = new StreamReader("testdata/testdata.json"))
+            {
+                var jsonString = reader.ReadToEnd();
+                _expectedImage = JsonConvert.DeserializeObject<ExpectedImage>(jsonString);
+            }
+
             var _extractor = new Extractor();
-            var testImage = new ImageFile("temple.jpg", "testdata");
+            var testImage = new ImageFile(_expectedImage.FileName, "testdata");
             _dict = _extractor.ExtractMetadata(testImage);
         }
         
@@ -20,7 +33,7 @@ namespace PhotoOrganizerTest
         public void ExtractHashValueTest()
         {
             var hashVal = _dict["HashValue"];
-            var expected = "6556a73d7537fa6323e9ca429c66658c";
+            var expected = _expectedImage.Expected.HashValue;
 
             Assert.Equal(hashVal, expected);
         }
@@ -29,7 +42,8 @@ namespace PhotoOrganizerTest
         public void ExtractDateTimeTest()
         {
             var dateTime = _dict["DateTime"];
-            var expected = new DateTime(2018, 7, 10, 15, 18, 40);
+            var datetimeString = _expectedImage.Expected.DateTime;
+            var expected = DateTime.Parse(datetimeString);
 
             Assert.Equal(dateTime, expected);
         }
@@ -38,7 +52,7 @@ namespace PhotoOrganizerTest
         public void ExtractISOTest()
         {
             var iso = _dict["ISO"];
-            ushort expected = 20;
+            var expected = _expectedImage.Expected.ISO;
 
             Assert.Equal(iso, expected);
         }
