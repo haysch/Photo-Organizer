@@ -21,7 +21,7 @@ namespace PhotoOrganizer.Models
         {
             get
             {
-                return AbsoluteFolderPath + Path.DirectorySeparatorChar + ImageName;
+                return Path.Join(AbsoluteFolderPath, ImageName);
             }
         }
 
@@ -32,19 +32,7 @@ namespace PhotoOrganizer.Models
             AbsoluteFolderPath = absoluteDirectoryPath;
             ImageName = fileName;
 
-            ImageData = Image.FromStream(File.OpenRead(AbsolutePathToFile));
-
-            // byte[] byteArray;
-            // using (var ms = new MemoryStream())
-            // {
-            //     ImageProperty.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            //     byteArray = ms.ToArray();
-            // }
-
-            // string base64String = Convert.ToBase64String(byteArray);
-            // byte[] dataArray = Encoding.Default.GetBytes(base64String);
-
-            // File.WriteAllBytes(ImageName + ".txt", dataArray);
+            ImageData = Image.FromFile(AbsolutePathToFile);
         }
 
         /// <summary>Prints image metadata according to input key.</summary>
@@ -52,11 +40,15 @@ namespace PhotoOrganizer.Models
         /// <param name="key">String of metadata keys.</param>
         public void PrintSpecificExifData(string key)
         {
-            Console.WriteLine("Image Name: {0}", ImageName);
             if (ImageMetadata.ContainsKey(key))
+            {
+                Console.WriteLine("Image Name: {0}", ImageName);
                 Console.WriteLine("{0}: {1}", key, ImageMetadata[key]);
+            }
             else
+            {
                 Console.WriteLine("Metadata does not exist.");
+            }
         }
 
         /// <summary>Prints list of extracted image metadata.</summary>
@@ -67,8 +59,7 @@ namespace PhotoOrganizer.Models
 
             foreach (string key in ImageMetadata.Keys)
             {
-                if (ImageMetadata.ContainsKey(key))
-                    Console.WriteLine("{0}: {1}", key, ImageMetadata[key]);
+                Console.WriteLine("{0}: {1}", key, ImageMetadata[key]);
             }
 
             Console.WriteLine("======================================\n");
