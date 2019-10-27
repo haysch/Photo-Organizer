@@ -6,6 +6,7 @@
 # Project-specific files and folder
 .DS_Store
 testdata/
+PhotoOrganizerTest/TestFiles/*.jpg
 .vscode
 
 # User-specific files
@@ -344,4 +345,3 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database 
 healthchecksdb
-
