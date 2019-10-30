@@ -7,14 +7,9 @@ using PhotoOrganizer.Primitives;
 namespace PhotoOrganizer.Util
 {
     /// <summary>Base class for property tag value conversion from byte[] to relevant value of the property tag type.</summary>
-    public class PropertyTag
+    public static class PropertyTag
     {
-        private static System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
-
-        /// <summary>Constructor for PropertyTag.</summary>
-        public PropertyTag()
-        {
-        }
+        private static ASCIIEncoding encoder = new ASCIIEncoding();
 
         /// <summary>Finds value of input property item.</summary>
         /// <returns>Object of the value of input propItem.</returns>
@@ -26,8 +21,9 @@ namespace PhotoOrganizer.Util
 
             int size;
             byte[] value = propItem.Value;
+            PropertyTagType propertyTagType = (PropertyTagType) propItem.Type;
 
-            switch ((PropertyTagType)propItem.Type)
+            switch (propertyTagType)
             {
                 case PropertyTagType.Byte:
                     if (value.Length == 1) return value[0];
