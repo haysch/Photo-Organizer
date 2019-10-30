@@ -17,7 +17,6 @@ This project is still heavily under development since the underlying functionali
 
 - [] Figure out `libgdiplus` dependency in `ImageFile` (`Image.FromFile`)
 
-
 ## Disclaimer
 
 The project, so far, has only been tested on JPEG files, which means I have no idea how other file types will behave.
