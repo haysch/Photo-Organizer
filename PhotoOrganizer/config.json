@@ -3,5 +3,5 @@
     "OutputDir": "./Images",
     "TraceEnabled": true,
     "HashAlgorithm": "MD5",
-    "RenameType": "COPY"
+    "RenameType": "NONE"
 }

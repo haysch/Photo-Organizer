@@ -21,7 +21,7 @@ namespace PhotoOrganizer.Models
         {
             get
             {
-                return AbsoluteFolderPath + Path.DirectorySeparatorChar + ImageName;
+                return Path.Join(AbsoluteFolderPath, ImageName);
             }
         }
 
@@ -40,11 +40,15 @@ namespace PhotoOrganizer.Models
         /// <param name="key">String of metadata keys.</param>
         public void PrintSpecificExifData(string key)
         {
-            Console.WriteLine("Image Name: {0}", ImageName);
             if (ImageMetadata.ContainsKey(key))
+            {
+                Console.WriteLine("Image Name: {0}", ImageName);
                 Console.WriteLine("{0}: {1}", key, ImageMetadata[key]);
+            }
             else
+            {
                 Console.WriteLine("Metadata does not exist.");
+            }
         }
 
         /// <summary>Prints list of extracted image metadata.</summary>
@@ -55,8 +59,7 @@ namespace PhotoOrganizer.Models
 
             foreach (string key in ImageMetadata.Keys)
             {
-                if (ImageMetadata.ContainsKey(key))
-                    Console.WriteLine("{0}: {1}", key, ImageMetadata[key]);
+                Console.WriteLine("{0}: {1}", key, ImageMetadata[key]);
             }
 
             Console.WriteLine("======================================\n");

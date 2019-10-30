@@ -69,7 +69,7 @@ namespace PhotoOrganizer.Util
         /// <param name="image">The JPEG file as an ImageData object. See <see cref="ImageFile" />.</param>
         public void RenameImage(ImageFile image)
         {
-            string fileExt = Path.GetExtension(image.ImageName);
+            string fileExt = Path.GetExtension(image.ImageName).ToLower();
 
             if (fileExt != ".jpg" && fileExt != ".jpeg")
                 throw new ArgumentException($"Wrong file type: {fileExt} is not JPEG");
