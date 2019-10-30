@@ -32,19 +32,7 @@ namespace PhotoOrganizer.Models
             AbsoluteFolderPath = absoluteDirectoryPath;
             ImageName = fileName;
 
-            ImageData = Image.FromStream(File.OpenRead(AbsolutePathToFile));
-
-            // byte[] byteArray;
-            // using (var ms = new MemoryStream())
-            // {
-            //     ImageProperty.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            //     byteArray = ms.ToArray();
-            // }
-
-            // string base64String = Convert.ToBase64String(byteArray);
-            // byte[] dataArray = Encoding.Default.GetBytes(base64String);
-
-            // File.WriteAllBytes(ImageName + ".txt", dataArray);
+            ImageData = Image.FromFile(AbsolutePathToFile);
         }
 
         /// <summary>Prints image metadata according to input key.</summary>
