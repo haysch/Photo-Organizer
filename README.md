@@ -11,10 +11,10 @@ This project is still heavily under development since the underlying functionali
 - [x] Extract image metadata
 - [x] Rename image
 - [] Add sorting in designated output folder structure
-- [] Add all extracted metadata to test suite.
 - [] Add functionality to save metadata to CSV/JSON or database
 
 - [] Maybe rewrite use of Dictionary to actual values in ImageFile.
+
 
 ## Disclaimer
 
@@ -34,3 +34,12 @@ I had high hopes when I began, and I hope to return and at least get it working 
 The test suite is extremely simple.
 
 At the moment only a fraction of the functionality has been tested.
+
+### TODO testing
+
+To ensure that the project is working as expected a test suite has to be built.
+
+- [] Test Extractor (This rely on PropertyTag)
+- [] Test PropertyTag conversion (IMPORTANT! There is some issue in the `PropertyTag.cs` file)
+- [] Test Renaming
+- [] Test computation of Checksum
