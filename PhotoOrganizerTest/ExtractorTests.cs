@@ -5,35 +5,31 @@ using Xunit;
 
 using PhotoOrganizer.Models;
 using PhotoOrganizer.Util;
-using PhotoOrganizerTest.Models;
 
-using Newtonsoft.Json;
+using PhotoOrganizerTest.Models;
+using PhotoOrganizerTest.Util;
 
 namespace PhotoOrganizerTest
 {
     public class ExtractorTests
     {
         private Dictionary<string, object> _dict;
-        private ExpectedImage _expectedImage;
+        private TestData _testData;
 
         public ExtractorTests()
         {
-            using (var reader = new StreamReader("testdata/testdata.json"))
-            {
-                var jsonString = reader.ReadToEnd();
-                _expectedImage = JsonConvert.DeserializeObject<ExpectedImage>(jsonString);
-            }
+            _testData = TestHelper.LoadTestData("TestFiles/testdata.json");
 
             var _extractor = new Extractor();
-            var testImage = new ImageFile(_expectedImage.FileName, "testdata");
+            var testImage = new ImageFile(_testData.FileName, "TestFiles");
             _dict = _extractor.ExtractMetadata(testImage);
         }
-        
+
         [Fact]
         public void ExtractHashValueTest()
         {
             var hashVal = _dict["HashValue"];
-            var expected = _expectedImage.Expected.HashValue;
+            var expected = _testData.Expected.HashValue;
 
             Assert.Equal(hashVal, expected);
         }
@@ -42,7 +38,7 @@ namespace PhotoOrganizerTest
         public void ExtractDateTimeTest()
         {
             var dateTime = _dict["DateTime"];
-            var datetimeString = _expectedImage.Expected.DateTime;
+            var datetimeString = _testData.Expected.DateTime;
             var expected = DateTime.Parse(datetimeString);
 
             Assert.Equal(dateTime, expected);
@@ -52,7 +48,7 @@ namespace PhotoOrganizerTest
         public void ExtractISOTest()
         {
             var iso = _dict["ISO"];
-            var expected = _expectedImage.Expected.ISO;
+            var expected = _testData.Expected.ISO;
 
             Assert.Equal(iso, expected);
         }
