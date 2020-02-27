@@ -4,6 +4,6 @@ namespace PhotoOrganizer.Util
 {
     interface IRename
     {
-        void RenameImage(ImageFile image);
+        void RenameImage(Picture image);
     }
 }

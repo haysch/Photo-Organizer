@@ -66,8 +66,8 @@ namespace PhotoOrganizer.Util
 
         /// <summary>Renames image files by extracting the necessary information from the ImageData object.</summary>
         /// <remarks>Calls private renaming method for moving/copying of file. See <see cref="RenameFile" />.</remarks> 
-        /// <param name="image">The JPEG file as an ImageData object. See <see cref="ImageFile" />.</param>
-        public void RenameImage(ImageFile image)
+        /// <param name="image">The JPEG file as an ImageData object. See <see cref="Picture" />.</param>
+        public void RenameImage(Picture image)
         {
             string fileExt = Path.GetExtension(image.ImageName).ToLower();
 
@@ -80,7 +80,7 @@ namespace PhotoOrganizer.Util
 
             if (image.ImageMetadata.ContainsKey("ExifDTOrig"))
                 newName = ((DateTime)image.ImageMetadata["ExifDTOrig"]).ToString("yyyyMMdd_HHmmss");
-            else if (image.ImageMetadata.ContainsKey("DateTime"))
+            else if (image.ImageMetadata.ContainsKey("DateTime")) // TODO consider not copying since we cannot ensure correct DateTime for image naming
                 newName = ((DateTime)image.ImageMetadata["DateTime"]).ToString("yyyyMMdd_HHmmss");
             else
                 throw new ArgumentException($"Renaming not possible. No date/time data available for {image.ImageName}.");
