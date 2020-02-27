@@ -66,6 +66,9 @@ namespace PhotoOrganizer.Models
             Console.WriteLine("======================================\n");
         }
 
+        /// <summary>Method for adding key-value pair to the metadata dictionary.</summary>
+        /// <param name="key">Name of the key for the entry.</param>
+        /// <param name="value">Object containing the metadata.</param>
         public void AddMetadata(string key, object value)
         {
             ImageMetadata.Add(key, value);
