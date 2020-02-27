@@ -6,6 +6,7 @@ using PhotoOrganizer.Util;
 using PhotoOrganizer.Models;
 
 using Newtonsoft.Json;
+using MetadataExtractor;
 
 namespace PhotoOrganizer
 {
@@ -22,21 +23,21 @@ namespace PhotoOrganizer
             if (files.Length == 0)
                 return;
 
-            List<ImageFile> imageList = LoadImages(files);
+            List<Picture> pictureList = Loadpictures(files);
 
-            if (imageList.Count == 0)
+            if (pictureList.Count == 0)
                 return;
 
-            ExtractImageInformation(imageList);
+            ExtractpictureInformation(pictureList);
 
-            RenameImageFiles(imageList);
+            // RenamePictures(pictureList);
         }
 
         private static void LoadConfiguration()
         {
             using (var reader = new StreamReader("config.json"))
             {
-                string json = reader.ReadToEnd();
+                var json = reader.ReadToEnd();
                 _configuration = JsonConvert.DeserializeObject<Config>(json);
             }
         }
@@ -46,8 +47,8 @@ namespace PhotoOrganizer
             string startDirectory = _configuration.WorkDir;
 
             // Check if working directory exists
-            Queue<string> directoryQueue = new Queue<string>();
-            if (Directory.Exists(startDirectory))
+            var directoryQueue = new Queue<string>();
+            if (System.IO.Directory.Exists(startDirectory))
             {
                 directoryQueue.Enqueue(startDirectory);
             }
@@ -57,17 +58,17 @@ namespace PhotoOrganizer
             }
 
             // Queue folders and find all files
-            List<string> fileList = new List<string>();
+            var fileList = new List<string>();
             while (directoryQueue.Count != 0)
             {
-                string currDirectory = directoryQueue.Dequeue();
+                var currDirectory = directoryQueue.Dequeue();
 
-                foreach (string path in Directory.EnumerateDirectories(currDirectory))
+                foreach (var path in System.IO.Directory.EnumerateDirectories(currDirectory))
                 {
                     directoryQueue.Enqueue(path);
                 }
 
-                foreach (string file in Directory.EnumerateFiles(currDirectory))
+                foreach (var file in System.IO.Directory.EnumerateFiles(currDirectory))
                 {
                     fileList.Add(file);
                 }
@@ -76,18 +77,18 @@ namespace PhotoOrganizer
             return fileList.ToArray();
         }
 
-        private static List<ImageFile> LoadImages(string[] fileList)
+        private static List<Picture> Loadpictures(string[] fileList)
         {
-            List<ImageFile> imageList = new List<ImageFile>();
+            var pictureList = new List<Picture>();
 
-            foreach (string file in fileList)
+            foreach (var file in fileList)
             {
-                int fileSplitIndex = file.LastIndexOf('/');
+                var fileSplitIndex = file.LastIndexOf('/');
 
-                string filePath = file.Substring(0, fileSplitIndex);
-                string fileName = file.Substring(fileSplitIndex + 1);
+                var filePath = file.Substring(0, fileSplitIndex);
+                var fileName = file.Substring(fileSplitIndex + 1);
 
-                string fileType = Path.GetExtension(file).ToLower();
+                var fileType = Path.GetExtension(file).ToLower();
 
                 // TODO add fileType acceptance
                 switch (fileType)
@@ -95,70 +96,64 @@ namespace PhotoOrganizer
                     // Supported filetypes
                     case ".jpg":
                     case ".jpeg":
-                        imageList.Add(new ImageFile(fileName, filePath));
+                        pictureList.Add(new Picture(fileName, filePath));
                         continue;
-                    // Not supported filetypes
+                    // Unsupported filetypes
                     default:
                         continue;
                 }
             }
 
-            return imageList;
+            return pictureList;
         }
 
-        private static void ExtractImageInformation(List<ImageFile> imageList)
+        private static void ExtractpictureInformation(List<Picture> pictureList)
         {
-            int imageCounter = 0;
-            Extractor extractor = new Extractor(_configuration.HashAlgorithm);
+            var pictureCounter = 0;
+            var checksum = new Checksum(_configuration.HashAlgorithm);
 
-            foreach (ImageFile image in imageList)
+            foreach (var picture in pictureList)
             {
-                image.ImageMetadata = extractor.ExtractMetadata(image);
-                imageCounter++;
+                var directories = ImageMetadataReader.ReadMetadata(picture.AbsolutePathToFile);
+                pictureCounter++;
 
-                Console.Write("\rExtracting: {0}/{1}", imageCounter, imageList.Count);
+                // Parse the result from ImageMetadataReader and save them to the Picture object
+                ParseMetadata.Parse(picture, directories);
+                
+                var hashValue = checksum.ComputeHash(picture.AbsolutePathToFile);
+                picture.AddMetadata("HashAlgorithm", _configuration.HashAlgorithm);
+                picture.AddMetadata("HashValue", hashValue);
+
+                // Console.Write("\rExtracting: {0}/{1}", pictureCounter, pictureList.Count);
             }
 
             if (_configuration.TraceEnabled)
             {
-                foreach (ImageFile image in imageList)
-                    image.PrintArrayExifData();
+                foreach (Picture picture in pictureList)
+                    picture.PrintArrayExifData();
             }
         }
 
-        private static void RenameImageFiles(List<ImageFile> imageList)
+        private static void RenamePictures(List<Picture> pictureList)
         {
-            RenameType type;
-            string renameType = _configuration.RenameType;
+            
+            var renameType = _configuration.RenameType.ToUpper();
 
-            switch (renameType.ToUpper())
+            var type = renameType switch
             {
-                case "COPY":
-                    type = RenameType.Copy;
-                    break;
-                case "MOVE":
-                    type = RenameType.Move;
-                    break;
-                case "REPLACE":
-                    type = RenameType.Replace;
-                    break;
-                case "NONE":
-                    type = RenameType.None;
-                    break;
-                default:
-                    if (_configuration.TraceEnabled)
-                        Console.WriteLine("No renaming will be done.");
-                    type = RenameType.None;
-                    break;
-            }
+                "COPY" => RenameType.Copy,
+                "MOVE" => RenameType.Move,
+                "REPLACE" => RenameType.Replace,
+                _ => RenameType.None
+            };
 
-            Rename renamer = new Rename(type);
+            var renamer = new Rename(type);
 
-            // Only JPEG images are supported at the moment
+            // Only JPEG pictures are supported at the moment
             // as it is the only format tested
-            foreach (ImageFile image in imageList)
+            foreach (var picture in pictureList)
             {
-                string fileExtension = Path.GetExtension(image.ImageName);
+                var fileExtension = Path.GetExtension(picture.ImageName);
 
                 try
                 {
@@ -166,10 +161,10 @@ namespace PhotoOrganizer
                     {
                         case ".jpg":
                         case ".jpeg":
-                            renamer.RenameImage(image);
+                            renamer.RenameImage(picture);
                             continue;
                         default:
-                            Console.WriteLine("Image format {0} not supported.", fileExtension); // TODO log error
+                            Console.WriteLine("picture format {0} not supported.", fileExtension); // TODO log error
                             continue;
                     }
                 }
