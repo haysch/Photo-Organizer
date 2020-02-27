@@ -1,3 +1,4 @@
+// TODO Consider removing after implementing MetadataExtractor
 namespace PhotoOrganizer.Primitives
 {
     /// <summary>Contants for possible property tag types.</summary>
