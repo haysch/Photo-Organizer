@@ -3,17 +3,17 @@ using System.Drawing;
 using System.IO;
 using System.Collections.Generic;
 
-namespace PhotoOrganizer.Models
+namespace PhotoOrganizerLib.Models
 {
     /// <summary>This class represents an image and contains functionality to extract metadata.</summary>
-    public class Picture
+    public class Photo
     {
         /// <summary>Gets and sets the hashtable containing the image's metadata.</summary>
         public Dictionary<string, object> ImageMetadata { get; set; }
         /// <summary> Gets the Image property of the object.</summary>
         public Image Image { get; }
         /// <summary>Gets and sets the name of the image.</summary>
-        public string ImageName { get; set; }
+        public string PhotoName { get; set; }
         /// <summary>Gets and set the absolute path to the folder containing the file (path/to/filefolder).</summary>
         public string AbsoluteFolderPath { get; set; }
 
@@ -22,33 +22,29 @@ namespace PhotoOrganizer.Models
         {
             get
             {
-                return Path.Join(AbsoluteFolderPath, ImageName);
+                return Path.Join(AbsoluteFolderPath, PhotoName);
             }
         }
 
-        /// <summary>Initializing a new instance of the <see cref="Models.Picture" /> class.</summary>
-        public Picture(string fileName, string absoluteDirectoryPath)
+        /// <summary>Initializing a new instance of the <see cref="PhotoOrganizerLib.Models.Photo" /> class.</summary>
+        public Photo(string fileName, string absoluteDirectoryPath)
         {
             ImageMetadata = new Dictionary<string, object>();
             AbsoluteFolderPath = absoluteDirectoryPath;
-            ImageName = fileName;
+            PhotoName = fileName;
 
             Image = Image.FromFile(AbsolutePathToFile);
         }
 
         /// <summary>Prints image metadata according to input key.</summary>
         /// <remarks>Only prints metadata if the key exists in the metadata hashtable. Otherwise only image name is printed.</remarks>
-        /// <param name="key">String of metadata keys.</param>
-        public void PrintSpecificExifData(string key)
+        /// <param name="exifKey">String of metadata key.</param>
+        public void TryPrintSpecificExifData(string exifKey)
         {
-            if (ImageMetadata.ContainsKey(key))
+            if (ImageMetadata.ContainsKey(exifKey))
             {
-                Console.WriteLine("Image Name: {0}", ImageName);
-                Console.WriteLine("{0}: {1}", key, ImageMetadata[key]);
-            }
-            else
-            {
-                Console.WriteLine("Metadata does not exist.");
+                Console.WriteLine("Image Name: {0}", PhotoName);
+                Console.WriteLine("{0}: {1}", exifKey, ImageMetadata[exifKey]);
             }
         }
 
@@ -56,7 +52,7 @@ namespace PhotoOrganizer.Models
         public void PrintArrayExifData()
         {
             Console.WriteLine("======================================");
-            Console.WriteLine("Image Name: {0}", ImageName);
+            Console.WriteLine("Image Name: {0}", PhotoName);
 
             foreach (string key in ImageMetadata.Keys)
             {
@@ -66,7 +62,7 @@ namespace PhotoOrganizer.Models
             Console.WriteLine("======================================\n");
         }
 
-        /// <summary>Method for adding key-value pair to the metadata dictionary.</summary>
+        /// <summary>Adds key-value pair to the metadata dictionary.</summary>
         /// <param name="key">Name of the key for the entry.</param>
         /// <param name="value">Object containing the metadata.</param>
         public void AddMetadata(string key, object value)

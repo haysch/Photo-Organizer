@@ -1,5 +1,5 @@
 // TODO Consider removing after implementing MetadataExtractor
-namespace PhotoOrganizer.Primitives
+namespace PhotoOrganizerLib.Enums
 {
     /// <summary>Contants for possible property tag types.</summary>
     public enum PropertyTagType : short

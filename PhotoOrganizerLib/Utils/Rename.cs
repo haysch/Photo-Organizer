@@ -1,31 +1,19 @@
 using System;
 using System.IO;
 
-using PhotoOrganizer.Models;
+using PhotoOrganizerLib.Interfaces;
+using PhotoOrganizerLib.Models;
+using PhotoOrganizerLib.Enums;
 
-namespace PhotoOrganizer.Util
+namespace PhotoOrganizerLib.Utils
 {
-    /// <summary>Specifies the available renaming types.</summary>
-    public enum RenameType
-    {
-        /// <summary>Copy file.</summary>
-        Copy,
-        /// <summary>Move file.</summary>
-        Move,
-        /// <summary>Replace file.</summary>
-        // TODO implement
-        Replace,
-        /// <summary>Renaming not wanted.</summary>
-        None
-    }
-
     /// <summary>Renaming class for copying or moving of files.</summary>
     public class Rename : IRename
     {
         private RenameType _renameType;
 
         /// <summary>Constructor for renaming class. Sets up type used for renaming files.</summary>
-        /// <param name="renameType">Type of move used for renaming. See <see cref="RenameType" /> for available types.</param>
+        /// <param name="renameType">Type of move used for renaming. See <see cref="PhotoOrganizerLib.Enums.RenameType" /> for available types.</param>
         public Rename(RenameType renameType)
         {
             _renameType = renameType;
@@ -65,34 +53,32 @@ namespace PhotoOrganizer.Util
         }
 
         /// <summary>Renames image files by extracting the necessary information from the ImageData object.</summary>
-        /// <remarks>Calls private renaming method for moving/copying of file. See <see cref="RenameFile" />.</remarks> 
-        /// <param name="image">The JPEG file as an ImageData object. See <see cref="Picture" />.</param>
-        public void RenameImage(Picture image)
+        /// <remarks>Calls private renaming method for moving/copying of file. See <see cref="Rename.RenameFile" />.</remarks> 
+        /// <param name="photo">The file as a <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
+        public void RenameImage(Photo photo)
         {
-            string fileExt = Path.GetExtension(image.ImageName).ToLower();
+            var fileExt = Path.GetExtension(photo.PhotoName).ToLower();
 
-            if (fileExt != ".jpg" && fileExt != ".jpeg")
-                throw new ArgumentException($"Wrong file type: {fileExt} is not JPEG");
+            var folderPath = photo.AbsoluteFolderPath;
+            var oldName = photo.PhotoName;
+            var newName = string.Empty;
 
-            string folderPath = image.AbsoluteFolderPath;
-            string oldName = image.ImageName;
-            string newName;
-
-            if (image.ImageMetadata.ContainsKey("ExifDTOrig"))
-                newName = ((DateTime)image.ImageMetadata["ExifDTOrig"]).ToString("yyyyMMdd_HHmmss");
-            else if (image.ImageMetadata.ContainsKey("DateTime")) // TODO consider not copying since we cannot ensure correct DateTime for image naming
-                newName = ((DateTime)image.ImageMetadata["DateTime"]).ToString("yyyyMMdd_HHmmss");
+            // Only name according to DateTime Original
+            if (photo.ImageMetadata.ContainsKey("ExifDTOrig"))
+            {
+                newName = ((DateTime) photo.ImageMetadata["ExifDTOrig"]).ToString("yyyyMMdd_HHmmss") + fileExt;
+            }
             else
-                throw new ArgumentException($"Renaming not possible. No date/time data available for {image.ImageName}.");
-
-            newName += fileExt;
+            {
+                throw new ArgumentException($"Renaming not possible. No date/time data available for {photo.PhotoName}.");
+            }
 
             try
             {
                 RenameFile(oldName, newName, folderPath);
-                image.ImageName = newName;
+                photo.PhotoName = newName;
             }
-            catch (Exception ex) when (ex is FileNotFoundException || ex is ArgumentException)
+            catch (Exception ex) //when (ex is FileNotFoundException || ex is ArgumentException)
             {
                 throw ex;
             }
