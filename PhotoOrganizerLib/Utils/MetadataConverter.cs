@@ -5,11 +5,11 @@ namespace PhotoOrganizerLib.Utils
 {
     public static class MetadataConverter
     {
-        /// <summary>Private method for converting Degree/Minutes/Seconds to decimal degrees.</summary>
+        /// <summary>Converts Degree/Minutes/Seconds to decimal degrees.</summary>
         /// <returns>Double of the coordinate.</returns>
         /// <remarks>If input array is not of size 3, return 0.0.</remarks>
         /// <param name="degMinSec">Rational array containing the Degree/Minutes/Seconds.</param>
-        /// <param name="gpsRef">GPS reference specifying direction, e.g. "N" or "E".</param>
+        /// <param name="gpsRef">String containing GPS reference direction, e.g. "N" or "E".</param>
         public static double DegreesMinutesSecondsToDecimal(Rational[] degMinSec, string gpsRef)
         {
             if (degMinSec?.Length != 3 || gpsRef is null) 
