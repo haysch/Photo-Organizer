@@ -2,11 +2,15 @@
 using System.IO;
 using System.Collections.Generic;
 
-using PhotoOrganizer.Util;
 using PhotoOrganizer.Models;
+
+using PhotoOrganizerLib.Utils;
+using PhotoOrganizerLib.Models;
 
 using Newtonsoft.Json;
 using MetadataExtractor;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace PhotoOrganizer
 {
@@ -16,19 +20,16 @@ namespace PhotoOrganizer
 
         static void Main(string[] args)
         {
-            LoadConfiguration();
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile($"{System.IO.Directory.GetCurrentDirectory()}/appsettings.json", false) // TODO is there any point in using a settings file?
+                .AddEnvironmentVariables("PHORG_")
+                .AddCommandLine(args);
 
-            string[] files = RetrieveFileList();
+            var files = RetrieveFileList();
 
-            if (files.Length == 0)
-                return;
+            var photoList = LoadPhotos(files);
 
-            List<Picture> pictureList = Loadpictures(files);
-
-            if (pictureList.Count == 0)
-                return;
-
-            ExtractpictureInformation(pictureList);
+            ExtractPhotoInformation(photoList);
 
             // RenamePictures(pictureList);
         }
@@ -42,12 +43,12 @@ namespace PhotoOrganizer
             }
         }
 
-        private static string[] RetrieveFileList()
+        private static IEnumerable<string> RetrieveFileList()
         {
-            string startDirectory = _configuration.WorkDir;
-
-            // Check if working directory exists
+            var startDirectory = _configuration.WorkDir;
             var directoryQueue = new Queue<string>();
+
+            // Check if working directory exists, otherwise we wouldn't have anything to do
             if (System.IO.Directory.Exists(startDirectory))
             {
                 directoryQueue.Enqueue(startDirectory);
@@ -74,29 +75,35 @@ namespace PhotoOrganizer
                 }
             }
 
-            return fileList.ToArray();
+            return fileList;
         }
 
-        private static List<Picture> Loadpictures(string[] fileList)
+        private static IEnumerable<Photo> LoadPhotos(IEnumerable<string> fileList)
         {
-            var pictureList = new List<Picture>();
+            var photoList = new List<Photo>();
+
+            if (fileList.Count() == 0)
+                return photoList;
 
             foreach (var file in fileList)
             {
+                // finds the filename using the file path
                 var fileSplitIndex = file.LastIndexOf('/');
 
+                // splits the filepath into path and filename
                 var filePath = file.Substring(0, fileSplitIndex);
                 var fileName = file.Substring(fileSplitIndex + 1);
 
+                // determines the file type from the extension (TODO might not be precise enough later on)
                 var fileType = Path.GetExtension(file).ToLower();
 
-                // TODO add fileType acceptance
+                // TODO check might not be needed after implementing MetadataExtractor
                 switch (fileType)
                 {
                     // Supported filetypes
                     case ".jpg":
                     case ".jpeg":
-                        pictureList.Add(new Picture(fileName, filePath));
+                        photoList.Add(new Photo(fileName, filePath));
                         continue;
                     // Unsupported filetypes
                     default:
@@ -104,90 +111,87 @@ namespace PhotoOrganizer
                 }
             }
 
-            return pictureList;
+            return photoList;
         }
 
-        private static void ExtractpictureInformation(List<Picture> pictureList)
+        private static void ExtractPhotoInformation(IEnumerable<Photo> photoList)
         {
+            if (photoList.Count() == 0)
+            {
+                Console.WriteLine("No photos to extract data from.");
+                return;
+            }
+
             var pictureCounter = 0;
             var checksum = new Checksum(_configuration.HashAlgorithm);
 
-            foreach (var picture in pictureList)
+            foreach (var photo in photoList)
             {
-                var directories = ImageMetadataReader.ReadMetadata(picture.AbsolutePathToFile);
+                var directories = ImageMetadataReader.ReadMetadata(photo.AbsolutePathToFile);
                 pictureCounter++;
 
                 // Parse the result from ImageMetadataReader and save them to the Picture object
-                ParseMetadata.Parse(picture, directories);
+                ParseMetadata.Parse(photo, directories);
                 
-                var hashValue = checksum.ComputeHash(picture.AbsolutePathToFile);
-                picture.AddMetadata("HashAlgorithm", _configuration.HashAlgorithm);
-                picture.AddMetadata("HashValue", hashValue);
+                // Photo checksum
+                var hashValue = checksum.ComputeChecksum(photo.AbsolutePathToFile);
+                photo.AddMetadata("HashAlgorithm", _configuration.HashAlgorithm);
+                photo.AddMetadata("HashValue", hashValue);
+
+                // Dimensions
+                photo.AddMetadata("Height", photo.Image.Height);
+                photo.AddMetadata("Width", photo.Image.Width);
 
                 // Console.Write("\rExtracting: {0}/{1}", pictureCounter, pictureList.Count);
             }
-
-            if (_configuration.TraceEnabled)
-            {
-                foreach (Picture picture in pictureList)
-                    picture.PrintArrayExifData();
-            }
         }
 
-        private static void RenamePictures(List<Picture> pictureList)
-        {
-            
-            var renameType = _configuration.RenameType.ToUpper();
+        // private static void RenamePhotos(IEnumerable<Photo> photoList)
+        // {
+        //     var renameType = _configuration.RenameType;
 
-            var type = renameType switch
-            {
-                "COPY" => RenameType.Copy,
-                "MOVE" => RenameType.Move,
-                "REPLACE" => RenameType.Replace,
-                _ => RenameType.None
-            };
+        //     var renamer = new Rename(renameType);
 
-            var renamer = new Rename(type);
+        //     // TODO Only JPEG pictures are supported at the moment
+        //     // as it is the only format tested
+        //     foreach (var photo in photoList)
+        //     {
+        //         var fileExtension = Path.GetExtension(photo.PhotoName);
 
-            // Only JPEG pictures are supported at the moment
-            // as it is the only format tested
-            foreach (var picture in pictureList)
-            {
-                var fileExtension = Path.GetExtension(picture.ImageName);
-
-                try
-                {
-                    switch (fileExtension.ToLower())
-                    {
-                        case ".jpg":
-                        case ".jpeg":
-                            renamer.RenameImage(picture);
-                            continue;
-                        default:
-                            Console.WriteLine("picture format {0} not supported.", fileExtension); // TODO log error
-                            continue;
-                    }
-                }
-                // TODO log files not able to rename
-                catch (ArgumentException err)
-                {
-                    if (err.Message != null)
-                        Console.WriteLine("ArgumentException message: {0}", err.Message); // TODO log error
-                    continue;
-                }
-                catch (FileNotFoundException err)
-                {
-                    if (err.Message != null)
-                        Console.WriteLine("FileNotFoundException message: {0}", err.Message); // TODO log error
-                    continue;
-                }
-                catch (IOException err)
-                {
-                    if (err.Message != null)
-                        Console.WriteLine("IOException message: {0}", err.Message); // TODO log error
-                    continue;
-                }
-            }
-        }
+        //         try
+        //         {
+        //             // TODO remove check after implementing MetadataExtractor
+        //             switch (fileExtension.ToLower())
+        //             {
+        //                 case ".jpg":
+        //                 case ".jpeg":
+        //                     renamer.RenamePhoto(photo);
+        //                     continue;
+        //                 default:
+        //                     Console.WriteLine("picture format {0} not supported.", fileExtension); // TODO log error
+        //                     continue;
+        //             }
+        //         }
+        //         // TODO log files not able to rename
+        //         catch (ArgumentException err)
+        //         {
+        //             if (err.Message != null)
+        //                 Console.WriteLine("ArgumentException message: {0}", err.Message); // TODO log error
+        //             continue;
+        //         }
+        //         catch (FileNotFoundException err)
+        //         {
+        //             if (err.Message != null)
+        //                 Console.WriteLine("FileNotFoundException message: {0}", err.Message); // TODO log error
+        //             continue;
+        //         }
+        //         catch (IOException err)
+        //         {
+        //             if (err.Message != null)
+        //                 Console.WriteLine("IOException message: {0}", err.Message); // TODO log error
+        //             continue;
+        //         }
+        //     }
+        // }
     }
 }
