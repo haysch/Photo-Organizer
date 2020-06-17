@@ -1,6 +1,6 @@
-using PhotoOrganizer.Primitives;
+using PhotoOrganizerLib.Enums;
 
-namespace PhotoOrganizer.Util {
+namespace PhotoOrganizer.Models {
     /// <summary>Structure of configuration file.</summary>
     public class Config {
         /// <summary>Path to working directory.</summary>
@@ -12,6 +12,6 @@ namespace PhotoOrganizer.Util {
         /// <summary>Hash algorithm to use for checksum.</summary>
         public Algorithm HashAlgorithm;
         /// <summary>Type of renaming (COPY, MOVE or REPLACE).</summary>
-        public string RenameType;
+        public RenameType RenameType;
     }
 }
