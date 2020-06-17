@@ -1,10 +1,8 @@
 using System;
-using System.IO;
 using System.Collections.Generic;
 using Xunit;
 
-using PhotoOrganizer.Models;
-using PhotoOrganizer.Util;
+using PhotoOrganizerLib.Models;
 
 using PhotoOrganizerTest.Models;
 using PhotoOrganizerTest.Util;
@@ -20,9 +18,8 @@ namespace PhotoOrganizerTest
         {
             _testData = TestHelper.LoadTestData("TestFiles/testdata.json");
 
-            var _extractor = new Extractor();
-            var testImage = new ImageFile(_testData.FileName, "TestFiles");
-            _dict = _extractor.ExtractMetadata(testImage);
+            var testImage = new Photo(_testData.FileName, "TestFiles");
+            // _dict = ExtractMetadata(testImage);
         }
 
         [Fact]

@@ -6,7 +6,7 @@
 # Project-specific files and folder
 .DS_Store
 testdata/
-PhotoOrganizerTest/TestFiles/*.jpg
+TestFiles/
 testdata.json
 .vscode
 

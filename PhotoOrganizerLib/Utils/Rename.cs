@@ -4,6 +4,7 @@ using System.IO;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Enums;
+using Microsoft.Extensions.Configuration;
 
 namespace PhotoOrganizerLib.Utils
 {
@@ -14,73 +15,60 @@ namespace PhotoOrganizerLib.Utils
 
         /// <summary>Constructor for renaming class. Sets up type used for renaming files.</summary>
         /// <param name="renameType">Type of move used for renaming. See <see cref="PhotoOrganizerLib.Enums.RenameType" /> for available types.</param>
-        public Rename(RenameType renameType)
+        /// <remarks>Attempts to parse the rename type from the configuration.</remarks>
+        /// <exception name="System.ArgumentException">Unable to parse input <see cref="PhotoOrganizerLib.Enums.RenameType" />.</exception>
+        public Rename(IConfiguration config)
         {
-            _renameType = renameType;
+            if (!Enum.TryParse(config["renameType"], out _renameType))
+            {
+                throw new ArgumentException($"Rename Type { config["renameType"] } is invalid.");
+            }
         }
 
-        /// <summary>Renames file by copying or moving it.</summary>
-        /// <remarks>Renames files relative to the working directory, by default, if folderPath is not set.</remarks>
-        /// <param name="oldName">The current filename.</param>
-        /// <param name="newName">The new filename.</param>
-        /// <param name="folderPath">Working directory, relative or absolute.</param>
+        /// <summary>Finds a name for the input photo by using the Original DateTime information.</summary>
+        /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" />.</param>
+        /// <param name="format">Format of the returned DateTime string.</param>
+        /// <remarks>Uses only Original DateTime for naming.</remarks>
+        /// <returns>Photo name in provided format, or <see cref="System.String.Empty"> if no Original DateTime information is available.</returns>
+        public string FindDateTimeName(Photo photo, string format)
+        {
+            if (photo.ImageMetadata.ContainsKey("ExifDTOrig") &&
+                DateTime.TryParse(photo.ImageMetadata["ExifDTOrig"] as string, out var photoDt))
+            {
+                    return photoDt.ToString(format); // "yyyyMMdd_HHmmss"
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>Renames file according to the <see cref="PhotoOrganizerLib.Enums.RenameType" />.</summary>
+        /// <param name="sourcePath">Path to the source file.</param>
+        /// <param name="targetPath">Path to target file.</param>
         /// <exception cref="System.ArgumentException">Thrown when the rename type is not valid.</exception>
         /// <exception cref="System.IO.FileNotFoundException">Thrown when the file to be renamed does not exist.</exception>
-        private void RenameFile(string oldName, string newName, string folderPath = ".")
+        public void RenameFile(string sourcePath, string targetPath)
         {
-            oldName = folderPath + Path.DirectorySeparatorChar + oldName;
-            newName = folderPath + Path.DirectorySeparatorChar + newName;
-
-            if (!File.Exists(oldName))
-                throw new FileNotFoundException($"File with path {oldName} not found.");
-
-            switch (_renameType)
-            {
-                case RenameType.Copy:
-                    File.Copy(oldName, newName);
-                    return;
-                case RenameType.Move:
-                    File.Move(oldName, newName);
-                    return;
-                case RenameType.Replace:
-                    File.Replace(oldName, newName, oldName + ".backup");
-                    return;
-                case RenameType.None:
-                    return;
-                default:
-                    throw new ArgumentException($"Renaming type {_renameType} is invalid");
-            }
-        }
-
-        /// <summary>Renames image files by extracting the necessary information from the ImageData object.</summary>
-        /// <remarks>Calls private renaming method for moving/copying of file. See <see cref="Rename.RenameFile" />.</remarks> 
-        /// <param name="photo">The file as a <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
-        public void RenameImage(Photo photo)
-        {
-            var fileExt = Path.GetExtension(photo.PhotoName).ToLower();
-
-            var folderPath = photo.AbsoluteFolderPath;
-            var oldName = photo.PhotoName;
-            var newName = string.Empty;
-
-            // Only name according to DateTime Original
-            if (photo.ImageMetadata.ContainsKey("ExifDTOrig"))
-            {
-                newName = ((DateTime) photo.ImageMetadata["ExifDTOrig"]).ToString("yyyyMMdd_HHmmss") + fileExt;
-            }
-            else
-            {
-                throw new ArgumentException($"Renaming not possible. No date/time data available for {photo.PhotoName}.");
-            }
-
             try
             {
-                RenameFile(oldName, newName, folderPath);
-                photo.PhotoName = newName;
+                switch (_renameType)
+                {
+                    case RenameType.Copy:
+                        File.Copy(sourcePath, targetPath);
+                        return;
+                    case RenameType.Move:
+                        File.Move(sourcePath, targetPath);
+                        return;
+                    case RenameType.Replace:
+                        File.Replace(sourcePath, targetPath, sourcePath + ".backup");
+                        return;
+                    case RenameType.None:
+                    default:
+                        return;
+                }
             }
-            catch (Exception ex) //when (ex is FileNotFoundException || ex is ArgumentException)
+            catch (Exception)
             {
-                throw ex;
+                // TODO log unable to rename file
             }
         }
     }
