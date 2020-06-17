@@ -17,8 +17,8 @@ namespace PhotoOrganizerLib.Extensions
             var gpsLonRef = directory.GetString(GpsDirectory.TagLongitudeRef);
             var gpsLon = directory.GetRationalArray(GpsDirectory.TagLongitude);
 
-            var latitude = MetadataConversion.DegreesMinutesSecondsToDecimal(gpsLat, gpsLatRef);
-            var longitude = MetadataConversion.DegreesMinutesSecondsToDecimal(gpsLon, gpsLonRef);
+            var latitude = MetadataConverter.DegreesMinutesSecondsToDecimal(gpsLat, gpsLatRef);
+            var longitude = MetadataConverter.DegreesMinutesSecondsToDecimal(gpsLon, gpsLonRef);
 
             photo.AddMetadata("Latitude", latitude);
             photo.AddMetadata("Longitude", longitude);
@@ -56,7 +56,7 @@ namespace PhotoOrganizerLib.Extensions
                 photo.AddMetadata("ISO", iso);
             
             if (directory.TryGetSingle(ExifDirectoryBase.TagShutterSpeed, out var apexValue))
-                photo.AddMetadata("ShutterSpeed", MetadataConversion.ComputeShutterSpeed(apexValue));
+                photo.AddMetadata("ShutterSpeed", MetadataConverter.ComputeShutterSpeed(apexValue));
 
             if (directory.TryGetDateTime(ExifDirectoryBase.TagDateTimeOriginal, out var dateTimeOriginal))
                 photo.AddMetadata("DateTimeOriginal", dateTimeOriginal);
