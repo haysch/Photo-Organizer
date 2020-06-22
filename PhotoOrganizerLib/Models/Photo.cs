@@ -33,7 +33,14 @@ namespace PhotoOrganizerLib.Models
             AbsoluteFolderPath = absoluteDirectoryPath;
             PhotoName = fileName;
 
-            Image = Image.FromFile(AbsolutePathToFile);
+            try
+            {
+                Image = Image.FromFile(AbsolutePathToFile);
+            } 
+            catch(Exception)
+            {
+                Image = null;
+            }
         }
 
         /// <summary>Prints image metadata according to input key.</summary>
