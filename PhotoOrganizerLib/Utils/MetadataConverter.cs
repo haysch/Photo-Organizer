@@ -5,29 +5,34 @@ namespace PhotoOrganizerLib.Utils
 {
     public static class MetadataConverter
     {
-        /// <summary>Converts Degree/Minutes/Seconds to decimal degrees.</summary>
-        /// <returns>Double of the coordinate.</returns>
-        /// <remarks>If input array is not of size 3, return 0.0.</remarks>
-        /// <param name="degMinSec">Rational array containing the Degree/Minutes/Seconds.</param>
+        /// <summary>Converts degrees/minutes/seconds to decimal degrees.</summary>
+        /// <returns>Double of the decimal degrees.</returns>
+        /// <remarks>If dms is not of size 3 or gpsRef is null, return null.</remarks>
+        /// <param name="dms">Rational array containing the degrees/minutes/seconds.</param>
         /// <param name="gpsRef">String containing GPS reference direction, e.g. "N" or "E".</param>
-        public static double DegreesMinutesSecondsToDecimal(Rational[] degMinSec, string gpsRef)
+        /// <exception cref="System.ArgumentException">Thrown when gpsRef is not "N", "E", "W", "S".</exception>
+        public static double? DegreesMinutesSecondsToDecimalDegrees(Rational[] dms, string gpsRef)
         {
-            if (degMinSec?.Length != 3 || gpsRef is null) 
-                return 0;
+            if (dms?.Length != 3 || gpsRef is null)
+            {
+                return null;
+            }
 
-            var hours = Math.Abs(degMinSec[0].ToDouble());
-            double minutes = degMinSec[1].ToDouble();
-            double seconds = degMinSec[2].ToDouble();
+            var refMultiplier = gpsRef.ToUpper() switch {
+                string s when s == "S" || s == "W" => -1,
+                string s when s == "E" || s == "N" => 1,
+                _ => throw new ArgumentException("GPS Reference direction is invalid.")
+            };
 
-            double value = hours + (minutes / 60.0d) + (seconds / 3600.0d);
+            var degrees = dms[0].ToDouble();
+            var minutes = dms[1].ToDouble();
+            var seconds = dms[2].ToDouble();
 
-            // If Ref is not N or E, negate the value.
-            if (gpsRef == "S" || gpsRef == "W")
-                value *= -1;
-            
-            return value;
+            return (degrees + (minutes / 60.0d) + (seconds / 3600.0d)) * refMultiplier;
         }
 
+        /// <summary>Convert apex value from MetadataExtractor to shutter speed format.</summary>
+        /// <remarks>Copied from https://github.com/drewnoakes/metadata-extractor-dotnet/blob/master/MetadataExtractor/TagDescriptor.cs method GetShutterSpeedDescription</remarks>
         public static string ComputeShutterSpeed(float apexValue)
         {
             if (apexValue <= 1)
