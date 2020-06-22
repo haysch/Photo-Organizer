@@ -8,7 +8,7 @@ namespace PhotoOrganizerLib.Extensions
         {
             if (int.TryParse(name, out var year))
             {
-                return DateTime.MinValue.Year <= year && year <= DateTime.Now.Year;
+                return DateTime.MinValue.Year <= year && year <= DateTime.MaxValue.Year;
             }
 
             return false;
@@ -18,7 +18,7 @@ namespace PhotoOrganizerLib.Extensions
         {
             if (int.TryParse(name, out var month))
             {
-                return DateTime.MinValue.Month <= month && month <= DateTime.Now.Month;
+                return DateTime.MinValue.Month <= month && month <= DateTime.MaxValue.Month;
             }
 
             return false;
