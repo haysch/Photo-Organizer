@@ -9,6 +9,9 @@ namespace PhotoOrganizerLib.Extensions
 {
     public static class DirectoryExtensions
     {
+        /// <summary>Parses <see cref="MetadataExtractor.Formats.Exif.GpsDirectory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
+        /// <param name="directory">Directory containing the GPS metadata.</param>
+        /// <param name="photo">Photo object used for storing metadata.</param>
         public static void ParseGps(this GpsDirectory directory, Photo photo)
         {
             if (directory is null || photo is null)
@@ -40,6 +43,9 @@ namespace PhotoOrganizerLib.Extensions
             }
         }
 
+        /// <summary>Parses <see cref="MetadataExtractor.Formats.Exif.ExifIfd0Directory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
+        /// <param name="directory">Directory containing the make, model and datetime metadata.</param>
+        /// <param name="photo">Photo object used for storing metadata.</param>
         public static void ParseIFD0(this ExifIfd0Directory directory, Photo photo)
         {
             if (directory is null || photo is null)
@@ -60,6 +66,9 @@ namespace PhotoOrganizerLib.Extensions
                 photo.AddMetadata("DateTime", datetime);
         }
 
+        /// <summary>Parses <see cref="MetadataExtractor.Formats.Exif.ExifSubIfdDirectory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
+        /// <param name="directory">Directory containing the F-number, ISO, shutter speed, datetime original and focal length metadata.</param>
+        /// <param name="photo">Photo object used for storing metadata.</param>
         public static void ParseSubIfd(this ExifSubIfdDirectory directory, Photo photo)
         {
             if (directory is null || photo is null)
@@ -83,7 +92,10 @@ namespace PhotoOrganizerLib.Extensions
                 photo.AddMetadata("FocalLength", focalLength);
         }
 
-        public static void Parse(this JpegDirectory directory, Photo photo)
+        /// <summary>Parses <see cref="MetadataExtractor.Formats.Jpeg.JpegDirectory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
+        /// <param name="directory">Directory containing the JPEG image height and width.</param>
+        /// <param name="photo">Photo object used for storing metadata.</param>
+        public static void ParseJpeg(this JpegDirectory directory, Photo photo)
         {
             if (directory is null || photo is null)
             {
@@ -97,7 +109,10 @@ namespace PhotoOrganizerLib.Extensions
                 photo.AddMetadata("Width", width);
         }
 
-        public static void Parse(this PngDirectory directory, Photo photo)
+        /// <summary>Parses <see cref="MetadataExtractor.Formats.Png.PngDirectory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
+        /// <param name="directory">Directory containing the PNG image height and width.</param>
+        /// <param name="photo">Photo object used for storing metadata.</param>
+        public static void ParsePng(this PngDirectory directory, Photo photo)
         {
             if (directory is null || photo is null)
             {

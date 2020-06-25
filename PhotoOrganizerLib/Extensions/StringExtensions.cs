@@ -4,9 +4,11 @@ namespace PhotoOrganizerLib.Extensions
 {
     public static class StringExtensions
     {
-        public static bool IsYear(this string name)
+        /// <summary>Checks whether string is a valid year.</summary>
+        /// <param name="yearString">String of a potential year.</param>
+        public static bool IsYear(this string yearString)
         {
-            if (int.TryParse(name, out var year))
+            if (int.TryParse(yearString, out var year))
             {
                 return DateTime.MinValue.Year <= year && year <= DateTime.MaxValue.Year;
             }
@@ -14,9 +16,11 @@ namespace PhotoOrganizerLib.Extensions
             return false;
         }
 
-        public static bool IsMonth(this string name)
+        /// <summary>Checks whether string is a valid month.</summary>
+        /// <param name="monthString">String of a potential month.</param>
+        public static bool IsMonth(this string monthString)
         {
-            if (int.TryParse(name, out var month))
+            if (int.TryParse(monthString, out var month))
             {
                 return DateTime.MinValue.Month <= month && month <= DateTime.MaxValue.Month;
             }
