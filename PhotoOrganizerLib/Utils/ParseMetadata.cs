@@ -27,8 +27,12 @@ namespace PhotoOrganizerLib.Utils
             ifd0Directory?.ParseIFD0(photo);
         }
 
+        /// <summary>Parse <see cref="MetadataExtractor.Directory" /> metadata and save the information in the <see cref="PhotoOrganizerLib.Models.Photo" /> object.</summary>
+        /// <param name="directory">MetadataExtractor directory object containing the image metadata.</param>
+        /// <param name="photo">Photo object to save the metadata to.</param>
         private static void ParseDirectory(Directory directory, Photo photo)
         {
+            // TODO: There might be an easier way
             switch (directory)
             {
                 case ExifSubIfdDirectory subIfd:
@@ -41,10 +45,10 @@ namespace PhotoOrganizerLib.Utils
                     ifd0?.ParseIFD0(photo);
                     break;
                 case JpegDirectory jpeg:
-                    jpeg?.Parse(photo);
+                    jpeg?.ParseJpeg(photo);
                     break;
                 case PngDirectory png:
-                    png?.Parse(photo);
+                    png?.ParsePng(photo);
                     break;
                 default:
                     break;
