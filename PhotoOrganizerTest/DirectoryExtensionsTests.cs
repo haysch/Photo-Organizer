@@ -53,7 +53,7 @@ namespace PhotoOrganizerTest
             JpegDirectory jpegDirectory = null;
             var photo = new Photo("TestPhotoName","");
 
-            jpegDirectory.Parse(photo);
+            jpegDirectory.ParseJpeg(photo);
 
             Assert.Empty(photo.ImageMetadata);
         }
@@ -64,7 +64,7 @@ namespace PhotoOrganizerTest
             PngDirectory pngDirectory = null;
             var photo = new Photo("TestPhotoName","");
 
-            pngDirectory.Parse(photo);
+            pngDirectory.ParsePng(photo);
 
             Assert.Empty(photo.ImageMetadata);
         }
@@ -197,7 +197,7 @@ namespace PhotoOrganizerTest
             jpegDirectory.Set(JpegDirectory.TagImageHeight, height);
             jpegDirectory.Set(JpegDirectory.TagImageWidth, width);
 
-            jpegDirectory.Parse(photo);
+            jpegDirectory.ParseJpeg(photo);
 
             var actualHeight = photo.ImageMetadata["Height"];
             var actualWidth = photo.ImageMetadata["Width"];
@@ -218,7 +218,7 @@ namespace PhotoOrganizerTest
             pngDirectory.Set(PngDirectory.TagImageHeight, height);
             pngDirectory.Set(PngDirectory.TagImageWidth, width);
 
-            pngDirectory.Parse(photo);
+            pngDirectory.ParsePng(photo);
 
             var actualHeight = photo.ImageMetadata["Height"];
             var actualWidth = photo.ImageMetadata["Width"];
