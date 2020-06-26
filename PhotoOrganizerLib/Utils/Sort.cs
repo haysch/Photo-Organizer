@@ -27,40 +27,47 @@ namespace PhotoOrganizerLib.Utils
             _renameService = renameService;
         }
 
-        public void SortPhoto(Photo photo) {}
-
-        
-        public void SortDateTimeFile(string sourcePath, string newFileName)
+        public void SortPhoto(Photo photo) 
         {
-            var fileExtension = Path.GetFileNameWithoutExtension(sourcePath);
+            var sourcePath = photo.AbsolutePathToFile;
+            if (photo.ImageMetadata.TryGetValue("DateTimeOriginal", out var dateTime))
+            {
+                SortDateTime(sourcePath, (DateTime)dateTime);
+            }
+        }
 
-            if (!DateTime.TryParse(newFileName, out var nameDt))
+        public void SortDateTime(string sourcePath, string dateTimeFilename)
+        {
+            if (!DateTime.TryParse(dateTimeFilename, out var dateTime))
             {
                 SortUnknownFile(sourcePath);
             }
             else
             {
-                var year = nameDt.Year.ToString();
-                var month = nameDt.Month.ToString();
-
-                var sortPath = Path.Join(year, month, newFileName + fileExtension); // To make a bit more explicit
-                var targetPath = Path.Join(_outputPath, sortPath);
-                
-                if (_yearDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month))
-                {
-                    _renameService.RenameFile(sourcePath, targetPath);
-                }
-                else
-                {
-                    if (TryCreateDirectory(targetPath))
-                    {
-                        _renameService.RenameFile(sourcePath, targetPath);
-                    }
-                }
+                SortDateTime(sourcePath, dateTime);
             }
         }
 
-        public void SortUnknownFile(string sourcePath)
+        public void SortDateTime(string sourcePath, DateTime dateTimeFilename)
+        {
+            var fileExtension = Path.GetExtension(sourcePath);
+
+            var year = dateTimeFilename.Year.ToString();
+            var month = dateTimeFilename.Month.ToString();
+
+            var sortPath = Path.Join(year, month, dateTimeFilename + fileExtension); // To make a bit more explicit
+            var targetPath = Path.Join(_outputPath, sortPath);
+            
+            // If year and month directories don't exist, try to create target path
+            // then rename file
+            if ((_yearDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month))
+                || TryCreateDirectory(targetPath))
+            {
+                _renameService.RenameFile(sourcePath, targetPath);
+            }
+        }
+
+        private void SortUnknownFile(string sourcePath)
         {
             if (_unknownDirectoryExists)
             {
@@ -68,6 +75,8 @@ namespace PhotoOrganizerLib.Utils
                 var unknownPath = Path.Join(_outputPath, "unknown", fileName);
                 _renameService.RenameFile(sourcePath, unknownPath);
             }
+            // else don't do anything - just leave the image 
+            // TODO: consider adding logging?
         }
 
         /// <summary>
