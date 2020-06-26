@@ -10,10 +10,8 @@ namespace PhotoOrganizerLib.Models
     {
         /// <summary>Gets and sets the hashtable containing the image's metadata.</summary>
         public Dictionary<string, object> ImageMetadata { get; set; }
-        /// <summary> Gets the Image property of the object.</summary>
-        public Image Image { get; }
         /// <summary>Gets and sets the name of the image.</summary>
-        public string PhotoName { get; set; }
+        public string Name { get; set; }
         /// <summary>Gets and set the absolute path to the folder containing the file (path/to/filefolder).</summary>
         public string AbsoluteFolderPath { get; set; }
 
@@ -22,7 +20,7 @@ namespace PhotoOrganizerLib.Models
         {
             get
             {
-                return Path.Join(AbsoluteFolderPath, PhotoName);
+                return Path.Join(AbsoluteFolderPath, Name);
             }
         }
 
@@ -31,16 +29,7 @@ namespace PhotoOrganizerLib.Models
         {
             ImageMetadata = new Dictionary<string, object>();
             AbsoluteFolderPath = absoluteDirectoryPath;
-            PhotoName = fileName;
-
-            try
-            {
-                Image = Image.FromFile(AbsolutePathToFile);
-            } 
-            catch(Exception)
-            {
-                Image = null;
-            }
+            Name = fileName;
         }
 
         /// <summary>Prints image metadata according to input key.</summary>
@@ -50,7 +39,7 @@ namespace PhotoOrganizerLib.Models
         {
             if (ImageMetadata.ContainsKey(exifKey))
             {
-                Console.WriteLine("Image Name: {0}", PhotoName);
+                Console.WriteLine("Image Name: {0}", Name);
                 Console.WriteLine("{0}: {1}", exifKey, ImageMetadata[exifKey]);
             }
         }
@@ -59,7 +48,7 @@ namespace PhotoOrganizerLib.Models
         public void PrintArrayExifData()
         {
             Console.WriteLine("======================================");
-            Console.WriteLine("Image Name: {0}", PhotoName);
+            Console.WriteLine("Image Name: {0}", Name);
 
             foreach (string key in ImageMetadata.Keys)
             {
