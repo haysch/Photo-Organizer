@@ -9,6 +9,8 @@ using MetadataExtractor.Formats.Png;
 using MetadataExtractor;
 using PhotoOrganizerLib.Utils;
 using System;
+using System.Diagnostics.CodeAnalysis;
+using PhotoOrganizerTest.Models;
 
 namespace PhotoOrganizerTest
 {
@@ -20,7 +22,7 @@ namespace PhotoOrganizerTest
             GpsDirectory gpsDirectory = null;
             var photo = new Photo("TestPhotoName","");
 
-            gpsDirectory.ParseGps(photo);
+            gpsDirectory.Parse(photo);
 
             Assert.Empty(photo.ImageMetadata);
         }
@@ -31,7 +33,7 @@ namespace PhotoOrganizerTest
             ExifIfd0Directory ifd0Directory = null;
             var photo = new Photo("TestPhotoName","");
 
-            ifd0Directory.ParseIFD0(photo);
+            ifd0Directory.Parse(photo);
 
             Assert.Empty(photo.ImageMetadata);
         }
@@ -42,7 +44,7 @@ namespace PhotoOrganizerTest
             ExifSubIfdDirectory subIfdDirectory = null;
             var photo = new Photo("TestPhotoName","");
 
-            subIfdDirectory.ParseSubIfd(photo);
+            subIfdDirectory.Parse(photo);
 
             Assert.Empty(photo.ImageMetadata);
         }
@@ -53,7 +55,7 @@ namespace PhotoOrganizerTest
             JpegDirectory jpegDirectory = null;
             var photo = new Photo("TestPhotoName","");
 
-            jpegDirectory.ParseJpeg(photo);
+            jpegDirectory.Parse(photo);
 
             Assert.Empty(photo.ImageMetadata);
         }
@@ -64,7 +66,7 @@ namespace PhotoOrganizerTest
             PngDirectory pngDirectory = null;
             var photo = new Photo("TestPhotoName","");
 
-            pngDirectory.ParsePng(photo);
+            pngDirectory.Parse(photo);
 
             Assert.Empty(photo.ImageMetadata);
         }
@@ -89,7 +91,7 @@ namespace PhotoOrganizerTest
             gpsDirectory.Set(GpsDirectory.TagLongitudeRef, gpsReference);
             gpsDirectory.Set(GpsDirectory.TagLongitude, gpsRationalArr);
 
-            gpsDirectory.ParseGps(photo);
+            gpsDirectory.Parse(photo);
 
             var actualLatitude = photo.ImageMetadata["Latitude"];
             var actualLongitude = photo.ImageMetadata["Longitude"];
@@ -113,7 +115,7 @@ namespace PhotoOrganizerTest
             gpsDirectory.Set(GpsDirectory.TagAltitudeRef, gpsAltBit);
             gpsDirectory.Set(GpsDirectory.TagAltitude, gpsAlt);
 
-            gpsDirectory.ParseGps(photo);
+            gpsDirectory.Parse(photo);
 
             var actualAltitudeRef = photo.ImageMetadata["AltitudeRef"];
             var actualAltitude = photo.ImageMetadata["Altitude"];
@@ -138,7 +140,7 @@ namespace PhotoOrganizerTest
             ifd0Directory.Set(ExifIfd0Directory.TagModel, model);
             ifd0Directory.Set(ExifIfd0Directory.TagDateTime, dateTime);
 
-            ifd0Directory.ParseIFD0(photo);
+            ifd0Directory.Parse(photo);
 
             var actualMake = photo.ImageMetadata["Make"];
             var actualModel = photo.ImageMetadata["Model"];
@@ -168,7 +170,7 @@ namespace PhotoOrganizerTest
             subIfdDirectory.Set(ExifSubIfdDirectory.TagDateTimeOriginal, dateTimeOriginal);
             subIfdDirectory.Set(ExifSubIfdDirectory.TagFocalLength, focalLength);
 
-            subIfdDirectory.ParseSubIfd(photo);
+            subIfdDirectory.Parse(photo);
 
             var expectedShutterSpeed = "0.5 sec"; // round((1 / exp(1 * log(2))) * 10) / 10 = 0.5
             
@@ -197,7 +199,7 @@ namespace PhotoOrganizerTest
             jpegDirectory.Set(JpegDirectory.TagImageHeight, height);
             jpegDirectory.Set(JpegDirectory.TagImageWidth, width);
 
-            jpegDirectory.ParseJpeg(photo);
+            jpegDirectory.Parse(photo);
 
             var actualHeight = photo.ImageMetadata["Height"];
             var actualWidth = photo.ImageMetadata["Width"];
@@ -218,13 +220,24 @@ namespace PhotoOrganizerTest
             pngDirectory.Set(PngDirectory.TagImageHeight, height);
             pngDirectory.Set(PngDirectory.TagImageWidth, width);
 
-            pngDirectory.ParsePng(photo);
+            pngDirectory.Parse(photo);
 
             var actualHeight = photo.ImageMetadata["Height"];
             var actualWidth = photo.ImageMetadata["Width"];
 
             Assert.Equal(height, actualHeight);
             Assert.Equal(width, actualWidth);
+        }
+
+        [Fact]
+        public void ParseUnsupportedDirectory()
+        {
+            var testDirectory = new TestDirectory();
+            var photo = new Photo("TestPhotoName", "");
+
+            testDirectory.Parse(photo);
+
+            Assert.Empty(photo.ImageMetadata);
         }
     }
 }
