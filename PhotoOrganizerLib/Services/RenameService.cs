@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 namespace PhotoOrganizerLib.Utils
 {
     /// <summary>Renaming class for copying or moving of files.</summary>
-    public class Rename : IRename
+    public class RenameService : IRenameService
     {
         private RenameType _renameType;
 
@@ -17,7 +17,7 @@ namespace PhotoOrganizerLib.Utils
         /// <param name="renameType">Type of move used for renaming. See <see cref="PhotoOrganizerLib.Enums.RenameType" /> for available types.</param>
         /// <remarks>Attempts to parse the rename type from the configuration.</remarks>
         /// <exception name="System.ArgumentException">Unable to parse input <see cref="PhotoOrganizerLib.Enums.RenameType" />.</exception>
-        public Rename(IConfiguration config)
+        public RenameService(IConfiguration config)
         {
             if (!Enum.TryParse(config["renameType"], out _renameType))
             {
@@ -35,7 +35,7 @@ namespace PhotoOrganizerLib.Utils
             if (photo.ImageMetadata.ContainsKey("ExifDTOrig") &&
                 DateTime.TryParse(photo.ImageMetadata["ExifDTOrig"] as string, out var photoDt))
             {
-                    return photoDt.ToString(format); // "yyyyMMdd_HHmmss"
+                return photoDt.ToString(format); // "yyyyMMdd_HHmmss"
             }
 
             return string.Empty;

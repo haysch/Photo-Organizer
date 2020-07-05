@@ -10,15 +10,15 @@ using PhotoOrganizerLib.Models;
 
 namespace PhotoOrganizerLib.Utils
 {
-    public class Sort : ISort
+    public class SortService : ISortService
     {
         private string _outputPath;
-        private IRename _renameService;
+        private IRenameService _renameService;
         // TODO currently only accepts DateTime with YYYY and MM (e.g. yyyy/mm/Photo.jpg)
         private Dictionary<string, HashSet<string>> _yearDirectories;
         private bool _unknownDirectoryExists;
 
-        public Sort(IConfiguration config, IRename renameService)
+        public SortService(IConfiguration config, IRenameService renameService)
         {
             _outputPath = config["outputPath"];
             _yearDirectories = EnumerateDirectoryStructure(_outputPath);
@@ -98,8 +98,8 @@ namespace PhotoOrganizerLib.Utils
 
             foreach (var directory in directories)
             {
-                var year = directory.Substring(0,4);
-                if (year.IsYear())
+                var yearString = directory.Substring(0,4);
+                if (yearString.IsYear())
                 {
                     var monthSet = new HashSet<string>();
 
@@ -107,14 +107,14 @@ namespace PhotoOrganizerLib.Utils
 
                     foreach (var subDir in subDirs)
                     {
-                        var month = subDir.Substring(0,2);
-                        if (month.IsMonth())
+                        var monthString = subDir.Substring(0,2);
+                        if (monthString.IsMonth())
                         {
-                            monthSet.Add(month);
+                            monthSet.Add(monthString);
                         }
                     } 
 
-                    directoryStructure.Add(year, monthSet);
+                    directoryStructure.Add(yearString, monthSet);
                 }
             }
 
