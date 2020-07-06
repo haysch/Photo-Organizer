@@ -14,10 +14,13 @@ namespace PhotoOrganizerLib.Utils
     {
         private string _outputPath;
         private IRenameService _renameService;
-        // TODO currently only accepts DateTime with YYYY and MM (e.g. yyyy/mm/Photo.jpg)
+        // REMARK currently only accepts DateTime with YYYY and MM (e.g. yyyy/mm/Photo.jpg)
         private Dictionary<string, HashSet<string>> _yearDirectories;
         private bool _unknownDirectoryExists;
 
+        /// <summary>
+        /// Service used for sorting files and <see cref="PhotoOrganizerLib.Models.Photo" /> using datetimes.
+        /// </summary>
         public SortService(IConfiguration config, IRenameService renameService)
         {
             _outputPath = config["outputPath"];
@@ -27,46 +30,52 @@ namespace PhotoOrganizerLib.Utils
             _renameService = renameService;
         }
 
+        /// <summary>Sort photo by extracting its DateTimeOriginal value.</summary>
+        /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
         public void SortPhoto(Photo photo) 
         {
             var sourcePath = photo.AbsolutePathToFile;
-            if (photo.ImageMetadata.TryGetValue("DateTimeOriginal", out var dateTime))
-            {
-                SortDateTime(sourcePath, (DateTime)dateTime);
-            }
+            var dateTimeString = _renameService.FindPhotoDateTime(photo, "yyyyMMdd_HHmmss");
+            SortDateTime(sourcePath, dateTimeString);
         }
 
-        public void SortDateTime(string sourcePath, string dateTimeFilename)
+        /// <summary>
+        /// Sorts file using `%OUTPUTPATH%/yyyy/MM/datetime.ext` structure based on the provided datetime string.
+        /// If the datetime string is not a valid <see cref="System.DateTime" /> the image is placed in an `unknown/` folder.
+        /// </summary>
+        /// <param name="sourcePath">Path to file.</param>
+        /// <param name="dateTimeString">String representation of a <see cref="System.DateTime" />.</param>
+        /// <remarks>Sorting of unknown files are only allowed, if the `%OUTPUTPATH%/unknown/` directory exists or can be created.</remarks>
+        public void SortDateTime(string sourcePath, string dateTimeString)
         {
-            if (!DateTime.TryParse(dateTimeFilename, out var dateTime))
+            if (!DateTime.TryParse(dateTimeString, out var dateTime))
             {
                 SortUnknownFile(sourcePath);
             }
             else
             {
-                SortDateTime(sourcePath, dateTime);
+                var fileExtension = Path.GetExtension(sourcePath);
+
+                var year = dateTime.Year.ToString();
+                var month = dateTime.Month.ToString();
+
+                var sortPath = Path.Join(year, month, dateTimeString + fileExtension); // To make a bit more explicit
+                var targetPath = Path.Join(_outputPath, sortPath);
+                
+                // If year and month directories don't exist, try to create target path
+                // then rename file
+                if ((_yearDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month))
+                    || TryCreateDirectory(targetPath))
+                {
+                    _renameService.RenameFile(sourcePath, targetPath);
+                }
             }
         }
 
-        public void SortDateTime(string sourcePath, DateTime dateTimeFilename)
-        {
-            var fileExtension = Path.GetExtension(sourcePath);
-
-            var year = dateTimeFilename.Year.ToString();
-            var month = dateTimeFilename.Month.ToString();
-
-            var sortPath = Path.Join(year, month, dateTimeFilename + fileExtension); // To make a bit more explicit
-            var targetPath = Path.Join(_outputPath, sortPath);
-            
-            // If year and month directories don't exist, try to create target path
-            // then rename file
-            if ((_yearDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month))
-                || TryCreateDirectory(targetPath))
-            {
-                _renameService.RenameFile(sourcePath, targetPath);
-            }
-        }
-
+        /// <summary>
+        /// Sorts file into `%OUTPUTPATH%/unknown/`, if it exists or can be created, using its current filename.
+        /// </summary>
+        /// <param name="sourcePath">Path to file.</param>
         private void SortUnknownFile(string sourcePath)
         {
             if (_unknownDirectoryExists)
@@ -81,10 +90,11 @@ namespace PhotoOrganizerLib.Utils
 
         /// <summary>
         /// Enumerates the directory structure for the input path and saves the 
-        /// YYYY/MM structure to a <cref name="System.Collection.Generic.Dictionary" /> for future reference when moving files.
+        /// `yyyy/MM` folder structure to a <cref name="System.Collection.Generic.Dictionary" /> for future reference when moving files.
         /// </summary>
         /// <param name="path">Base path containing the output folders.</param>
-        /// <remarks>Only accepts YYYY/MM directory structure.</remarks>
+        /// <returns>Dictionary containing years as keys and a hashsets as values, which contains the months for a given year.</returns>
+        /// <remarks>Only accepts `yyyy/MM` folder structure.</remarks>
         private Dictionary<string, HashSet<string>> EnumerateDirectoryStructure(string path)
         {
             if (!Directory.Exists(path))
@@ -131,32 +141,6 @@ namespace PhotoOrganizerLib.Utils
         {
             var unknownPath = Path.Join(path, "unknown");
             return (Directory.Exists(unknownPath) || TryCreateDirectory(unknownPath));
-        }
-
-        /// <summary>
-        /// Moves file from sourcePath to targetPath with filename.
-        /// </summary>
-        /// <param name="sourcePath">Path containing the file.</param>
-        /// <param name="targetPath">Target output path.</param>
-        /// <param name="filename">Name of file to be moved.</param>
-        /// <remarks>Moves file and keeps the same name.</remarks>
-        private void MoveFile(string sourcePath, string targetPath, string filename)
-        {
-            var absoluteSourcePath = Path.Join(sourcePath, filename);
-            var absoluteTargetPath = Path.Join(targetPath, filename);
-            
-            try
-            {
-                File.Move(absoluteSourcePath, absoluteTargetPath);
-            }
-            catch (FileNotFoundException)
-            {
-                // TODO log unable to move file and continue.
-            }
-            catch (Exception)
-            {
-                // TODO log unable to move file and stop - we might not be able to recover if the directory does not exist.
-            }
         }
 
         /// <summary>
