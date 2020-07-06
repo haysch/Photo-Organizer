@@ -25,17 +25,20 @@ namespace PhotoOrganizerLib.Utils
             }
         }
 
-        /// <summary>Finds a name for the input photo by using the Original DateTime information.</summary>
-        /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" />.</param>
-        /// <param name="format">Format of the returned DateTime string.</param>
-        /// <remarks>Uses only Original DateTime for naming.</remarks>
-        /// <returns>Photo name in provided format, or <see cref="System.String.Empty"> if no Original DateTime information is available.</returns>
-        public string FindDateTimeName(Photo photo, string format)
+        /// <summary>
+        /// Finds a name for the input photo by using the Original DateTime information.
+        /// </summary>
+        /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
+        /// <param name="format">Format for the returned DateTime string.</param>
+        /// <remarks>Uses only DateTimeOriginal for naming.</remarks>
+        /// <returns>Photo name in provided format, or <see cref="System.String.Empty" /> if no Original DateTime information is available.</returns>
+        public string FindPhotoDateTime(Photo photo, string format)
         {
-            if (photo.ImageMetadata.ContainsKey("ExifDTOrig") &&
-                DateTime.TryParse(photo.ImageMetadata["ExifDTOrig"] as string, out var photoDt))
+            if (photo.ImageMetadata.ContainsKey("DateTimeOriginal") &&
+                DateTime.TryParse(photo.ImageMetadata["DateTimeOriginal"] as string, out var photoDt))
             {
-                return photoDt.ToString(format); // "yyyyMMdd_HHmmss"
+                // if ToString(format) fails, then it will always fail -> just exit program
+                return photoDt.ToString(format);
             }
 
             return string.Empty;
@@ -66,9 +69,13 @@ namespace PhotoOrganizerLib.Utils
                         return;
                 }
             }
-            catch (Exception)
+            catch (FileNotFoundException)
             {
                 // TODO log unable to rename file
+            }
+            catch (Exception)
+            {
+                // TODO bail out - we might not be able to recover   
             }
         }
     }
