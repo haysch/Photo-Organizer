@@ -1,7 +1,9 @@
+using System.IO;
+
 namespace PhotoOrganizerLib.Interfaces
 {
     public interface IChecksum
     {
-        string ComputeChecksum(string filePath);
+        string ComputeChecksum(Stream stream);
     }
 }
