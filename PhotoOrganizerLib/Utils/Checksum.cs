@@ -1,62 +1,74 @@
-using System;
 using System.IO;
-using System.Text;
 using System.Security.Cryptography;
 
 using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Interfaces;
+using System;
 
 namespace PhotoOrganizerLib.Utils
 {
 
-    /// <summary>Specifies the Checksum class for use when computing hash values of files</summary>
-    public class Checksum : IChecksum
+    /// <summary>Computes the file checksum using a specified hashing algorithm.</summary>
+    public class Checksum : IChecksum, IDisposable
     {
-        private HashAlgorithm _cryptoAlgorithm;
-        /// <summary>Gets the algorithm used for computing the checksum.</summary>
-        public string HashAlgorithm 
-        { 
-            get => _cryptoAlgorithm.ToString();
-        }
+        private HashAlgorithm _hashAlgorithm;
+        /// <summary>Gets the name of the algorithm used for computing file checksum.</summary>
+        public HashAlgorithmName AlgorithmName { get; private set; }
 
-        /// <summary>Constructor for the Checksum class used for computing file hash.</summary>
-        /// <exception cref="System.ArgumentException">Throws an ArgumentException if input algorithm is not supported.</exception>
-        /// <param name="algorithm">Algorithm to be used.</param>
-        /// <remarks>See <see cref="PhotoOrganizerLib.Enums.Algorithm" /> for available hash algorithms.</remarks>
+        /// <summary>Constructor for the Checksum class used for computing file hashes.</summary>
+        /// <param name="algorithm">Algorithm to be used for hashing.</param>
+        /// <remarks>
+        /// Supported hash algorithms: { MD5, SHA1, SHA256 }.
+        /// If None, do not compute any file hash.
+        /// Default hash algorithm is MD5, if input algorithm is unsupported or null.
+        /// </remarks>
         public Checksum(Algorithm algorithm)
         {
-            _cryptoAlgorithm = (algorithm) switch
+            switch (algorithm)
             {
-                Algorithm.None      => null,
-                Algorithm.MD5       => new MD5CryptoServiceProvider(),
-                Algorithm.SHA1      => new SHA1Managed(),
-                Algorithm.SHA256    => new SHA256Managed(),
-                Algorithm.SHA384    => new SHA384Managed(),
-                Algorithm.SHA512    => new SHA512Managed(),
-                _                   => throw new ArgumentException($"Invalid selection for {algorithm} algorithm.")
+                case Algorithm.None:
+                    _hashAlgorithm = null;
+                    AlgorithmName = new HashAlgorithmName("None");
+                    break;
+                case Algorithm.SHA1:
+                    _hashAlgorithm = SHA1.Create();
+                    AlgorithmName = HashAlgorithmName.SHA1;
+                    break;
+                case Algorithm.SHA256:
+                    _hashAlgorithm = SHA256.Create();
+                    AlgorithmName = HashAlgorithmName.SHA256;
+                    break;
+                case Algorithm.MD5:
+                default:
+                    _hashAlgorithm = MD5.Create();
+                    AlgorithmName = HashAlgorithmName.MD5;
+                    break;
             };
         }
 
-        /// <summary>Computes the hash checksum of the file.</summary>
-        /// <returns>Checksum of file.</returns>
-        /// <param name="filePath">String path to the file.</param>
-        public string ComputeChecksum(string filePath)
+        /// <summary>Computes checksum for a given stream.</summary>
+        /// <returns>Checksum of stream.</returns>
+        /// <param name="stream">Stream to compute hash value for.</param>
+        public string ComputeChecksum(Stream stream)
         {
-            if (_cryptoAlgorithm == null || !File.Exists(filePath))
-                return string.Empty;
-
-            using (var stream = File.OpenRead(filePath))
+            if (_hashAlgorithm is null || stream is null)
             {
-                var hashBytes = _cryptoAlgorithm.ComputeHash(stream);
-
-                var sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("x2"));
-                }
-
-                return sb.ToString();
+                return string.Empty;
             }
+
+            var hashValue = _hashAlgorithm.ComputeHash(stream);
+
+            return BitConverter.ToString(hashValue)
+                .Replace("-", string.Empty)
+                .ToLowerInvariant();
+        }
+
+        /// <summary>
+        /// Releases all resources used by current instance of the <see cref="PhotoOrganizerLib.Utils.Checksum" /> class.
+        /// </summary>
+        public void Dispose()
+        {
+            _hashAlgorithm?.Dispose();
         }
     }
 }
