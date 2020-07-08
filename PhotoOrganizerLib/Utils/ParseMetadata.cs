@@ -25,6 +25,12 @@ namespace PhotoOrganizerLib.Utils
 
             var ifd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
             ifd0Directory?.Parse(photo);
+
+            var jpegDirectory = directories.OfType<JpegDirectory>().FirstOrDefault();
+            jpegDirectory?.Parse(photo);
+
+            var pngDirectory = directories.OfType<PngDirectory>().FirstOrDefault();
+            pngDirectory?.Parse(photo);
         }
     }
 }
