@@ -5,7 +5,7 @@ using Xunit;
 
 namespace PhotoOrganizerTest
 {
-    public class ConverterTests
+    public class MetadataConverterTests
     {
         [Fact]
         public void ComputeGpsDmsToDecimalDegrees_NullDms()
