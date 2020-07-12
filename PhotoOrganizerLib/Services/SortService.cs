@@ -8,7 +8,7 @@ using PhotoOrganizerLib.Extensions;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
 
-namespace PhotoOrganizerLib.Utils
+namespace PhotoOrganizerLib.Services
 {
     public class SortService : ISortService
     {

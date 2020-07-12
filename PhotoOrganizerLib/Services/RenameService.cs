@@ -6,7 +6,7 @@ using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Enums;
 using Microsoft.Extensions.Configuration;
 
-namespace PhotoOrganizerLib.Utils
+namespace PhotoOrganizerLib.Services
 {
     /// <summary>Renaming class for copying or moving of files.</summary>
     public class RenameService : IRenameService
