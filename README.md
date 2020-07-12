@@ -30,7 +30,7 @@ The project made a somewhat radical change by implementing a library, [metadata-
 
 Due to time limitations, and the need for this tool, implementing functionality for multiple image sources and converting byte values correctly, would not be feasible.
 
-## PhotoOrganizerTest (WIP)
+## PhotoOrganizerLib.Tests (WIP)
 
 The test suite is extremely simple.
 And does not work because of the ongoing refactoring!

@@ -3,7 +3,7 @@ using MetadataExtractor;
 using PhotoOrganizerLib.Utils;
 using Xunit;
 
-namespace PhotoOrganizerTest
+namespace PhotoOrganizerLib.Tests
 {
     public class MetadataConverterTests
     {

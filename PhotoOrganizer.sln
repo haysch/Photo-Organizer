@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoOrganizer", "PhotoOrga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoOrganizerLib", "PhotoOrganizerLib\PhotoOrganizerLib.csproj", "{6331EFD7-1783-4135-BC87-BFEA496092B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoOrganizerTest", "PhotoOrganizerTest\PhotoOrganizerTest.csproj", "{242DCD8D-C64F-419E-B815-CF736C5FEC1C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoOrganizerLib.Tests", "PhotoOrganizerLib.Tests\PhotoOrganizerLib.Tests.csproj", "{242DCD8D-C64F-419E-B815-CF736C5FEC1C}"
 EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution

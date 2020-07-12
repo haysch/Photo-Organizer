@@ -10,9 +10,9 @@ using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Jpeg;
 using MetadataExtractor.Formats.Png;
 
-using PhotoOrganizerTest.Models;
+using PhotoOrganizerLib.Tests.Models;
 
-namespace PhotoOrganizerTest
+namespace PhotoOrganizerLib.Tests
 {
     public class ExtensionsTests
     {

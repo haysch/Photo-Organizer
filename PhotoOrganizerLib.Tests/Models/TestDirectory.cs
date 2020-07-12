@@ -1,7 +1,7 @@
 using System;
 using MetadataExtractor;
 
-namespace PhotoOrganizerTest.Models
+namespace PhotoOrganizerLib.Tests.Models
 {
     public class TestDirectory : Directory
     {

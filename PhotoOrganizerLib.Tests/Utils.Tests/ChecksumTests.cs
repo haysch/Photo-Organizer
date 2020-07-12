@@ -7,7 +7,7 @@ using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Utils;
 using Xunit;
 
-namespace PhotoOrganizerTest.Utils.Tests
+namespace PhotoOrganizerLib.Tests.Utils.Tests
 {
     public class ChecksumTests
     {

@@ -1,8 +1,8 @@
 using System.IO;
 using Newtonsoft.Json;
-using PhotoOrganizerTest.Models;
+using PhotoOrganizerLib.Tests.Models;
 
-namespace PhotoOrganizerTest.Util {
+namespace PhotoOrganizerLib.Tests.Util {
     public static class TestHelper {
         public static TestData LoadTestData(string path) {
             TestData testData;
