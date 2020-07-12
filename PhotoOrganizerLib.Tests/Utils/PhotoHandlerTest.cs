@@ -70,6 +70,7 @@ namespace PhotoOrganizerLib.Tests.Utils
 
             // Assert the two sets are equal
             Assert.Subset(expectedPaths, actualPaths);
+            Assert.Superset(expectedPaths, actualPaths);
         }
 
         [Fact]
@@ -133,6 +134,7 @@ namespace PhotoOrganizerLib.Tests.Utils
 
             // Assert the two sets are equal
             Assert.Subset(expectedPaths, actualPaths);
+            Assert.Superset(expectedPaths, actualPaths);
         }
 
         private string GetTemporaryDirectory()
