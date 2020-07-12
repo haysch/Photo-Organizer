@@ -34,7 +34,7 @@ namespace PhotoOrganizerLib.Utils
         /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
         public void SortPhoto(Photo photo) 
         {
-            var sourcePath = photo.AbsolutePathToFile;
+            var sourcePath = photo.AbsoluteFilePath;
             var dateTimeString = _renameService.FindPhotoDateTime(photo, "yyyyMMdd_HHmmss");
             SortDateTime(sourcePath, dateTimeString);
         }
