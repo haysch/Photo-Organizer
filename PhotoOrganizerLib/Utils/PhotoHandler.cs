@@ -15,7 +15,7 @@ namespace PhotoOrganizerLib.Utils
         /// </summary>
         /// <param name="path">Input path to begin searching</param>
         /// <returns>A list of <see cref="PhotoOrganizerLib.Models.Photo" /></returns>
-        /// <remarks>If the input path does not exist, return an empty list</remarks>
+        /// <remarks>If the input path directory does not exist, return an empty list.</remarks>
         public static IEnumerable<Photo> FindPhotos(string path)
         {
             // Check if initial directory exists, otherwise we wouldn't have anything to do
