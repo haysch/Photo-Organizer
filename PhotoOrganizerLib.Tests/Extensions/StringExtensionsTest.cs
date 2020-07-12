@@ -1,11 +1,10 @@
 using Xunit;
 
 using PhotoOrganizerLib.Extensions;
-using System;
 
-namespace PhotoOrganizerLib.Tests
+namespace PhotoOrganizerLib.Tests.Extensions
 {
-    public class StringExtensionsTests
+    public class StringExtensionsTest
     {
         [Fact]
         public void IsYear_True()

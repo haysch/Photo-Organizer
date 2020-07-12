@@ -9,7 +9,7 @@ using Xunit;
 
 namespace PhotoOrganizerLib.Tests.Utils.Tests
 {
-    public class ChecksumTests
+    public class ChecksumTest
     {
         [Fact]
         public void ChecksumConstructor_SupportedAlgorithms()

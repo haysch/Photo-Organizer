@@ -12,9 +12,9 @@ using MetadataExtractor.Formats.Png;
 
 using PhotoOrganizerLib.Tests.Models;
 
-namespace PhotoOrganizerLib.Tests
+namespace PhotoOrganizerLib.Tests.Extensions
 {
-    public class ExtensionsTests
+    public class ExtensionsTest
     {
         [Fact]
         public void ParseGpsDirectory_NullDirectory_NoMetadata()

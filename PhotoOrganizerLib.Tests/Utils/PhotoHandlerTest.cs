@@ -5,9 +5,9 @@ using System.Linq;
 using PhotoOrganizerLib.Utils;
 using Xunit;
 
-namespace PhotoOrganizerLib.Tests.Utils.Tests
+namespace PhotoOrganizerLib.Tests.Utils
 {
-    public class PhotoHandlerTests
+    public class PhotoHandlerTest
     {
         private static byte[] JpegFormat = new byte[] { 0xff, 0xd8 };
 

@@ -3,9 +3,9 @@ using MetadataExtractor;
 using PhotoOrganizerLib.Utils;
 using Xunit;
 
-namespace PhotoOrganizerLib.Tests
+namespace PhotoOrganizerLib.Tests.Utils
 {
-    public class MetadataConverterTests
+    public class MetadataConverterTest
     {
         [Fact]
         public void ComputeGpsDmsToDecimalDegrees_NullDms()
