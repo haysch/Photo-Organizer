@@ -15,7 +15,7 @@ namespace PhotoOrganizerLib.Services
         private string _outputPath;
         private IRenameService _renameService;
         // REMARK currently only accepts DateTime with YYYY and MM (e.g. yyyy/mm/Photo.jpg)
-        private Dictionary<string, HashSet<string>> _yearDirectories;
+        public Dictionary<string, HashSet<string>> OutputDirectories;
         private bool _unknownDirectoryExists;
 
         /// <summary>
@@ -23,8 +23,8 @@ namespace PhotoOrganizerLib.Services
         /// </summary>
         public SortService(IConfiguration config, IRenameService renameService)
         {
-            _outputPath = config["outputPath"];
-            _yearDirectories = EnumerateDirectoryStructure(_outputPath);
+            _outputPath = config["output"];
+            OutputDirectories = EnumerateDirectoryStructure(_outputPath);
             _unknownDirectoryExists = TryFindUnknownDirectory(_outputPath);
 
             _renameService = renameService;
@@ -64,7 +64,7 @@ namespace PhotoOrganizerLib.Services
                 
                 // If year and month directories don't exist, try to create target path
                 // then rename file
-                if ((_yearDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month))
+                if ((OutputDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month))
                     || TryCreateDirectory(targetPath))
                 {
                     _renameService.RenameFile(sourcePath, targetPath);
@@ -90,7 +90,7 @@ namespace PhotoOrganizerLib.Services
 
         /// <summary>
         /// Enumerates the directory structure for the input path and saves the 
-        /// `yyyy/MM` folder structure to a <cref name="System.Collection.Generic.Dictionary" /> for future reference when moving files.
+        /// `yyyy/MM` folder structure to a <see cref="System.Collection.Generic.Dictionary" /> for future reference when moving files.
         /// </summary>
         /// <param name="path">Base path containing the output folders.</param>
         /// <returns>Dictionary containing years as keys and a hashsets as values, which contains the months for a given year.</returns>
@@ -108,16 +108,18 @@ namespace PhotoOrganizerLib.Services
 
             foreach (var directory in directories)
             {
-                var yearString = directory.Substring(0,4);
+                var lastDirectorySeparatorYear = directory.LastIndexOf(Path.DirectorySeparatorChar);
+                var yearString = directory.Substring(lastDirectorySeparatorYear + 1);
                 if (yearString.IsYear())
                 {
                     var monthSet = new HashSet<string>();
 
-                    var subDirs = Directory.EnumerateDirectories(directory);
+                    var subDirectories = Directory.EnumerateDirectories(directory);
 
-                    foreach (var subDir in subDirs)
+                    foreach (var subDirectory in subDirectories)
                     {
-                        var monthString = subDir.Substring(0,2);
+                        var lastDirectorySeparatorMonth = subDirectory.LastIndexOf(Path.DirectorySeparatorChar);
+                        var monthString = subDirectory.Substring(lastDirectorySeparatorMonth + 1);
                         if (monthString.IsMonth())
                         {
                             monthSet.Add(monthString);
