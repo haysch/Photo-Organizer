@@ -1,15 +1,15 @@
+using System;
 using Xunit;
 
 using PhotoOrganizerLib.Extensions;
-
-using MetadataExtractor.Formats.Exif;
 using PhotoOrganizerLib.Models;
+using PhotoOrganizerLib.Utils;
+
+using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Jpeg;
 using MetadataExtractor.Formats.Png;
-using MetadataExtractor;
-using PhotoOrganizerLib.Utils;
-using System;
-using System.Diagnostics.CodeAnalysis;
+
 using PhotoOrganizerTest.Models;
 
 namespace PhotoOrganizerTest
@@ -20,7 +20,7 @@ namespace PhotoOrganizerTest
         public void ParseGpsDirectory_NullDirectory_NoMetadata()
         {
             GpsDirectory gpsDirectory = null;
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             gpsDirectory.Parse(photo);
 
@@ -31,7 +31,7 @@ namespace PhotoOrganizerTest
         public void ParseIfd0Directory_NullDirectory_NoMetadata()
         {
             ExifIfd0Directory ifd0Directory = null;
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             ifd0Directory.Parse(photo);
 
@@ -42,7 +42,7 @@ namespace PhotoOrganizerTest
         public void ParseSubIfdDirectory_NullDirectory_NoMetadata()
         {
             ExifSubIfdDirectory subIfdDirectory = null;
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             subIfdDirectory.Parse(photo);
 
@@ -53,7 +53,7 @@ namespace PhotoOrganizerTest
         public void ParseJpegDirectory_NullDirectory_NoMetadata()
         {
             JpegDirectory jpegDirectory = null;
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             jpegDirectory.Parse(photo);
 
@@ -64,7 +64,7 @@ namespace PhotoOrganizerTest
         public void ParsePngDirectory_NullDirectory_NoMetadata()
         {
             PngDirectory pngDirectory = null;
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             pngDirectory.Parse(photo);
 
@@ -75,7 +75,7 @@ namespace PhotoOrganizerTest
         public void ParseGpsDirectory_ValidDirectory_LatLongMetadata()
         {
             var gpsDirectory = new GpsDirectory();
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             var gpsReference = "N";
             var gpsRationalArr = new Rational[3]
@@ -107,7 +107,7 @@ namespace PhotoOrganizerTest
         public void ParseGpsDirectory_ValidDirectory_AltMetadata()
         {
             var gpsDirectory = new GpsDirectory();
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             var gpsAltBit = 0;
             short gpsAlt = 50;
@@ -130,7 +130,7 @@ namespace PhotoOrganizerTest
         public void ParseIfd0Directory_ValidDirectory_AllMetadata()
         {
             var ifd0Directory = new ExifIfd0Directory();
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             var make = "TestMake";
             var model = "TestModel";
@@ -156,7 +156,7 @@ namespace PhotoOrganizerTest
         public void ParseSubIfd_ValidDirectory_AllMetadata()
         {
             var subIfdDirectory = new ExifSubIfdDirectory();
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             float fNumber = 12;
             short iso = 1200;
@@ -191,7 +191,7 @@ namespace PhotoOrganizerTest
         public void ParseJpegDirectory_ValidDirectory_AllMetadata()
         {
             var jpegDirectory = new JpegDirectory();
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             var height = 32;
             var width = 32;
@@ -212,7 +212,7 @@ namespace PhotoOrganizerTest
         public void ParsePngDirectory_ValidDirectory_AllMetadata()
         {
             var pngDirectory = new PngDirectory(PngChunkType.bKGD);
-            var photo = new Photo("TestPhotoName","");
+            var photo = new Photo("");
 
             var height = 32;
             var width = 32;
@@ -233,7 +233,7 @@ namespace PhotoOrganizerTest
         public void ParseUnsupportedDirectory()
         {
             var testDirectory = new TestDirectory();
-            var photo = new Photo("TestPhotoName", "");
+            var photo = new Photo( "");
 
             testDirectory.Parse(photo);
 
