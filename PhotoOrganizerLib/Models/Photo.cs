@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using System.IO;
 using System.Collections.Generic;
 
@@ -12,24 +11,26 @@ namespace PhotoOrganizerLib.Models
         public Dictionary<string, object> ImageMetadata { get; set; }
         /// <summary>Gets and sets the name of the image.</summary>
         public string Name { get; set; }
-        /// <summary>Gets and set the absolute path to the folder containing the file (path/to/filefolder).</summary>
-        public string AbsoluteFolderPath { get; set; }
-
-        /// <summary>Gets the path to the Image using the absolute folder path and Image name.</summary>
-        public string AbsolutePathToFile
+        /// <summary>Gets and sets the directory path to the file excluding its name.</summary>
+        public string DirectoryPath { get; set; }
+        /// <summary>Gets and set the absolute file path to the photo.</summary>
+        public string AbsoluteFilePath
         {
-            get
+            get => Path.Join(DirectoryPath, Name);
+
+            set
             {
-                return Path.Join(AbsoluteFolderPath, Name);
+                Name = Path.GetFileName(value);
+                DirectoryPath = Path.GetDirectoryName(value);
             }
         }
 
         /// <summary>Initializing a new instance of the <see cref="PhotoOrganizerLib.Models.Photo" /> class.</summary>
-        public Photo(string fileName, string absoluteDirectoryPath)
+        public Photo(string absoluteFilePath)
         {
             ImageMetadata = new Dictionary<string, object>();
-            AbsoluteFolderPath = absoluteDirectoryPath;
-            Name = fileName;
+            AbsoluteFilePath = absoluteFilePath;
+            
         }
 
         /// <summary>Prints image metadata according to input key.</summary>
