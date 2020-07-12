@@ -9,6 +9,13 @@ namespace PhotoOrganizerLib.Utils
 {
     public static class PhotoHandler
     {
+        /// <summary>
+        /// Finds all valid image formats, <see cref="MetadataExtractor.Util.FileType" />, given some input path.
+        /// Iterates through all subdirectories from the input path.
+        /// </summary>
+        /// <param name="path">Input path to begin searching</param>
+        /// <returns>A list of <see cref="PhotoOrganizerLib.Models.Photo" /></returns>
+        /// <remarks>If the input path does not exist, return an empty list</remarks>
         public static IEnumerable<Photo> FindPhotos(string path)
         {
             // Check if initial directory exists, otherwise we wouldn't have anything to do
@@ -28,11 +35,14 @@ namespace PhotoOrganizerLib.Utils
                 // pop directory from queue
                 var currentDirectory = directoryQueue.Dequeue();
 
+                // enqueue all subdirectories in current directory
                 foreach (var directory in Directory.EnumerateDirectories(currentDirectory))
                 {
                     directoryQueue.Enqueue(directory);
                 }
 
+                // add all valid image formats to the photo list
+                // see MetadataExtractor.Util.FileType for valid image formats
                 foreach (var filePath in Directory.EnumerateFiles(currentDirectory))
                 {
                     using (var stream = File.OpenRead(filePath))
