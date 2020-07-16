@@ -6,10 +6,16 @@ namespace PhotoOrganizer
     {
         static void Main(string[] args)
         {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile($"{System.IO.Directory.GetCurrentDirectory()}/appsettings.json", false) // TODO is there any point in using a settings file?
+            
+        }
+
+        private static IConfiguration BuildConfig(string[] args)
+        {
+            return new ConfigurationBuilder()
+                // .AddJsonFile($"{System.IO.Directory.GetCurrentDirectory()}/appsettings.json", false) // TODO is there any point in using a settings file?
                 .AddEnvironmentVariables("PHORG_")
-                .AddCommandLine(args);
+                .AddCommandLine(args)
+                .Build();
         }
     }
 }
