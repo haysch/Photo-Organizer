@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using System.Threading;
 using MetadataExtractor;
 using PhotoOrganizerLib.Utils;
 using Xunit;
@@ -73,6 +75,9 @@ namespace PhotoOrganizerLib.Tests.Utils
         [Fact]
         public void ComputeShutterSpeed_LessOrEqualToOneValue()
         {
+            // Align the data formatting for testing
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
             var expected = "0.5 sec"; // round((1 / exp(1 * log(2))) * 10) / 10 = 0.5
 
             var actual = MetadataConverter.ComputeShutterSpeed(1);
