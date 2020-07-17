@@ -1,7 +1,10 @@
 // TODO Consider removing after implementing MetadataExtractor
+using System;
+
 namespace PhotoOrganizerLib.Enums
 {
     /// <summary>Contants for possible property tag types.</summary>
+    [Obsolete("PropertyTagType not relevant anymore.")]
     public enum PropertyTagType : short
     {
         /// <summary>Specifies that the format is 4 bits per pixel, indexed.</summary>
@@ -25,6 +28,7 @@ namespace PhotoOrganizerLib.Enums
     };
 
     /// <summary>Contants for the property tag IDs of an image.</summary>
+    [Obsolete("PropertyTagId not relevant anymore.")]
     public enum PropertyTagId : int
     {
         /// <summary>ASCII</summary>
