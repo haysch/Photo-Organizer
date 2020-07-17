@@ -10,15 +10,6 @@ namespace PhotoOrganizerLib.Extensions
 {
     public static class DirectoryExtensions
     {
-        /// <summary>Default parse method for handling unsupported directories.</summary>
-        /// <param name="directory">Directory containing the some metadata.</param>
-        /// <param name="photo">Photo object used for storing metadata.</param>
-        /// <remarks>This method is meant as a handler where the directory parsing has not been implemented yet.</remarks>
-        public static void Parse(this Directory directory, Photo photo)
-        {
-            Console.WriteLine($"Directory type { directory.GetType() } is not supported for parsing.");
-        }
-
         /// <summary>Parses <see cref="MetadataExtractor.Formats.Exif.GpsDirectory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
         /// <param name="directory">Directory containing the GPS metadata.</param>
         /// <param name="photo">Photo object used for storing metadata.</param>
