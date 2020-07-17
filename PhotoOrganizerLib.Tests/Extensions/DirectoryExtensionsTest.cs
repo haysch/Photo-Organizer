@@ -11,6 +11,8 @@ using MetadataExtractor.Formats.Jpeg;
 using MetadataExtractor.Formats.Png;
 
 using PhotoOrganizerLib.Tests.Models;
+using System.Threading;
+using System.Globalization;
 
 namespace PhotoOrganizerLib.Tests.Extensions
 {
@@ -155,6 +157,9 @@ namespace PhotoOrganizerLib.Tests.Extensions
         [Fact]
         public void ParseSubIfd_ValidDirectory_AllMetadata()
         {
+            // Align the data formatting for testing
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
             var subIfdDirectory = new ExifSubIfdDirectory();
             var photo = new Photo("");
 
@@ -227,17 +232,6 @@ namespace PhotoOrganizerLib.Tests.Extensions
 
             Assert.Equal(height, actualHeight);
             Assert.Equal(width, actualWidth);
-        }
-
-        [Fact]
-        public void ParseUnsupportedDirectory()
-        {
-            var testDirectory = new TestDirectory();
-            var photo = new Photo( "");
-
-            testDirectory.Parse(photo);
-
-            Assert.Empty(photo.ImageMetadata);
         }
     }
 }
