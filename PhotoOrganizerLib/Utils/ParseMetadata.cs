@@ -17,20 +17,25 @@ namespace PhotoOrganizerLib.Utils
         /// <param name="directories">Enumerable of <see cref="MetadataExtractor.Directory" />, containing the different image <see cref="MetadataExtractor.Tag" />s.</param>
         public static void Parse(Photo photo, IEnumerable<Directory> directories)
         {
-            var subIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-            subIfdDirectory?.Parse(photo);
+            directories.OfType<ExifSubIfdDirectory>()
+                .FirstOrDefault()?
+                .Parse(photo);
 
-            var gpsDirectory = directories.OfType<GpsDirectory>().FirstOrDefault();
-            gpsDirectory?.Parse(photo);
+            directories.OfType<GpsDirectory>()
+                .FirstOrDefault()?
+                .Parse(photo);
 
-            var ifd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
-            ifd0Directory?.Parse(photo);
+            directories.OfType<ExifIfd0Directory>()
+                .FirstOrDefault()?
+                .Parse(photo);
 
-            var jpegDirectory = directories.OfType<JpegDirectory>().FirstOrDefault();
-            jpegDirectory?.Parse(photo);
+            directories.OfType<JpegDirectory>()
+                .FirstOrDefault()?
+                .Parse(photo);
 
-            var pngDirectory = directories.OfType<PngDirectory>().FirstOrDefault();
-            pngDirectory?.Parse(photo);
+            directories.OfType<PngDirectory>()
+                .FirstOrDefault()?
+                .Parse(photo);
         }
     }
 }
