@@ -9,7 +9,7 @@ namespace PhotoOrganizerLib.Enums
         Move,
         /// <summary>Replace file.</summary>
         // TODO implement
-        Replace,
+        // Replace,
         /// <summary>Renaming not wanted.</summary>
         None
     }
