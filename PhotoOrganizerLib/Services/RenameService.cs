@@ -11,7 +11,7 @@ namespace PhotoOrganizerLib.Services
     /// <summary>Renaming class for copying or moving of files.</summary>
     public class RenameService : IRenameService
     {
-        private RenameType _renameType;
+        private readonly RenameType _renameType;
 
         /// <summary>Constructor for renaming class. Sets up type used for renaming files.</summary>
         /// <param name="renameType">Type of move used for renaming. See <see cref="PhotoOrganizerLib.Enums.RenameType" /> for available types.</param>
@@ -19,9 +19,10 @@ namespace PhotoOrganizerLib.Services
         /// <exception name="System.ArgumentException">Unable to parse input <see cref="PhotoOrganizerLib.Enums.RenameType" />.</exception>
         public RenameService(IConfiguration config)
         {
-            if (!Enum.TryParse(config["renameType"], out _renameType))
+            var renameTypeString = config.GetValue<string>("renameType");
+            if (!Enum.TryParse(renameTypeString, true, out _renameType))
             {
-                throw new ArgumentException($"Rename Type { config["renameType"] } is invalid.");
+                throw new ArgumentException($"Renaming with type '{ renameTypeString }' is not supported.");
             }
         }
 
@@ -31,13 +32,18 @@ namespace PhotoOrganizerLib.Services
         /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
         /// <param name="format">Format for the returned DateTime string.</param>
         /// <remarks>Uses only DateTimeOriginal for naming.</remarks>
-        /// <returns>Photo name in provided format, or <see cref="System.String.Empty" /> if no Original DateTime information is available.</returns>
+        /// <returns>String containing date and time in provided format, or <see cref="System.String.Empty" /> if no Original DateTime information is available.</returns>
+        /// <exception cref="System.FormatException">
+        /// If the length of the format is 1 and it is not one of the format specifier characters defined in <see cref="System.Globalization.DateTimeFormatInfo" /> -or- format does not contain a valid custom pattern.
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The range of the date and time is outside of the dates supported by the calender of the current culture.</exception>
         public string FindPhotoDateTime(Photo photo, string format)
         {
             if (photo.ImageMetadata.ContainsKey("DateTimeOriginal") &&
                 DateTime.TryParse(photo.ImageMetadata["DateTimeOriginal"] as string, out var photoDt))
             {
-                // if ToString(format) fails, then it will always fail -> just exit program
+                // throws error if ToString(format) fails
+                // if the format is incorrect, it will propagate through the entire run => FAIL FAST!
                 return photoDt.ToString(format);
             }
 
@@ -61,9 +67,9 @@ namespace PhotoOrganizerLib.Services
                     case RenameType.Move:
                         File.Move(sourcePath, targetPath);
                         return;
-                    case RenameType.Replace:
-                        File.Replace(sourcePath, targetPath, sourcePath + ".backup");
-                        return;
+                    // case RenameType.Replace:
+                    //     File.Replace(sourcePath, targetPath, sourcePath + ".backup");
+                    //     return;
                     case RenameType.None:
                     default:
                         return;
@@ -73,9 +79,28 @@ namespace PhotoOrganizerLib.Services
             {
                 // TODO log unable to rename file
             }
+            catch (DirectoryNotFoundException)
+            {
+                // TODO log
+            }
+            catch (IOException)
+            {
+                // TODO log
+            }
+            catch (ArgumentNullException)
+            {
+                // TODO log
+            }
+            catch (ArgumentException)
+            {
+                // TODO log
+            }
             catch (Exception)
             {
-                // TODO bail out - we might not be able to recover   
+                /// Possible exceptions:
+                /// UnauthorizedAccessException, NotSupportedException, PathTooLongException
+                // TODO bail out? - we might not be able to recover
+                // throw;
             }
         }
     }
