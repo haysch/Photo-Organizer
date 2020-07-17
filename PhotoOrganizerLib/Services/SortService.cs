@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 using Microsoft.Extensions.Configuration;
@@ -12,18 +13,19 @@ namespace PhotoOrganizerLib.Services
 {
     public class SortService : ISortService
     {
-        private string _outputPath;
-        private IRenameService _renameService;
+        private readonly string _outputPath;
+        private readonly IRenameService _renameService;
+        private readonly bool _unknownDirectoryExists;
+
         // REMARK currently only accepts DateTime with YYYY and MM (e.g. yyyy/mm/Photo.jpg)
         public Dictionary<string, HashSet<string>> OutputDirectories;
-        private bool _unknownDirectoryExists;
 
         /// <summary>
         /// Service used for sorting files and <see cref="PhotoOrganizerLib.Models.Photo" /> using datetimes.
         /// </summary>
         public SortService(IConfiguration config, IRenameService renameService)
         {
-            _outputPath = config["output"];
+            _outputPath = config.GetValue<string>("output");
             OutputDirectories = EnumerateDirectoryStructure(_outputPath);
             _unknownDirectoryExists = TryFindUnknownDirectory(_outputPath);
 
@@ -35,8 +37,9 @@ namespace PhotoOrganizerLib.Services
         public void SortPhoto(Photo photo) 
         {
             var sourcePath = photo.AbsoluteFilePath;
-            var dateTimeString = _renameService.FindPhotoDateTime(photo, "yyyyMMdd_HHmmss");
-            SortDateTime(sourcePath, dateTimeString);
+            var dateTimeFormat = "yyyyMMdd_HHmmss";
+            var dateTimeString = _renameService.FindPhotoDateTime(photo, dateTimeFormat);
+            SortDateTime(sourcePath, dateTimeString, dateTimeFormat);
         }
 
         /// <summary>
@@ -45,10 +48,20 @@ namespace PhotoOrganizerLib.Services
         /// </summary>
         /// <param name="sourcePath">Path to file.</param>
         /// <param name="dateTimeString">String representation of a <see cref="System.DateTime" />.</param>
-        /// <remarks>Sorting of unknown files are only allowed, if the `%OUTPUTPATH%/unknown/` directory exists or can be created.</remarks>
-        public void SortDateTime(string sourcePath, string dateTimeString)
+        /// <param name="format">Format used for the DateTime string. Default is 'yyyy-MM-dd hh:mm:tt'.</param>
+        /// <remarks>
+        /// Sorting of unknown files are only allowed, if the `%OUTPUTPATH%/unknown/` directory exists or can be created.
+        /// </remarks>
+        public void SortDateTime(string sourcePath,
+            string dateTimeString,
+            string format = "yyyy-MM-dd hh:mm:tt",
+            CultureInfo provider = null,
+            DateTimeStyles dateTimeStyles = DateTimeStyles.None)
         {
-            if (!DateTime.TryParse(dateTimeString, out var dateTime))
+            // set provider to default invariant, if provider is null
+            provider ??= CultureInfo.InvariantCulture;
+
+            if (!DateTime.TryParseExact(dateTimeString, format, provider, dateTimeStyles, out var dateTime))
             {
                 SortUnknownFile(sourcePath);
             }
@@ -64,16 +77,22 @@ namespace PhotoOrganizerLib.Services
                 
                 // If year and month directories don't exist, try to create target path
                 // then rename file
-                if ((OutputDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month))
-                    || TryCreateDirectory(targetPath))
+                if ((OutputDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month)))
                 {
+                    _renameService.RenameFile(sourcePath, targetPath);
+                }
+                else if (TryCreateDirectory(targetPath))
+                {
+                    // Add year and month to output directory dictionary for faster lookup
+                    AddToOutputDirectories(year, month);
+
                     _renameService.RenameFile(sourcePath, targetPath);
                 }
             }
         }
 
         /// <summary>
-        /// Sorts file into `%OUTPUTPATH%/unknown/`, if it exists or can be created, using its current filename.
+        /// Sorts file into `%OUTPUTPATH%/unknown/`, if it exists or could be created, using its current filename.
         /// </summary>
         /// <param name="sourcePath">Path to file.</param>
         private void SortUnknownFile(string sourcePath)
@@ -159,6 +178,27 @@ namespace PhotoOrganizerLib.Services
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Adds year and month to OutputDirectories dictionary to allow for faster lookup,
+        /// than trying to create directory each time.
+        /// </summary>
+        /// <param name="year">Year string to add as key.</param>
+        /// <param name="month">Month string to add in month set.</param>
+        /// <remarks>
+        /// If dictionary already contains year, add month to its set. Otherwise, create new key-value.
+        /// </remarks>
+        private void AddToOutputDirectories(string year, string month)
+        {
+            if (OutputDirectories.TryGetValue(year, out var monthSet))
+            {
+                monthSet.Add(month);
+            }
+            else
+            {
+                OutputDirectories.Add(year, new HashSet<string> { month });
             }
         }
     }
