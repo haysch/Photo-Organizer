@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace PhotoOrganizerLib.Extensions
 {
@@ -26,6 +27,26 @@ namespace PhotoOrganizerLib.Extensions
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Ensures that the directory at given path exists.
+        /// </summary>
+        /// <param name="path">Path to directory.</param>
+        /// <param name="message">Message to be thrown in exception.</param>
+        /// <remarks>If message is not provided, throws a standard error message.</remarks>
+        /// <exception cref="System.IO.DirectoryNotFoundException">Thrown if the path is not an existing directory.</exception>
+        public static void EnsureDirectoryExists(this string path, string message = null)
+        {
+            if (!Directory.Exists(path))
+            {
+                if (message is null)
+                {
+                    message = $"Directory at { path } does not exist.";
+                }
+
+                throw new DirectoryNotFoundException(message);
+            }
         }
     }
 }
