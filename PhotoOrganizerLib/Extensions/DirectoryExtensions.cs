@@ -32,8 +32,8 @@ namespace PhotoOrganizerLib.Extensions
             // if we do not have both latitude and longitude, do not save coordinates
             if (!(latitude is null) && !(longitude is null))
             {
-                photo.AddMetadata("Latitude", latitude);
-                photo.AddMetadata("Longitude", longitude);
+                photo.TryAddMetadata("Latitude", latitude);
+                photo.TryAddMetadata("Longitude", longitude);
             }
             
             // if we cannot get both the altitude and its reference, do not save anything
@@ -41,8 +41,8 @@ namespace PhotoOrganizerLib.Extensions
                 directory.TryGetInt16(GpsDirectory.TagAltitude, out var gpsAlt))
             {
                 var gpsAltRef = gpsAltBit == 0 ? "Sea level" : "Below sea level";
-                photo.AddMetadata("AltitudeRef", gpsAltRef);
-                photo.AddMetadata("Altitude", gpsAlt);
+                photo.TryAddMetadata("AltitudeRef", gpsAltRef);
+                photo.TryAddMetadata("Altitude", gpsAlt);
             }
         }
 
@@ -60,13 +60,13 @@ namespace PhotoOrganizerLib.Extensions
             var model = directory.GetString(ExifIfd0Directory.TagModel);
 
             if (!(make is null))
-                photo.AddMetadata("Make", make);
+                photo.TryAddMetadata("Make", make);
 
             if (!(model is null))
-                photo.AddMetadata("Model", model);
+                photo.TryAddMetadata("Model", model);
 
             if (directory.TryGetDateTime(ExifIfd0Directory.TagDateTime, out var datetime))
-                photo.AddMetadata("DateTime", datetime);
+                photo.TryAddMetadata("DateTime", datetime);
         }
 
         /// <summary>Parses <see cref="MetadataExtractor.Formats.Exif.ExifSubIfdDirectory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
@@ -80,19 +80,19 @@ namespace PhotoOrganizerLib.Extensions
             }
 
             if (directory.TryGetSingle(ExifDirectoryBase.TagFNumber, out var fNum))
-                photo.AddMetadata("F-Number", fNum);
+                photo.TryAddMetadata("F-Number", fNum);
 
             if (directory.TryGetInt16(ExifDirectoryBase.TagIsoEquivalent, out var iso))
-                photo.AddMetadata("ISO", iso);
+                photo.TryAddMetadata("ISO", iso);
             
             if (directory.TryGetSingle(ExifDirectoryBase.TagShutterSpeed, out var apexValue))
-                photo.AddMetadata("ShutterSpeed", MetadataConverter.ComputeShutterSpeed(apexValue));
+                photo.TryAddMetadata("ShutterSpeed", MetadataConverter.ComputeShutterSpeed(apexValue));
 
             if (directory.TryGetDateTime(ExifDirectoryBase.TagDateTimeOriginal, out var dateTimeOriginal))
-                photo.AddMetadata("DateTimeOriginal", dateTimeOriginal);
+                photo.TryAddMetadata("DateTimeOriginal", dateTimeOriginal);
 
             if (directory.TryGetSingle(ExifDirectoryBase.TagFocalLength, out var focalLength))
-                photo.AddMetadata("FocalLength", focalLength);
+                photo.TryAddMetadata("FocalLength", focalLength);
         }
 
         /// <summary>Parses <see cref="MetadataExtractor.Formats.Jpeg.JpegDirectory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
@@ -106,10 +106,10 @@ namespace PhotoOrganizerLib.Extensions
             }
             
             if (directory.TryGetInt32(JpegDirectory.TagImageHeight, out var height))
-                photo.AddMetadata("Height", height);
+                photo.TryAddMetadata("Height", height);
 
             if (directory.TryGetInt32(JpegDirectory.TagImageWidth, out var width))
-                photo.AddMetadata("Width", width);
+                photo.TryAddMetadata("Width", width);
         }
 
         /// <summary>Parses <see cref="MetadataExtractor.Formats.Png.PngDirectory" /> metadata and saves it to the <see cref="PhotoOrganizerLib.Models.Photo" />.</summary>
@@ -123,10 +123,10 @@ namespace PhotoOrganizerLib.Extensions
             }
 
             if (directory.TryGetInt32(PngDirectory.TagImageHeight, out var height))
-                photo.AddMetadata("Height", height);
+                photo.TryAddMetadata("Height", height);
 
             if (directory.TryGetInt32(PngDirectory.TagImageWidth, out var width))
-                photo.AddMetadata("Width", width);
+                photo.TryAddMetadata("Width", width);
         }
     }
 }
