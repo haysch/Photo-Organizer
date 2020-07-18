@@ -16,7 +16,7 @@ namespace PhotoOrganizerLib.Models
         /// <summary>Gets and set the absolute file path to the photo.</summary>
         public string AbsoluteFilePath
         {
-            get => Path.Join(DirectoryPath, Name);
+            get => Path.Combine(DirectoryPath, Name);
 
             set
             {
@@ -30,18 +30,27 @@ namespace PhotoOrganizerLib.Models
         {
             ImageMetadata = new Dictionary<string, object>();
             AbsoluteFilePath = absoluteFilePath;
-            
         }
 
         /// <summary>Prints image metadata according to input key.</summary>
         /// <remarks>Only prints metadata if the key exists in the metadata hashtable. Otherwise only image name is printed.</remarks>
         /// <param name="exifKey">String of metadata key.</param>
-        public void TryPrintSpecificExifData(string exifKey)
+        public bool TryPrintSpecificExifData(string exifKey)
         {
-            if (ImageMetadata.ContainsKey(exifKey))
+            try
             {
-                Console.WriteLine("Image Name: {0}", Name);
-                Console.WriteLine("{0}: {1}", exifKey, ImageMetadata[exifKey]);
+                if (ImageMetadata.ContainsKey(exifKey))
+                {
+                    Console.WriteLine("Image Name: {0}", Name);
+                    Console.WriteLine("{0}: {1}", exifKey, ImageMetadata[exifKey]);
+                    return true;
+                }
+
+                return false;
+            }
+            catch (ArgumentNullException)
+            {
+                return false;
             }
         }
 
@@ -62,9 +71,6 @@ namespace PhotoOrganizerLib.Models
         /// <summary>Adds key-value pair to the metadata dictionary.</summary>
         /// <param name="key">Name of the key for the entry.</param>
         /// <param name="value">Object containing the metadata.</param>
-        public void AddMetadata(string key, object value)
-        {
-            ImageMetadata.Add(key, value);
-        }
+        public bool TryAddMetadata(string key, object value) => ImageMetadata.TryAdd(key, value);
     }
 }

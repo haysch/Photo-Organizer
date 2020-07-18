@@ -66,7 +66,7 @@ namespace PhotoOrganizerLib.Tests.Services
             // Test that FindPhotoDateTime finds datetime with correct format
             var dateTimeToday = DateTime.Today;
             var format = "yyyyMMdd_HHmmss";
-            photo.AddMetadata("DateTimeOriginal", dateTimeToday.ToString());
+            Assert.True(photo.TryAddMetadata("DateTimeOriginal", dateTimeToday.ToString()));
 
             var expectedDateTimeString = dateTimeToday.ToString(format);
 
@@ -88,7 +88,7 @@ namespace PhotoOrganizerLib.Tests.Services
             // Test that FindPhotoDateTime finds datetime with correct format
             var dateTimeToday = "bob-the-builder";
             var format = "yyyyMMdd_HHmmss";
-            photo.AddMetadata("DateTimeOriginal", dateTimeToday.ToString());
+            Assert.True(photo.TryAddMetadata("DateTimeOriginal", dateTimeToday.ToString()));
 
             var actualDateTimeString = renameService.FindPhotoDateTime(photo, format);
 
@@ -108,7 +108,7 @@ namespace PhotoOrganizerLib.Tests.Services
             // Test that FindPhotoDateTime finds datetime with correct format
             var dateTimeToday = DateTime.Today;
             var format = "h";
-            photo.AddMetadata("DateTimeOriginal", dateTimeToday.ToString());
+            Assert.True(photo.TryAddMetadata("DateTimeOriginal", dateTimeToday.ToString()));
 
             Assert.Throws<FormatException>(() => renameService.FindPhotoDateTime(photo, format));
         }
