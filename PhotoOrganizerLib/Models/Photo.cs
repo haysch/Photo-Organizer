@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PhotoOrganizerLib.Models
 {
@@ -9,11 +10,16 @@ namespace PhotoOrganizerLib.Models
     {
         /// <summary>Gets and sets the hashtable containing the image's metadata.</summary>
         public Dictionary<string, object> ImageMetadata { get; set; }
+        
         /// <summary>Gets and sets the name of the image.</summary>
         public string Name { get; set; }
+        
         /// <summary>Gets and sets the directory path to the file excluding its name.</summary>
+        [NotMapped]
         public string DirectoryPath { get; set; }
+
         /// <summary>Gets and set the absolute file path to the photo.</summary>
+        [NotMapped]
         public string AbsoluteFilePath
         {
             get => Path.Combine(DirectoryPath, Name);
