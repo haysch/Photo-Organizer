@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Utils;
 using Xunit;
 
@@ -9,38 +11,46 @@ namespace PhotoOrganizerLib.Tests.Utils
 {
     public class PhotoHandlerTest
     {
-        private static byte[] JpegFormat = new byte[] { 0xff, 0xd8 };
+        private static readonly byte[] JpegFormat = new byte[] { 0xff, 0xd8 };
 
         // Max directory depth used for testing
-        private static int MAXDEPTH = 10;
+        private static readonly int MAXDEPTH = 10;
 
         [Fact]
-        public void FindPhotos_InvalidPath()
+        public async Task FindPhotosAsync_InvalidPathAsync()
         {
             var path = @"BlahBlahBuh";
-            var actual = PhotoHandler.FindPhotos(path);
-            Assert.Empty(actual);
-        }
-
-        [Fact]
-        public void FindPhotos_FlatDirectory_SingleFile_UnknownFormat()
-        {
-            var tempDirectory = GetTemporaryDirectory();
-            var tempFileName = CreateTmpFile(tempDirectory);
-
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var photo in PhotoHandler.FindPhotosAsync(path))
+                photoList.Add(photo);
 
             Assert.Empty(photoList);
         }
 
         [Fact]
-        public void FindPhotos_FlatDirectory_SingleFile_JpegFormat()
+        public async Task FindPhotosAsync_FlatDirectory_SingleFile_UnknownFormatAsync()
+        {
+            var tempDirectory = GetTemporaryDirectory();
+            CreateTmpFile(tempDirectory); // create tmp file with unsupported filetype
+
+            var photoList = new List<Photo>();
+            await foreach (var photo in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(photo);
+
+            Assert.Empty(photoList);
+        }
+
+        [Fact]
+        public async Task FindPhotosAsync_FlatDirectory_SingleFile_JpegFormatAsync()
         {
             var tempDirectory = GetTemporaryDirectory();
             var tempFileName = CreateTmpFile(tempDirectory, JpegFormat);
             var expectedPath = Path.Combine(tempDirectory, tempFileName);
 
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var p in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(p);
+
             var photo = photoList.FirstOrDefault();
             var actualPath = photo.AbsoluteFilePath;
 
@@ -48,7 +58,7 @@ namespace PhotoOrganizerLib.Tests.Utils
         }
 
         [Fact]
-        public void FindPhotos_FlatDirectory_MultipleFiles_JpegFormat()
+        public async Task FindPhotosAsync_FlatDirectory_MultipleFiles_JpegFormatAsync()
         {
             var tempDirectory = GetTemporaryDirectory();
 
@@ -61,7 +71,10 @@ namespace PhotoOrganizerLib.Tests.Utils
             }
 
             // Creates set containing the actual paths
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var p in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(p);
+
             var actualPaths = new HashSet<string>();
             foreach (var photo in photoList)
             {
@@ -74,7 +87,7 @@ namespace PhotoOrganizerLib.Tests.Utils
         }
 
         [Fact]
-        public void FindPhotos_TwoLevelDirectory_SingleFile_JpegFormat()
+        public async Task FindPhotosAsync_TwoLevelDirectory_SingleFile_JpegFormatAsync()
         {
             // Create deeper directory structure
             var tempDirectory = GetTemporaryDirectory();
@@ -86,7 +99,10 @@ namespace PhotoOrganizerLib.Tests.Utils
             var expectedPath = Path.Combine(newDirectory, tempFileName);
 
             // Find actual path
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var p in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(p);
+
             var photo = photoList.FirstOrDefault();
             var actualPath = photo.AbsoluteFilePath;
 
@@ -95,7 +111,7 @@ namespace PhotoOrganizerLib.Tests.Utils
         }
 
         [Fact]
-        public void FindPhotos_MultiLevelDirectory_MultipleFiles_JpegFormat()
+        public async Task FindPhotosAsync_MultiLevelDirectory_MultipleFiles_JpegFormatAsync()
         {
             // Create temporary directory
             var tempDirectory = GetTemporaryDirectory();
@@ -125,7 +141,10 @@ namespace PhotoOrganizerLib.Tests.Utils
             }
 
             // Find actual paths
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var p in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(p);
+
             var actualPaths = new HashSet<string>();
             foreach (var photo in photoList)
             {
