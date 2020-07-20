@@ -10,8 +10,8 @@ namespace PhotoOrganizerLib.Utils
         /// <remarks>If dms is not of size 3 or gpsRef is null, return null.</remarks>
         /// <param name="dms">Rational array containing the degrees/minutes/seconds.</param>
         /// <param name="gpsRef">String containing GPS reference direction, e.g. "N" or "E".</param>
-        /// <exception cref="System.ArgumentException">Thrown when gpsRef is not "N", "E", "W", "S".</exception>
-        public static double? DegreesMinutesSecondsToDecimalDegrees(Rational[] dms, string gpsRef)
+        /// <exception cref="ArgumentException">Thrown when gpsRef is not "N", "E", "W", "S".</exception>
+        public static double? DegreesMinutesSecondsToDecimalDegrees(Rational[]? dms, string? gpsRef)
         {
             if (dms?.Length != 3 || gpsRef is null)
             {
