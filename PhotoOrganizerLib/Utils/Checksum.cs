@@ -1,9 +1,8 @@
+using System;
 using System.IO;
 using System.Security.Cryptography;
-
 using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Interfaces;
-using System;
 
 namespace PhotoOrganizerLib.Utils
 {
@@ -11,7 +10,7 @@ namespace PhotoOrganizerLib.Utils
     /// <summary>Computes the file checksum using a specified hashing algorithm.</summary>
     public class Checksum : IChecksum, IDisposable
     {
-        private HashAlgorithm _hashAlgorithm;
+        private readonly HashAlgorithm? _hashAlgorithm;
         /// <summary>Gets the name of the algorithm used for computing file checksum.</summary>
         public HashAlgorithmName AlgorithmName { get; private set; }
 
@@ -64,7 +63,7 @@ namespace PhotoOrganizerLib.Utils
         }
 
         /// <summary>
-        /// Releases all resources used by current instance of the <see cref="PhotoOrganizerLib.Utils.Checksum" /> class.
+        /// Releases all resources used by current instance of the <see cref="Checksum" /> class.
         /// </summary>
         public void Dispose()
         {
