@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-
 using Microsoft.Extensions.Configuration;
-
 using PhotoOrganizerLib.Extensions;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
@@ -21,11 +19,12 @@ namespace PhotoOrganizerLib.Services
         public Dictionary<string, HashSet<string>> OutputDirectories;
 
         /// <summary>
-        /// Service used for sorting files and <see cref="PhotoOrganizerLib.Models.Photo" /> using datetimes.
+        /// Service used for sorting files and <see cref="Photo" /> using datetimes.
         /// </summary>
         public SortService(IConfiguration config, IRenameService renameService)
         {
-            _outputPath = config.GetValue<string>("output");
+            // set output path to "output" argument or current directory
+            _outputPath = config.GetValue<string>("output") ?? Directory.GetCurrentDirectory();
             OutputDirectories = EnumerateDirectoryStructure(_outputPath);
             _unknownDirectoryExists = TryFindUnknownDirectory(_outputPath);
 
@@ -33,35 +32,34 @@ namespace PhotoOrganizerLib.Services
         }
 
         /// <summary>Sort photo by extracting its DateTimeOriginal value.</summary>
-        /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
-        public void SortPhoto(Photo photo) 
+        /// <param name="photo">A <see cref="Photo" /> object.</param>
+        public void SortPhoto(Photo photo, string dateTimeFormat = "yyyyMMdd_HHmmss") 
         {
-            var sourcePath = photo.AbsoluteFilePath;
-            var dateTimeFormat = "yyyyMMdd_HHmmss";
+            var sourcePath = photo.FilePath;
             var dateTimeString = _renameService.FindPhotoDateTime(photo, dateTimeFormat);
             SortDateTime(sourcePath, dateTimeString, dateTimeFormat);
         }
 
         /// <summary>
         /// Sorts file using `%OUTPUTPATH%/yyyy/MM/datetime.ext` structure based on the provided datetime string.
-        /// If the datetime string is not a valid <see cref="System.DateTime" /> the image is placed in an `unknown/` folder.
+        /// If the datetime string is not a valid <see cref="DateTime" /> the image is placed in an `unknown/` folder.
         /// </summary>
         /// <param name="sourcePath">Path to file.</param>
-        /// <param name="dateTimeString">String representation of a <see cref="System.DateTime" />.</param>
-        /// <param name="format">Format used for the DateTime string. Default is 'yyyy-MM-dd hh:mm:tt'.</param>
+        /// <param name="dateTimeString">String representation of a <see cref="DateTime" />.</param>
+        /// <param name="dateTimeFormat">Format used for the DateTime string. Default is 'yyyyMMdd_HHmmss'.</param>
         /// <remarks>
         /// Sorting of unknown files are only allowed, if the `%OUTPUTPATH%/unknown/` directory exists or can be created.
         /// </remarks>
         public void SortDateTime(string sourcePath,
             string dateTimeString,
-            string format = "yyyy-MM-dd hh:mm:tt",
-            CultureInfo provider = null,
+            string dateTimeFormat = "yyyyMMdd_HHmmss",
+            CultureInfo? provider = null,
             DateTimeStyles dateTimeStyles = DateTimeStyles.None)
         {
             // set provider to default invariant, if provider is null
             provider ??= CultureInfo.InvariantCulture;
 
-            if (!DateTime.TryParseExact(dateTimeString, format, provider, dateTimeStyles, out var dateTime))
+            if (!DateTime.TryParseExact(dateTimeString, dateTimeFormat, provider, dateTimeStyles, out var dateTime))
             {
                 SortUnknownFile(sourcePath);
             }
@@ -108,8 +106,8 @@ namespace PhotoOrganizerLib.Services
         }
 
         /// <summary>
-        /// Enumerates the directory structure for the input path and saves the 
-        /// `yyyy/MM` folder structure to a <see cref="System.Collection.Generic.Dictionary" /> for future reference when moving files.
+        /// Enumerates the directory structure for the input path and saves the
+        /// `yyyy/MM` folder structure to a <see cref="Dictionary{TKey, TValue}" /> for future reference when moving files.
         /// </summary>
         /// <param name="path">Base path containing the output folders.</param>
         /// <returns>Dictionary containing years as keys and a hashsets as values, which contains the months for a given year.</returns>
