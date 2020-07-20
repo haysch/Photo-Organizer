@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
+
 namespace PhotoOrganizerLib.Interfaces
 {
     public interface IOrganizerService
     {
-        void RunOrganizer(string inputDirectory);
+        Task RunOrganizerAsync(string inputDirectory);
     }
 }
