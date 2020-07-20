@@ -55,7 +55,7 @@ namespace PhotoOrganizerLib.Utils
             }
         }
 
-        private static Photo FindPhoto(string filePath)
+        private static Photo? FindPhoto(string filePath)
         {
             using var stream = File.OpenRead(filePath);
             if (FileTypeDetector.DetectFileType(stream) != FileType.Unknown)
