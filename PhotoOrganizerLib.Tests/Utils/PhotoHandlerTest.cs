@@ -52,7 +52,7 @@ namespace PhotoOrganizerLib.Tests.Utils
                 photoList.Add(p);
 
             var photo = photoList.FirstOrDefault();
-            var actualPath = photo.AbsoluteFilePath;
+            var actualPath = photo.FilePath;
 
             Assert.Equal(expectedPath, actualPath);
         }
@@ -78,7 +78,7 @@ namespace PhotoOrganizerLib.Tests.Utils
             var actualPaths = new HashSet<string>();
             foreach (var photo in photoList)
             {
-                actualPaths.Add(photo.AbsoluteFilePath);
+                actualPaths.Add(photo.FilePath);
             }
 
             // Assert the two sets are equal
@@ -104,7 +104,7 @@ namespace PhotoOrganizerLib.Tests.Utils
                 photoList.Add(p);
 
             var photo = photoList.FirstOrDefault();
-            var actualPath = photo.AbsoluteFilePath;
+            var actualPath = photo.FilePath;
 
             // Assert the two paths are equal
             Assert.Equal(expectedPath, actualPath);
@@ -148,7 +148,7 @@ namespace PhotoOrganizerLib.Tests.Utils
             var actualPaths = new HashSet<string>();
             foreach (var photo in photoList)
             {
-                actualPaths.Add(photo.AbsoluteFilePath);
+                actualPaths.Add(photo.FilePath);
             }
 
             // Assert the two sets are equal
