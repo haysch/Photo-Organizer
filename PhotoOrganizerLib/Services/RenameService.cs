@@ -14,9 +14,9 @@ namespace PhotoOrganizerLib.Services
         private readonly RenameType _renameType;
 
         /// <summary>Constructor for renaming class. Sets up type used for renaming files.</summary>
-        /// <param name="renameType">Type of move used for renaming. See <see cref="PhotoOrganizerLib.Enums.RenameType" /> for available types.</param>
+        /// <param name="config">Configuration containing the <see cref="RenameType" /> value.</param>
         /// <remarks>Attempts to parse the rename type from the configuration.</remarks>
-        /// <exception name="System.ArgumentException">Unable to parse input <see cref="PhotoOrganizerLib.Enums.RenameType" />.</exception>
+        /// <exception cref="ArgumentException">Unable to parse input <see cref="RenameType" />.</exception>
         public RenameService(IConfiguration config)
         {
             var renameTypeString = config.GetValue<string>("renameType");
@@ -29,32 +29,31 @@ namespace PhotoOrganizerLib.Services
         /// <summary>
         /// Finds a name for the input photo by using the Original DateTime information.
         /// </summary>
-        /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
-        /// <param name="format">Format for the returned DateTime string.</param>
+        /// <param name="photo">A <see cref="Photo" /> object containing the original date and time.</param>
+        /// <param name="format">Format of the <see cref="DateTime" /> for the returned string.</param>
         /// <remarks>Uses only DateTimeOriginal for naming.</remarks>
-        /// <returns>String containing date and time in provided format, or <see cref="System.String.Empty" /> if no Original DateTime information is available.</returns>
-        /// <exception cref="System.FormatException">
+        /// <returns>String containing date and time in provided format, or <see cref="string.Empty" /> if no Original DateTime information is available.</returns>
+        /// <exception cref="FormatException">
         /// If the length of the format is 1 and it is not one of the format specifier characters defined in <see cref="System.Globalization.DateTimeFormatInfo" /> -or- format does not contain a valid custom pattern.
         /// </exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The range of the date and time is outside of the dates supported by the calender of the current culture.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The range of the date and time is outside of the dates supported by the calender of the current culture.</exception>
         public string FindPhotoDateTime(Photo photo, string format)
         {
-            if (photo.ImageMetadata.ContainsKey("DateTimeOriginal") &&
-                DateTime.TryParse(photo.ImageMetadata["DateTimeOriginal"] as string, out var photoDt))
+            if (photo.DateTimeOriginal.HasValue)
             {
                 // throws error if ToString(format) fails
                 // if the format is incorrect, it will propagate through the entire run => FAIL FAST!
-                return photoDt.ToString(format);
+                return photo.DateTimeOriginal.Value.ToString(format);
             }
 
             return string.Empty;
         }
 
-        /// <summary>Renames file according to the <see cref="PhotoOrganizerLib.Enums.RenameType" />.</summary>
+        /// <summary>Renames file according to the <see cref="RenameType" />.</summary>
         /// <param name="sourcePath">Path to the source file.</param>
         /// <param name="targetPath">Path to target file.</param>
-        /// <exception cref="System.ArgumentException">Thrown when the rename type is not valid.</exception>
-        /// <exception cref="System.IO.FileNotFoundException">Thrown when the file to be renamed does not exist.</exception>
+        /// <exception cref="ArgumentException">Thrown when the rename type is not valid.</exception>
+        /// <exception cref="FileNotFoundException">Thrown when the file to be renamed does not exist.</exception>
         public void RenameFile(string sourcePath, string targetPath)
         {
             try
