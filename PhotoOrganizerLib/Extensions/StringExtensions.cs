@@ -35,8 +35,8 @@ namespace PhotoOrganizerLib.Extensions
         /// <param name="path">Path to directory.</param>
         /// <param name="message">Message to be thrown in exception.</param>
         /// <remarks>If message is not provided, throws a standard error message.</remarks>
-        /// <exception cref="System.IO.DirectoryNotFoundException">Thrown if the path is not an existing directory.</exception>
-        public static void EnsureDirectoryExists(this string path, string message = null)
+        /// <exception cref="DirectoryNotFoundException">Thrown if the path is not an existing directory.</exception>
+        public static void EnsureDirectoryExists(this string path, string? message = null)
         {
             if (!Directory.Exists(path))
             {
