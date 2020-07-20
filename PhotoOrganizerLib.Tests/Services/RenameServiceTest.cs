@@ -54,7 +54,7 @@ namespace PhotoOrganizerLib.Tests.Services
         }
 
         [Fact]
-        public void FindPhotoDateTime_ValidDateTimeString_And_Format()
+        public void FindPhotoDateTime_ValidDateTime_And_Format()
         {
             var renameString = "copy";
             var configuration = CreateInMemoryConfiguration(renameString);
@@ -66,7 +66,7 @@ namespace PhotoOrganizerLib.Tests.Services
             // Test that FindPhotoDateTime finds datetime with correct format
             var dateTimeToday = DateTime.Today;
             var format = "yyyyMMdd_HHmmss";
-            Assert.True(photo.TryAddMetadata("DateTimeOriginal", dateTimeToday.ToString()));
+            photo.DateTimeOriginal = dateTimeToday;
 
             var expectedDateTimeString = dateTimeToday.ToString(format);
 
@@ -76,7 +76,7 @@ namespace PhotoOrganizerLib.Tests.Services
         }
 
         [Fact]
-        public void FindPhotoDateTime_InvalidDateTimeString()
+        public void FindPhotoDateTime_InvalidDateTime()
         {
             var renameString = "copy";
             var configuration = CreateInMemoryConfiguration(renameString);
@@ -86,9 +86,8 @@ namespace PhotoOrganizerLib.Tests.Services
             var photo = new Photo("");
 
             // Test that FindPhotoDateTime finds datetime with correct format
-            var dateTimeToday = "bob-the-builder";
             var format = "yyyyMMdd_HHmmss";
-            Assert.True(photo.TryAddMetadata("DateTimeOriginal", dateTimeToday.ToString()));
+            photo.DateTimeOriginal = null;
 
             var actualDateTimeString = renameService.FindPhotoDateTime(photo, format);
 
@@ -108,7 +107,7 @@ namespace PhotoOrganizerLib.Tests.Services
             // Test that FindPhotoDateTime finds datetime with correct format
             var dateTimeToday = DateTime.Today;
             var format = "h";
-            Assert.True(photo.TryAddMetadata("DateTimeOriginal", dateTimeToday.ToString()));
+            photo.DateTimeOriginal = dateTimeToday;
 
             Assert.Throws<FormatException>(() => renameService.FindPhotoDateTime(photo, format));
         }
