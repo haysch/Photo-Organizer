@@ -1,10 +1,9 @@
+using MetadataExtractor.Util;
+using PhotoOrganizerLib.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using MetadataExtractor.Util;
-using PhotoOrganizerLib.Models;
 
 namespace PhotoOrganizerLib.Utils
 {

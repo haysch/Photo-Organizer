@@ -30,7 +30,7 @@ namespace PhotoOrganizerLib.Extensions
 
             photo.Latitude = latitude;
             photo.Longitude = longitude;
-            
+
             // if we cannot get both the altitude and its reference, do not save anything
             if (directory.TryGetByte(GpsDirectory.TagAltitudeRef, out var gpsAltBit) &&
                 directory.TryGetInt16(GpsDirectory.TagAltitude, out var gpsAlt))

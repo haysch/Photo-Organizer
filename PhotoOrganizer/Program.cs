@@ -6,7 +6,7 @@ namespace PhotoOrganizer
     {
         static void Main(string[] args)
         {
-            
+
         }
 
         private static IConfiguration BuildConfig(string[] args)

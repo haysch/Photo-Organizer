@@ -1,13 +1,12 @@
-using PhotoOrganizerLib.Interfaces;
-using Microsoft.Extensions.Configuration;
-using PhotoOrganizerLib.Utils;
-using PhotoOrganizerLib.Extensions;
-using System.IO;
 using MetadataExtractor;
+using Microsoft.Extensions.Configuration;
 using PhotoOrganizerLib.Data;
-using System.Threading.Tasks;
 using PhotoOrganizerLib.Enums;
-using System;
+using PhotoOrganizerLib.Extensions;
+using PhotoOrganizerLib.Interfaces;
+using PhotoOrganizerLib.Utils;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace PhotoOrganizerLib.Services
 {

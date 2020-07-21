@@ -1,7 +1,6 @@
-using Xunit;
-
 using PhotoOrganizerLib.Extensions;
 using System.IO;
+using Xunit;
 
 namespace PhotoOrganizerLib.Tests.Extensions.Tests
 {
@@ -31,7 +30,7 @@ namespace PhotoOrganizerLib.Tests.Extensions.Tests
         public void IsYear_Null()
         {
             string yearString = null;
-            
+
             var actual = yearString.IsYear();
 
             Assert.False(actual);
@@ -61,7 +60,7 @@ namespace PhotoOrganizerLib.Tests.Extensions.Tests
         public void IsMonth_Null()
         {
             string monthString = null;
-            
+
             var actual = monthString.IsMonth();
 
             Assert.False(actual);

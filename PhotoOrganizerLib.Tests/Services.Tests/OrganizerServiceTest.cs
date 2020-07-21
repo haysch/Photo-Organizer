@@ -39,7 +39,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         private static DbConnection CreateInMemoryDatabase()
         {
             var connection = new SqliteConnection("Filename=:memory:");
-            
+
             connection.Open();
 
             return connection;
@@ -50,7 +50,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         {
             /// Description
             /// Test the organizer with no photos
-            
+
             /// Expectation
             /// ISortService.SortPhoto is never called. Database is empty.
 

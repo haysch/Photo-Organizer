@@ -1,5 +1,5 @@
-using System;
 using MetadataExtractor;
+using System;
 
 namespace PhotoOrganizerLib.Utils
 {
@@ -18,7 +18,8 @@ namespace PhotoOrganizerLib.Utils
                 return null;
             }
 
-            var refMultiplier = gpsRef.ToUpper() switch {
+            var refMultiplier = gpsRef.ToUpper() switch
+            {
                 string s when s == "S" || s == "W" => -1,
                 string s when s == "E" || s == "N" => 1,
                 _ => throw new ArgumentException("GPS Reference direction is invalid.")

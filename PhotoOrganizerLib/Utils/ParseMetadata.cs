@@ -1,11 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Jpeg;
 using MetadataExtractor.Formats.Png;
-using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Extensions;
+using PhotoOrganizerLib.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PhotoOrganizerLib.Utils
 {
@@ -22,7 +22,7 @@ namespace PhotoOrganizerLib.Utils
                 // Nothing to do
                 return;
             }
-            
+
             // TODO: Maybe change to returning a Dictionary<string, object> instead of adding to photo?
             directories.OfType<ExifSubIfdDirectory>()
                 .FirstOrDefault()?

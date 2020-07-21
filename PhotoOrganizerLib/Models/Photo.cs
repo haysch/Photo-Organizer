@@ -1,7 +1,7 @@
 using System;
-using System.IO;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 
 namespace PhotoOrganizerLib.Models
 {
@@ -74,7 +74,7 @@ namespace PhotoOrganizerLib.Models
         /// Gets and sets the focal length of the camera.
         /// </summary>
         public float? FocalLength { get; set; }
-        
+
         /// <summary>
         /// Gets and sets the directory path to the file excluding its name.
         /// </summary>

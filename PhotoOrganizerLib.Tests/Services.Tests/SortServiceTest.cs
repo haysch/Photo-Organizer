@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Services;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Xunit;
 
 namespace PhotoOrganizerLib.Tests.Services.Tests
@@ -20,7 +20,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             {
                 { "output", outputPath }
             };
-            
+
             return new ConfigurationBuilder()
                 .AddInMemoryCollection(memConfig)
                 .Build();
@@ -31,7 +31,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         {
             /// Description:
             /// Tests whether it is possible to construct an dictionary that contains the existing yyyy/mm folders.
-            
+
             /// Expectation:
             /// The dictionary only contains year entries with corresponding months.
 
@@ -328,7 +328,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var photoPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".ab:c");
             var fs = File.Create(photoPath);
             fs.Close();
-            
+
             var photo = new Photo(photoPath);
 
             var expectedDateTime = DateTime.Today.ToString("yyyyMMdd_HHmmss");

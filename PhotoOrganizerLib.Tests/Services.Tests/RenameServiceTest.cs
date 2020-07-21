@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Microsoft.Extensions.Configuration;
 using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Services;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Xunit;
 
 namespace PhotoOrganizerLib.Tests.Services.Tests
@@ -17,7 +17,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             {
                 { "renameType", type }
             };
-            
+
             return new ConfigurationBuilder()
                 .AddInMemoryCollection(memConfig)
                 .Build();

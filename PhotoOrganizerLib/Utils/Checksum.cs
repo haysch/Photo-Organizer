@@ -1,8 +1,8 @@
+using PhotoOrganizerLib.Enums;
+using PhotoOrganizerLib.Interfaces;
 using System;
 using System.IO;
 using System.Security.Cryptography;
-using PhotoOrganizerLib.Enums;
-using PhotoOrganizerLib.Interfaces;
 
 namespace PhotoOrganizerLib.Utils
 {

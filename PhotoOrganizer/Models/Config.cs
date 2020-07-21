@@ -1,8 +1,10 @@
 using PhotoOrganizerLib.Enums;
 
-namespace PhotoOrganizer.Models {
+namespace PhotoOrganizer.Models
+{
     /// <summary>Structure of configuration file.</summary>
-    public class Config {
+    public class Config
+    {
         /// <summary>Path to working directory.</summary>
         public string WorkDir;
         /// <summary>Path to output directory.</summary>

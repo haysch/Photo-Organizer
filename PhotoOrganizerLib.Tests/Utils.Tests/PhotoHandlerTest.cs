@@ -1,12 +1,12 @@
+using PhotoOrganizerLib.Models;
+using PhotoOrganizerLib.Utils;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using PhotoOrganizerLib.Models;
-using PhotoOrganizerLib.Utils;
 using Xunit;
-using System.Drawing.Imaging;
 
 namespace PhotoOrganizerLib.Tests.Utils.Tests
 {
@@ -114,7 +114,7 @@ namespace PhotoOrganizerLib.Tests.Utils.Tests
         {
             // Create temporary directory
             var tempDirectory = PathHelper.GetTemporaryDirectory();
-            
+
             // Find expected paths when creating files
             var expectedPaths = new HashSet<string>();
             for (var i = 0; i < 10; i++)

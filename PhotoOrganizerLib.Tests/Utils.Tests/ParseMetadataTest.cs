@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Jpeg;
 using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Utils;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using Xunit;
 
 namespace PhotoOrganizerLib.Tests.Utils.Tests
@@ -25,7 +25,7 @@ namespace PhotoOrganizerLib.Tests.Utils.Tests
         {
             // Align the data formatting for testing
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
-            
+
             // SubIFD
             float fNumber = 12;
             short iso = 1200;
@@ -37,7 +37,7 @@ namespace PhotoOrganizerLib.Tests.Utils.Tests
             var height = 32;
             var width = 32;
 
-            var directories = new List<Directory> 
+            var directories = new List<Directory>
             {
                 CreateSubIfdDirectory(fNumber, iso, apexValue, dateTimeOriginal, focalLength),
                 CreateJpegDirectory(height, width)
@@ -60,8 +60,6 @@ namespace PhotoOrganizerLib.Tests.Utils.Tests
 
         private ExifSubIfdDirectory CreateSubIfdDirectory(float fNumber, short iso, float apexValue, DateTime dateTimeOriginal, float focalLength)
         {
-            
-
             var subIfdDirectory = new ExifSubIfdDirectory();
 
             subIfdDirectory.Set(ExifSubIfdDirectory.TagFNumber, fNumber);
@@ -75,8 +73,6 @@ namespace PhotoOrganizerLib.Tests.Utils.Tests
 
         private JpegDirectory CreateJpegDirectory(int height, int width)
         {
-            
-
             var jpegDirectory = new JpegDirectory();
 
             jpegDirectory.Set(JpegDirectory.TagImageHeight, height);

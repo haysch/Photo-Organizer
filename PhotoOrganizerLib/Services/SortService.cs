@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using Microsoft.Extensions.Configuration;
 using PhotoOrganizerLib.Extensions;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 
 namespace PhotoOrganizerLib.Services
 {
@@ -33,7 +33,7 @@ namespace PhotoOrganizerLib.Services
 
         /// <summary>Sort photo by extracting its DateTimeOriginal value.</summary>
         /// <param name="photo">A <see cref="Photo" /> object.</param>
-        public void SortPhoto(Photo photo, string dateTimeFormat = "yyyyMMdd_HHmmss") 
+        public void SortPhoto(Photo photo, string dateTimeFormat = "yyyyMMdd_HHmmss")
         {
             var sourcePath = photo.FilePath;
             var dateTimeString = _renameService.FindPhotoDateTime(photo, dateTimeFormat);
@@ -72,7 +72,7 @@ namespace PhotoOrganizerLib.Services
 
                 var sortPath = Path.Join(year, month, dateTimeString + fileExtension); // To make a bit more explicit
                 var targetPath = Path.Join(_outputPath, sortPath);
-                
+
                 // If year and month directories don't exist, try to create target path
                 // then rename file
                 if ((OutputDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month)))
@@ -141,7 +141,7 @@ namespace PhotoOrganizerLib.Services
                         {
                             monthSet.Add(monthString);
                         }
-                    } 
+                    }
 
                     directoryStructure.Add(yearString, monthSet);
                 }

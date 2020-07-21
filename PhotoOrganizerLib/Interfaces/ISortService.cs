@@ -1,6 +1,5 @@
-using System;
-using System.Globalization;
 using PhotoOrganizerLib.Models;
+using System.Globalization;
 
 namespace PhotoOrganizerLib.Interfaces
 {

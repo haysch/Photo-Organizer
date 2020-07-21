@@ -1,11 +1,11 @@
+using PhotoOrganizerLib.Enums;
+using PhotoOrganizerLib.Models;
+using PhotoOrganizerLib.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using PhotoOrganizerLib.Enums;
-using PhotoOrganizerLib.Models;
-using PhotoOrganizerLib.Utils;
 using Xunit;
 
 namespace PhotoOrganizerLib.Tests.Utils.Tests

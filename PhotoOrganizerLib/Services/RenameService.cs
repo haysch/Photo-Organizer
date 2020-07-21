@@ -1,10 +1,9 @@
-using System;
-using System.IO;
-
+using Microsoft.Extensions.Configuration;
+using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
-using PhotoOrganizerLib.Enums;
-using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
 
 namespace PhotoOrganizerLib.Services
 {

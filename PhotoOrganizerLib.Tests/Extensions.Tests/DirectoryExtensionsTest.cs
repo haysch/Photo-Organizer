@@ -1,18 +1,14 @@
-using System;
-using Xunit;
-
-using PhotoOrganizerLib.Extensions;
-using PhotoOrganizerLib.Models;
-using PhotoOrganizerLib.Utils;
-
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Jpeg;
 using MetadataExtractor.Formats.Png;
-
-using PhotoOrganizerLib.Tests.Models;
-using System.Threading;
+using PhotoOrganizerLib.Extensions;
+using PhotoOrganizerLib.Models;
+using PhotoOrganizerLib.Utils;
+using System;
 using System.Globalization;
+using System.Threading;
+using Xunit;
 
 namespace PhotoOrganizerLib.Tests.Extensions.Tests
 {
@@ -31,7 +27,7 @@ namespace PhotoOrganizerLib.Tests.Extensions.Tests
             Assert.Null(photo.AltitudeReference);
             Assert.Null(photo.Altitude);
         }
-        
+
         [Fact]
         public void ParseIfd0Directory_NullDirectory_NoMetadata()
         {
@@ -92,7 +88,7 @@ namespace PhotoOrganizerLib.Tests.Extensions.Tests
 
             var gpsReference = "N";
             var gpsRationalArr = new Rational[3]
-            { 
+            {
                 new Rational(1, 1),
                 new Rational(60, 1),
                 new Rational(3600, 1)
@@ -108,7 +104,7 @@ namespace PhotoOrganizerLib.Tests.Extensions.Tests
 
             var actualLatitude = photo.Latitude;
             var actualLongitude = photo.Longitude;
-            
+
             var expectedLatitude = MetadataConverter.DegreesMinutesSecondsToDecimalDegrees(gpsRationalArr, gpsReference);
             var expectedLongitude = MetadataConverter.DegreesMinutesSecondsToDecimalDegrees(gpsRationalArr, gpsReference);
 
@@ -188,7 +184,7 @@ namespace PhotoOrganizerLib.Tests.Extensions.Tests
             subIfdDirectory.Parse(photo);
 
             var expectedShutterSpeed = "0.5 sec"; // round((1 / exp(1 * log(2))) * 10) / 10 = 0.5
-            
+
             var actualFNumber = photo.FNumber;
             var actualIso = photo.Iso;
             var actualShutterSpeed = photo.ShutterSpeed;
