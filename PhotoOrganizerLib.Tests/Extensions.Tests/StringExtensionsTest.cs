@@ -3,7 +3,7 @@ using Xunit;
 using PhotoOrganizerLib.Extensions;
 using System.IO;
 
-namespace PhotoOrganizerLib.Tests.Extensions
+namespace PhotoOrganizerLib.Tests.Extensions.Tests
 {
     public class StringExtensionsTest
     {

@@ -2,10 +2,18 @@ using PhotoOrganizerLib.Models;
 using System.IO;
 using Xunit;
 
-namespace PhotoOrganizerLib.Tests.Models
+namespace PhotoOrganizerLib.Tests.Models.Tests
 {
     public class PhotoTest
     {
+        [Fact]
+        public void Constructor_NoArguments()
+        {
+            var photo = new Photo();
+            Assert.Empty(photo.Name);
+            Assert.Empty(photo.DirectoryPath);
+        }
+
         [Fact]
         public void Constructor_PathAndDictionary()
         {

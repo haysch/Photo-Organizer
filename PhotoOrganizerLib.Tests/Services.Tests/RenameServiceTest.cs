@@ -6,7 +6,7 @@ using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Services;
 using Xunit;
 
-namespace PhotoOrganizerLib.Tests.Services
+namespace PhotoOrganizerLib.Tests.Services.Tests
 {
     public class RenameServiceTest
     {
@@ -236,15 +236,14 @@ namespace PhotoOrganizerLib.Tests.Services
             // Create source path and file, keep file open
             var sourcePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-            using (var fs = File.Create(sourcePath))
-            {
-                // "Copy" source to target
-                var targetPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-                renameService.RenameFile(sourcePath, targetPath);
+            using var fs = File.Create(sourcePath);
 
-                Assert.True(File.Exists(sourcePath));
-                Assert.False(File.Exists(targetPath));
-            }
+            // "Copy" source to target
+            var targetPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            renameService.RenameFile(sourcePath, targetPath);
+
+            Assert.True(File.Exists(sourcePath));
+            Assert.False(File.Exists(targetPath));
         }
 
         [Fact]

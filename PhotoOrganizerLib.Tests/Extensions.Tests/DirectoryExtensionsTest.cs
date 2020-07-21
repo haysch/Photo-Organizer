@@ -14,7 +14,7 @@ using PhotoOrganizerLib.Tests.Models;
 using System.Threading;
 using System.Globalization;
 
-namespace PhotoOrganizerLib.Tests.Extensions
+namespace PhotoOrganizerLib.Tests.Extensions.Tests
 {
     public class ExtensionsTest
     {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using PhotoOrganizerLib.Enums;
+using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Utils;
 using Xunit;
 
@@ -107,7 +108,7 @@ namespace PhotoOrganizerLib.Tests.Utils.Tests
 
             var actual = cs.ComputeChecksum(null);
 
-            Assert.Empty(actual);
+            Assert.Null(actual);
         }
 
         [Fact]
@@ -118,7 +119,34 @@ namespace PhotoOrganizerLib.Tests.Utils.Tests
 
             var actual = cs.ComputeChecksum(stream);
 
-            Assert.Empty(actual);
+            Assert.Null(actual);
+        }
+
+        [Fact]
+        public void ComputeChecksum_MD5_InputFile()
+        {
+            var tempDirectory = PathHelper.GetTemporaryDirectory();
+            var filepath = PathHelper.CreateTmpFile(tempDirectory);
+
+            var photo = new Photo("");
+            var cs = new Checksum(Algorithm.MD5);
+
+            using var fs = File.OpenRead(filepath);
+
+            // Assign checksum to photo object
+            photo.Checksum = cs.ComputeChecksum(fs);
+
+            // Reset stream
+            fs.Position = 0;
+
+            // Compute checksum using expected behavior
+            using var md5 = MD5.Create();
+            var md5hash = md5.ComputeHash(fs);
+            var expected = BitConverter.ToString(md5hash)
+                .Replace("-", string.Empty)
+                .ToLowerInvariant();
+
+            Assert.Equal(expected, photo.Checksum);
         }
     }
 }
