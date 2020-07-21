@@ -4,6 +4,6 @@ namespace PhotoOrganizerLib.Interfaces
 {
     public interface IChecksum
     {
-        string ComputeChecksum(Stream stream);
+        string? ComputeChecksum(Stream stream);
     }
 }
