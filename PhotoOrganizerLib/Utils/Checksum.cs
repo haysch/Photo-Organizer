@@ -6,19 +6,24 @@ using PhotoOrganizerLib.Interfaces;
 
 namespace PhotoOrganizerLib.Utils
 {
-
-    /// <summary>Computes the file checksum using a specified hashing algorithm.</summary>
+    /// <summary>
+    /// Computes the file checksum using a specified hashing algorithm.
+    /// </summary>
     public class Checksum : IChecksum, IDisposable
     {
         private readonly HashAlgorithm? _hashAlgorithm;
-        /// <summary>Gets the name of the algorithm used for computing file checksum.</summary>
+        /// <summary>
+        /// Gets the name of the algorithm used for computing file checksum.
+        /// </summary>
         public HashAlgorithmName AlgorithmName { get; private set; }
 
-        /// <summary>Constructor for the Checksum class used for computing file hashes.</summary>
+        /// <summary>
+        /// Constructor for the Checksum class used for computing file checksum.
+        /// </summary>
         /// <param name="algorithm">Algorithm to be used for hashing.</param>
         /// <remarks>
         /// Supported hash algorithms: { MD5, SHA1, SHA256 }.
-        /// If None, do not compute any file hash.
+        /// If <see langword="Algorithm.None" />, do not compute any file hash.
         /// Default hash algorithm is MD5, if input algorithm is unsupported or null.
         /// </remarks>
         public Checksum(Algorithm algorithm)
@@ -45,14 +50,16 @@ namespace PhotoOrganizerLib.Utils
             };
         }
 
-        /// <summary>Computes checksum for a given stream.</summary>
-        /// <returns>Checksum of stream.</returns>
-        /// <param name="stream">Stream to compute hash value for.</param>
-        public string ComputeChecksum(Stream stream)
+        /// <summary>
+        /// Computes checksum for a given <paramref name="stream" />.
+        /// </summary>
+        /// <returns>Checksum of input <paramref name="stream" />. Returns <see langword="null" /> if input or hashing algorithm is <see langword="null" />.</returns>
+        /// <param name="stream">Stream to compute hash value.</param>
+        public string? ComputeChecksum(Stream stream)
         {
             if (_hashAlgorithm is null || stream is null)
             {
-                return string.Empty;
+                return null;
             }
 
             var hashValue = _hashAlgorithm.ComputeHash(stream);
