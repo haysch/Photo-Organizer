@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace PhotoOrganizerLib.Models
 {
@@ -10,6 +11,7 @@ namespace PhotoOrganizerLib.Models
         /// <summary>
         /// Gets and sets the name of the image.
         /// </summary>
+        [Key]
         public string Name { get; set; }
         /// <summary>
         /// Gets and sets the height of the image.
@@ -19,6 +21,10 @@ namespace PhotoOrganizerLib.Models
         /// Gets and sets the width of the image.
         /// </summary>
         public int Width { get; set; }
+        /// <summary>
+        /// Gets and sets the checksum of the image.
+        /// </summary>
+        public string? Checksum { get; set; }
         /// <summary>
         /// Gets and sets the latitude, where the image was taken.
         /// </summary>
@@ -87,6 +93,16 @@ namespace PhotoOrganizerLib.Models
                 Name = Path.GetFileName(value);
                 DirectoryPath = Path.GetDirectoryName(value);
             }
+        }
+
+        /// <summary>
+        /// Initializing a new instance of the <see cref="Photo" /> without a filepath.
+        /// </summary>
+        /// <remarks>Sets Name and DirectoryPath to <see langword="string.Empty" />.</remarks>
+        public Photo()
+        {
+            Name = string.Empty;
+            DirectoryPath = string.Empty;
         }
 
         /// <summary>
