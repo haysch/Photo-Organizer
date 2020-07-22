@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
@@ -10,19 +11,22 @@ namespace PhotoOrganizerLib.Services
     /// <summary>Renaming class for copying or moving of files.</summary>
     public class RenameService : IRenameService
     {
+        private readonly ILogger<IRenameService> _logger;
         private readonly RenameType _renameType;
 
         /// <summary>Constructor for renaming class. Sets up type used for renaming files.</summary>
         /// <param name="config">Configuration containing the <see cref="RenameType" /> value.</param>
         /// <remarks>Attempts to parse the rename type from the configuration.</remarks>
         /// <exception cref="ArgumentException">Unable to parse input <see cref="RenameType" />.</exception>
-        public RenameService(IConfiguration config)
+        public RenameService(ILogger<IRenameService> logger, IConfiguration config)
         {
             var renameTypeString = config.GetValue<string>("renameType");
             if (!Enum.TryParse(renameTypeString, true, out _renameType))
             {
                 throw new ArgumentException($"Renaming with type '{ renameTypeString }' is not supported.");
             }
+
+            _logger = logger;
         }
 
         /// <summary>
@@ -50,20 +54,21 @@ namespace PhotoOrganizerLib.Services
 
         /// <summary>Renames file according to the <see cref="RenameType" />.</summary>
         /// <param name="sourcePath">Path to the source file.</param>
-        /// <param name="targetPath">Path to target file.</param>
-        /// <exception cref="ArgumentException">Thrown when the rename type is not valid.</exception>
-        /// <exception cref="FileNotFoundException">Thrown when the file to be renamed does not exist.</exception>
-        public void RenameFile(string sourcePath, string targetPath)
+        /// <param name="destPath">Path to target file.</param>
+        /// <exception cref="UnauthorizedAccessException">The caller does not have the required permission.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="sourcePath"/> or <paramref name="destPath"/> is in an invalid form.</exception>
+        /// <exception cref="PathTooLongException">The specified path, or filename, or both exceeds the system-defined maximum length.</exception>
+        public void RenameFile(string sourcePath, string destPath)
         {
             try
             {
                 switch (_renameType)
                 {
                     case RenameType.Copy:
-                        File.Copy(sourcePath, targetPath);
+                        File.Copy(sourcePath, destPath);
                         return;
                     case RenameType.Move:
-                        File.Move(sourcePath, targetPath);
+                        File.Move(sourcePath, destPath);
                         return;
                     // case RenameType.Replace:
                     //     File.Replace(sourcePath, targetPath, sourcePath + ".backup");
@@ -75,30 +80,43 @@ namespace PhotoOrganizerLib.Services
             }
             catch (FileNotFoundException)
             {
-                // TODO log unable to rename file
+                _logger.LogWarning($"Input file not found at { sourcePath }.");
             }
             catch (DirectoryNotFoundException)
             {
-                // TODO log
+                _logger.LogWarning("Source or destination path not found.");
+                _logger.LogDebug($"\tSource path: { sourcePath }\n\tDestination path: { destPath }");
             }
             catch (IOException)
             {
-                // TODO log
+                _logger.LogWarning($"Destination file already exists at { destPath }.");
+                _logger.LogDebug($"Source path: { sourcePath }");
             }
             catch (ArgumentNullException)
             {
-                // TODO log
+                if (sourcePath is null)
+                {
+                    _logger.LogWarning("Source path is null.");
+                    _logger.LogDebug($"Destination path: { destPath }");
+                }
+                else
+                {
+                    _logger.LogWarning("Destination path is null.");
+                    _logger.LogDebug($"Source path: { sourcePath }");
+                }
             }
             catch (ArgumentException)
             {
-                // TODO log
+                _logger.LogWarning("Source or destination path is zero-length, contains only whitespace or contains invalid path characters.");
+                _logger.LogWarning($"\tSource path: { sourcePath }\n\tDestination path: { destPath }");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 /// Possible exceptions:
                 /// UnauthorizedAccessException, NotSupportedException, PathTooLongException
-                // TODO bail out? - we might not be able to recover
-                // throw;
+                
+                _logger.LogError($"{ typeof(IRenameService) } has encountered a problem which cannot be handled gracefully.\n{ ex }");
+                throw;
             }
         }
     }

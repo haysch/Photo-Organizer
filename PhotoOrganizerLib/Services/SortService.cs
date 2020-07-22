@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using PhotoOrganizerLib.Extensions;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
@@ -11,9 +12,14 @@ namespace PhotoOrganizerLib.Services
 {
     public class SortService : ISortService
     {
+        private readonly ILogger<ISortService> _logger;
         private readonly string _outputPath;
         private readonly IRenameService _renameService;
         private readonly bool _unknownDirectoryExists;
+
+        // Default values
+        private readonly string UNKNOWN_PATH = "unknown";
+        private const string DEFAULT_DATETIME_FORMAT = "yyyyMMdd_HHmmss";
 
         // REMARK currently only accepts DateTime with YYYY and MM (e.g. yyyy/mm/Photo.jpg)
         public Dictionary<string, HashSet<string>> OutputDirectories;
@@ -21,19 +27,20 @@ namespace PhotoOrganizerLib.Services
         /// <summary>
         /// Service used for sorting files and <see cref="Photo" /> using datetimes.
         /// </summary>
-        public SortService(IConfiguration config, IRenameService renameService)
+        public SortService(ILogger<ISortService> logger, IConfiguration config, IRenameService renameService)
         {
             // set output path to "output" argument or current directory
             _outputPath = config.GetValue<string>("output") ?? Directory.GetCurrentDirectory();
             OutputDirectories = EnumerateDirectoryStructure(_outputPath);
             _unknownDirectoryExists = TryFindUnknownDirectory(_outputPath);
 
+            _logger = logger;
             _renameService = renameService;
         }
 
         /// <summary>Sort photo by extracting its DateTimeOriginal value.</summary>
         /// <param name="photo">A <see cref="Photo" /> object.</param>
-        public void SortPhoto(Photo photo, string dateTimeFormat = "yyyyMMdd_HHmmss")
+        public void SortPhoto(Photo photo, string dateTimeFormat = DEFAULT_DATETIME_FORMAT)
         {
             var sourcePath = photo.FilePath;
             var dateTimeString = _renameService.FindPhotoDateTime(photo, dateTimeFormat);
@@ -52,7 +59,7 @@ namespace PhotoOrganizerLib.Services
         /// </remarks>
         public void SortDateTime(string sourcePath,
             string dateTimeString,
-            string dateTimeFormat = "yyyyMMdd_HHmmss",
+            string dateTimeFormat = DEFAULT_DATETIME_FORMAT,
             CultureInfo? provider = null,
             DateTimeStyles dateTimeStyles = DateTimeStyles.None)
         {
@@ -98,11 +105,10 @@ namespace PhotoOrganizerLib.Services
             if (_unknownDirectoryExists)
             {
                 var fileName = Path.GetFileName(sourcePath);
-                var unknownPath = Path.Join(_outputPath, "unknown", fileName);
+                var unknownPath = Path.Join(_outputPath, UNKNOWN_PATH, fileName);
                 _renameService.RenameFile(sourcePath, unknownPath);
             }
             // else don't do anything - just leave the image 
-            // TODO: consider adding logging?
         }
 
         /// <summary>
@@ -158,8 +164,10 @@ namespace PhotoOrganizerLib.Services
         /// <returns>Indicates whether it was possible to find, or create, the unknown directory.</returns>
         private bool TryFindUnknownDirectory(string path)
         {
-            var unknownPath = Path.Join(path, "unknown");
-            return (Directory.Exists(unknownPath) || TryCreateDirectory(unknownPath));
+            var unknownPath = Path.Join(path, UNKNOWN_PATH);
+            var unknownExists = (Directory.Exists(unknownPath) || TryCreateDirectory(unknownPath));
+            _logger.LogInformation($"Unknown directory { unknownPath } does not exist.");
+            return unknownExists;
         }
 
         /// <summary>
@@ -175,6 +183,7 @@ namespace PhotoOrganizerLib.Services
             }
             catch (Exception)
             {
+                _logger.LogDebug($"Could not create directory at { path }.");
                 return false;
             }
         }
