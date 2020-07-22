@@ -1,4 +1,5 @@
 using MetadataExtractor;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PhotoOrganizerLib.Data;
@@ -7,6 +8,7 @@ using PhotoOrganizerLib.Extensions;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Utils;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PhotoOrganizerLib.Services
@@ -45,14 +47,14 @@ namespace PhotoOrganizerLib.Services
             // if input directory does not exist, throw exception and end run
             inputDirectory.EnsureDirectoryExists();
 
+            // preliminary setup
             var hashAlgorithm = _configuration.GetValue<Algorithm>("hash-algorithm");
             var checksum = new Checksum(hashAlgorithm);
 
             var photoCounter = 0;
+            await _context.Database.EnsureCreatedAsync();
 
             _logger.LogInformation($"Begin organizing in { inputDirectory }");
-
-            await _context.Database.EnsureCreatedAsync();
 
             await foreach (var photo in PhotoHandler.FindPhotosAsync(inputDirectory))
             {
@@ -71,8 +73,11 @@ namespace PhotoOrganizerLib.Services
                 // Rename and sort photos
                 _sortService.SortPhoto(photo);
 
-                // Add photo to database context
-                await _context.Photos.AddAsync(photo);
+                // Add photo to database context if it does not exist already
+                if (!await _context.Photos.AnyAsync(p => p.Name == photo.Name))
+                {
+                    await _context.Photos.AddAsync(photo);
+                }
 
                 photoCounter++;
             }
