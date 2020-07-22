@@ -29,12 +29,13 @@ namespace PhotoOrganizerLib.Services
         /// </summary>
         public SortService(ILogger<ISortService> logger, IConfiguration config, IRenameService renameService)
         {
+            _logger = logger;
+            
             // set output path to "output" argument or current directory
             _outputPath = config.GetValue<string>("output") ?? Directory.GetCurrentDirectory();
             OutputDirectories = EnumerateDirectoryStructure(_outputPath);
             _unknownDirectoryExists = TryFindUnknownDirectory(_outputPath);
 
-            _logger = logger;
             _renameService = renameService;
         }
 
