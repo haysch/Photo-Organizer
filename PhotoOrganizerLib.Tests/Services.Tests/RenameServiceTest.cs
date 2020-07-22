@@ -20,7 +20,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         {
             var memConfig = new Dictionary<string, string>
             {
-                { "renameType", type }
+                { "rename-type", type }
             };
 
             return new ConfigurationBuilder()
