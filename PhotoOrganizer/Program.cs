@@ -71,10 +71,10 @@ namespace PhotoOrganizer
                 switch (databaseFlag)
                 {
                     case DatabaseFlag.MySQL:
-                        options.UseMySQL("");
+                        // options.UseMySQL("");
                         break;
                     case DatabaseFlag.PostgreSQL:
-                        options.UseNpgsql("");
+                        // options.UseNpgsql("");
                         break;
                     case DatabaseFlag.SQLite:
                     default:
