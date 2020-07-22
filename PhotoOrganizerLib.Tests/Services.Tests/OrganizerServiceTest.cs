@@ -23,6 +23,8 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             .UseSqlite(CreateInMemoryDatabase())
             .Options;
 
+        private readonly ILogger<IOrganizerService> logger = Mock.Of<ILogger<IOrganizerService>>();
+
         // Helper method for creating InMemoryConfiguration
         private static IConfiguration CreateInMemoryConfiguration(string hashAlgorithm)
         {
@@ -55,8 +57,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             /// Expectation
             /// ISortService.SortPhoto is never called. Database is empty.
 
-            // Mock ISortService and ILogger
-            var loggerMock = new Mock<ILogger<IOrganizerService>>();
+            // Mock ISortService
             var sortServiceMock = new Mock<ISortService>();
 
             // Setup SortPhoto method
@@ -64,7 +65,6 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
                 .Verifiable();
 
             // Fetch mocked objects
-            var logger = loggerMock.Object;
             var sortService = sortServiceMock.Object;
 
             // Create IConfiguration
@@ -92,21 +92,26 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         [Fact]
         public async Task RunOrganizer_FivePhotos()
         {
-            var runs = 5;
+            /// Description
+            /// Generates JPEG files and runs the organizer service
+
+            /// Expectation
+            /// The generated JPEG files are found, sorted and added to the database
+
+            var files = 5;
 
             // Create temp JPEG files
             var tempDirectory = PathHelper.GetTemporaryDirectory();
 
             var filenames = new List<string>();
-            for (var i = 0; i < runs; i++)
+            for (var i = 0; i < files; i++)
             {
                 // Generate faux JPEG files and save names
                 var filepath = PathHelper.CreateImageFile(tempDirectory, ImageFormat.Jpeg);
                 filenames.Add(Path.GetFileName(filepath));
             }
 
-            // Mock ISortService and ILogger
-            var loggerMock = new Mock<ILogger<IOrganizerService>>();
+            // Mock ISortService
             var sortServiceMock = new Mock<ISortService>();
 
             // Setup SortPhoto method
@@ -114,7 +119,6 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
                 .Verifiable();
             
             // Fetch mocked objects
-            var logger = loggerMock.Object;
             var sortService = sortServiceMock.Object;
 
             // Create IConfiguration
@@ -130,7 +134,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             await organizerService.RunOrganizerAsync(tempDirectory);
 
             // Verify mock call
-            sortServiceMock.Verify(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()), Times.Exactly(runs));
+            sortServiceMock.Verify(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()), Times.Exactly(files));
 
             // Assert database is not empty and contains the generated files
             Assert.NotEmpty(dbContext.Photos);
@@ -139,6 +143,49 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             {
                 Assert.NotNull(dbContext.Photos.Find(fn));
             }
+        }
+
+        [Fact]
+        public async Task RunOrganizer_NullDatabaseContext()
+        {
+            /// Description
+            /// Generate JPEG files and runs the organizer
+
+            /// Expectation
+            /// ISortService.SortPhoto is called the number of generated files times. Database is null.
+
+            var files = 5;
+
+            // Create temp JPEG files
+            var tempDirectory = PathHelper.GetTemporaryDirectory();
+
+            var filenames = new List<string>();
+            for (var i = 0; i < files; i++)
+            {
+                // Generate faux JPEG files and save names
+                var filepath = PathHelper.CreateImageFile(tempDirectory, ImageFormat.Jpeg);
+                filenames.Add(Path.GetFileName(filepath));
+            }
+
+            // Mock ISortService
+            var sortServiceMock = new Mock<ISortService>();
+
+            // Setup SortPhoto method
+            sortServiceMock.Setup(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()))
+                .Verifiable();
+
+            // Fetch mocked objects
+            var sortService = sortServiceMock.Object;
+
+            // Create IConfiguration
+            var configuration = CreateInMemoryConfiguration("MD5");
+
+            // Init and call OrganizerService
+            var organizerService = new OrganizerService(logger, configuration, null, sortService);
+            await organizerService.RunOrganizerAsync(tempDirectory);
+
+            // Verify mock call
+            sortServiceMock.Verify(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()), Times.Exactly(files));
         }
     }
 }
