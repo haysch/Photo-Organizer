@@ -21,16 +21,15 @@ namespace PhotoOrganizerLib.Services
         /// </summary>
         /// <param name="configuration">Configuration containing the <see cref="RenameType" /> value.</param>
         /// <remarks>Attempts to parse the rename type from the configuration.</remarks>
-        /// <exception cref="ArgumentException">Unable to parse input <see cref="RenameType" />.</exception>
         public RenameService(ILogger<IRenameService> logger, IConfiguration configuration)
         {
+            _logger = logger;
+
             var renameTypeString = configuration.GetValue<string>("rename-type");
             if (!Enum.TryParse(renameTypeString, true, out _renameType))
             {
-                throw new ArgumentException($"Renaming with type '{ renameTypeString }' is not supported.");
+                _logger.LogInformation("Rename type was not defined. Using Copy as default.");
             }
-
-            _logger = logger;
         }
 
         /// <summary>
