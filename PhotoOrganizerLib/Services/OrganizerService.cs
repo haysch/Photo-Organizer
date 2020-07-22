@@ -52,6 +52,8 @@ namespace PhotoOrganizerLib.Services
 
             _logger.LogInformation($"Begin organizing in { inputDirectory }");
 
+            await _context.Database.EnsureCreatedAsync();
+
             await foreach (var photo in PhotoHandler.FindPhotosAsync(inputDirectory))
             {
                 using var fs = File.OpenRead(photo.FilePath);
@@ -70,13 +72,13 @@ namespace PhotoOrganizerLib.Services
                 _sortService.SortPhoto(photo);
 
                 // Add photo to database context
-                _context?.Photos.Add(photo);
+                await _context.Photos.AddAsync(photo);
 
                 photoCounter++;
             }
 
             // Save all additions to the database
-            _context?.SaveChanges();
+            await _context.SaveChangesAsync();
 
             _logger.LogInformation($"End organizing. Organized { photoCounter } photos.");
         }

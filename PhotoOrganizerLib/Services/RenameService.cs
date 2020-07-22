@@ -76,7 +76,7 @@ namespace PhotoOrganizerLib.Services
                         File.Move(sourcePath, destPath);
                         return;
                     // case RenameType.Replace:
-                    //     File.Replace(sourcePath, targetPath, sourcePath + ".backup");
+                    //     File.Replace(sourcePath, destPath, sourcePath + ".backup");
                     //     return;
                     case RenameType.None:
                     default:

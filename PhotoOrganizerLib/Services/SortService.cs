@@ -68,6 +68,8 @@ namespace PhotoOrganizerLib.Services
         /// <param name="sourcePath">Path to file.</param>
         /// <param name="dateTimeString">String representation of a <see cref="DateTime" />.</param>
         /// <param name="dateTimeFormat">Format used for the DateTime string. Default is 'yyyyMMdd_HHmmss'.</param>
+        /// <param name="provider">Provider of culture used.</param>
+        /// <param name="dateTimeStyles">Formatting options used for customizing string parsing.</param>
         /// <remarks>
         /// Sorting of unknown files are only allowed, if the `%OUTPUTPATH%/unknown/` directory exists or can be created.
         /// </remarks>
@@ -89,23 +91,23 @@ namespace PhotoOrganizerLib.Services
                 var fileExtension = Path.GetExtension(sourcePath);
 
                 var year = dateTime.Year.ToString();
-                var month = dateTime.Month.ToString();
+                var month = dateTime.Month.ToString("D2");
 
                 var sortPath = Path.Join(year, month, dateTimeString + fileExtension); // To make a bit more explicit
-                var targetPath = Path.Join(_outputPath, sortPath);
+                var destPath = Path.Join(_outputPath, sortPath);
 
                 // If year and month directories don't exist, try to create target path
                 // then rename file
                 if ((OutputDirectories.TryGetValue(year, out var monthSet) && monthSet.Contains(month)))
                 {
-                    _renameService.RenameFile(sourcePath, targetPath);
+                    _renameService.RenameFile(sourcePath, destPath);
                 }
-                else if (TryCreateDirectory(targetPath))
+                else if (TryCreateDirectory(Path.GetDirectoryName(destPath)))
                 {
                     // Add year and month to output directory dictionary for faster lookup
                     AddToOutputDirectories(year, month);
 
-                    _renameService.RenameFile(sourcePath, targetPath);
+                    _renameService.RenameFile(sourcePath, destPath);
                 }
             }
         }
@@ -157,6 +159,7 @@ namespace PhotoOrganizerLib.Services
                     {
                         var lastDirectorySeparatorMonth = subDirectory.LastIndexOf(Path.DirectorySeparatorChar);
                         var monthString = subDirectory.Substring(lastDirectorySeparatorMonth + 1);
+                        monthString = $"{monthString:00}"; // Pad with left zero is necessary
                         if (monthString.IsMonth())
                         {
                             monthSet.Add(monthString);
