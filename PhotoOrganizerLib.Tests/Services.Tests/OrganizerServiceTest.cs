@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using PhotoOrganizerLib.Data;
 using PhotoOrganizerLib.Interfaces;
@@ -54,12 +55,16 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             /// Expectation
             /// ISortService.SortPhoto is never called. Database is empty.
 
-            // Mock ISortService
+            // Mock ISortService and ILogger
+            var loggerMock = new Mock<ILogger<IOrganizerService>>();
             var sortServiceMock = new Mock<ISortService>();
 
             // Setup SortPhoto method
             sortServiceMock.Setup(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()))
                 .Verifiable();
+
+            // Fetch mocked objects
+            var logger = loggerMock.Object;
             var sortService = sortServiceMock.Object;
 
             // Create IConfiguration
@@ -74,7 +79,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             await dbContext.Database.EnsureCreatedAsync();
 
             // Init and call OrganizerService
-            var organizerService = new OrganizerService(configuration, dbContext, sortService);
+            var organizerService = new OrganizerService(logger, configuration, dbContext, sortService);
             await organizerService.RunOrganizerAsync(tempDirectory);
 
             // Verify mock call
@@ -100,12 +105,16 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
                 filenames.Add(Path.GetFileName(filepath));
             }
 
-            // Mock ISortService
+            // Mock ISortService and ILogger
+            var loggerMock = new Mock<ILogger<IOrganizerService>>();
             var sortServiceMock = new Mock<ISortService>();
 
             // Setup SortPhoto method
             sortServiceMock.Setup(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()))
                 .Verifiable();
+            
+            // Fetch mocked objects
+            var logger = loggerMock.Object;
             var sortService = sortServiceMock.Object;
 
             // Create IConfiguration
@@ -117,7 +126,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             await dbContext.Database.EnsureCreatedAsync();
 
             // Init and call OrganizerService
-            var organizerService = new OrganizerService(configuration, dbContext, sortService);
+            var organizerService = new OrganizerService(logger, configuration, dbContext, sortService);
             await organizerService.RunOrganizerAsync(tempDirectory);
 
             // Verify mock call

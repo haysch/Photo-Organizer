@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
@@ -13,6 +14,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
     public class SortServiceTest
     {
         private static readonly string UNKNOWN_DIRNAME = "unknown";
+        private readonly ILogger<ISortService> logger = Mock.Of<ILogger<ISortService>>();
 
         private static IConfiguration CreateInMemoryConfiguration(string outputPath)
         {
@@ -35,7 +37,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             /// Expectation:
             /// The dictionary only contains year entries with corresponding months.
 
-            // Mock the rename service and configuration
+            // Mock IRenameService
             var renameServiceMock = new Mock<IRenameService>();
 
             // Creates a temp directory for testing and a junk folder to mimic that other folders might exist
@@ -77,7 +79,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var renameService = renameServiceMock.Object;
 
             // Construct the sort service and get the output directories structure
-            var sortService = new SortService(configuration, renameService);
+            var sortService = new SortService(logger, configuration, renameService);
 
             var actualOutputDirectories = sortService.OutputDirectories;
 
@@ -104,7 +106,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         [Fact]
         public void Constructor_InvalidPath()
         {
-            // Mock the rename service and configuration
+            // Mock IRenameService
             var renameServiceMock = new Mock<IRenameService>();
 
             // Creates a temp directory for testing
@@ -117,7 +119,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var renameService = renameServiceMock.Object;
 
             // Construct the sort service and get the output directories structure
-            Assert.Throws<DirectoryNotFoundException>(() => new SortService(configuration, renameService));
+            Assert.Throws<DirectoryNotFoundException>(() => new SortService(logger, configuration, renameService));
         }
 
         [Fact]
@@ -129,7 +131,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             /// Expectation:
             /// Call renameServiceMock.RenameFile exactly ONCE!
 
-            // Mock the rename service and configuration
+            // Mock IRenameService
             var renameServiceMock = new Mock<IRenameService>();
 
             // Creates a temp directory for testing
@@ -146,7 +148,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var renameService = renameServiceMock.Object;
 
             // Construct the sort service and get the output directories structure
-            var sortService = new SortService(configuration, renameService);
+            var sortService = new SortService(logger, configuration, renameService);
 
             sortService.SortDateTime("bob.jpg", "bob-the-builder");
 
@@ -163,7 +165,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             /// Expectation
             /// Calls renameServiceMock.FindPhotoDateTime and renameServiceMock.RenameFile exactly ONCE!
 
-            // Mock the rename service and configuration
+            // Mock IRenameService
             var renameServiceMock = new Mock<IRenameService>();
 
             // Creates a temp directory for testing
@@ -193,7 +195,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var renameService = renameServiceMock.Object;
 
             // Construct the sort service and get the output directories structure
-            var sortService = new SortService(configuration, renameService);
+            var sortService = new SortService(logger, configuration, renameService);
 
             sortService.SortPhoto(photo);
 
@@ -211,7 +213,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             /// Expectation
             /// Calls renameServiceMock.FindPhotoDateTime and renameServiceMock.RenameFile exactly ONCE!
 
-            // Mock the rename service and configuration
+            // Mock IRenameService
             var renameServiceMock = new Mock<IRenameService>();
 
             // Creates a temp directory for testing
@@ -244,7 +246,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var renameService = renameServiceMock.Object;
 
             // Construct the sort service and get the output directories structure
-            var sortService = new SortService(configuration, renameService);
+            var sortService = new SortService(logger, configuration, renameService);
 
             sortService.SortPhoto(photo);
 
@@ -263,7 +265,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             /// Expectation
             /// Calls renameServiceMock.FindPhotoDateTime and renameServiceMock.RenameFile exactly ONCE!
 
-            // Mock the rename service and configuration
+            // Mock IRenameService
             var renameServiceMock = new Mock<IRenameService>();
 
             // Creates a temp directory for testing
@@ -296,7 +298,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var renameService = renameServiceMock.Object;
 
             // Construct the sort service and get the output directories structure
-            var sortService = new SortService(configuration, renameService);
+            var sortService = new SortService(logger, configuration, renameService);
 
             sortService.SortPhoto(photo);
 
@@ -317,7 +319,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             /// Call renameServiceMock.FindPhotoDateTime exactly ONCE,
             /// but NEVER call renameServiceMock.RenameFile
 
-            // Mock the rename service and configuration
+            // Mock IRenameService
             var renameServiceMock = new Mock<IRenameService>();
 
             // Creates a temp directory for testing
@@ -347,7 +349,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var renameService = renameServiceMock.Object;
 
             // Construct the sort service and get the output directories structure
-            var sortService = new SortService(configuration, renameService);
+            var sortService = new SortService(logger, configuration, renameService);
 
             sortService.SortPhoto(photo);
 
