@@ -1,69 +1,83 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using PhotoOrganizerLib.Enums;
+using PhotoOrganizerLib.Interfaces;
+using PhotoOrganizerLib.Models;
 using System;
 using System.IO;
 
-using PhotoOrganizerLib.Interfaces;
-using PhotoOrganizerLib.Models;
-using PhotoOrganizerLib.Enums;
-using Microsoft.Extensions.Configuration;
-
 namespace PhotoOrganizerLib.Services
 {
-    /// <summary>Renaming class for copying or moving of files.</summary>
+    /// <summary>
+    /// Renaming class for copying or moving of files.
+    /// </summary>
     public class RenameService : IRenameService
     {
-        private RenameType _renameType;
+        private readonly ILogger<IRenameService> _logger;
+        private readonly RenameType _renameType;
 
-        /// <summary>Constructor for renaming class. Sets up type used for renaming files.</summary>
-        /// <param name="renameType">Type of move used for renaming. See <see cref="PhotoOrganizerLib.Enums.RenameType" /> for available types.</param>
+        /// <summary>
+        /// Constructor for renaming class. Sets up type used for renaming files.
+        /// </summary>
+        /// <param name="configuration">Configuration containing the <see cref="RenameType" /> value.</param>
         /// <remarks>Attempts to parse the rename type from the configuration.</remarks>
-        /// <exception name="System.ArgumentException">Unable to parse input <see cref="PhotoOrganizerLib.Enums.RenameType" />.</exception>
-        public RenameService(IConfiguration config)
+        public RenameService(ILogger<IRenameService> logger, IConfiguration configuration)
         {
-            if (!Enum.TryParse(config["renameType"], out _renameType))
+            _logger = logger;
+
+            var renameTypeString = configuration.GetValue<string>("rename-type");
+            if (!Enum.TryParse(renameTypeString, true, out _renameType))
             {
-                throw new ArgumentException($"Rename Type { config["renameType"] } is invalid.");
+                _logger.LogInformation("Rename type was not defined. Using Copy as default.");
             }
         }
 
         /// <summary>
         /// Finds a name for the input photo by using the Original DateTime information.
         /// </summary>
-        /// <param name="photo">A <see cref="PhotoOrganizerLib.Models.Photo" /> object.</param>
-        /// <param name="format">Format for the returned DateTime string.</param>
+        /// <param name="photo">A <see cref="Photo" /> object containing the original date and time.</param>
+        /// <param name="format">Format of the <see cref="DateTime" /> for the returned string.</param>
         /// <remarks>Uses only DateTimeOriginal for naming.</remarks>
-        /// <returns>Photo name in provided format, or <see cref="System.String.Empty" /> if no Original DateTime information is available.</returns>
+        /// <returns>String containing date and time in provided format, or <see cref="string.Empty" /> if no Original DateTime information is available.</returns>
+        /// <exception cref="FormatException">
+        /// If the length of the format is 1 and it is not one of the format specifier characters defined in <see cref="System.Globalization.DateTimeFormatInfo" /> -or- format does not contain a valid custom pattern.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">The range of the date and time is outside of the dates supported by the calender of the current culture.</exception>
         public string FindPhotoDateTime(Photo photo, string format)
         {
-            if (photo.ImageMetadata.ContainsKey("DateTimeOriginal") &&
-                DateTime.TryParse(photo.ImageMetadata["DateTimeOriginal"] as string, out var photoDt))
+            if (photo.DateTimeOriginal.HasValue)
             {
-                // if ToString(format) fails, then it will always fail -> just exit program
-                return photoDt.ToString(format);
+                // throws error if ToString(format) fails
+                // if the format is incorrect, it will propagate through the entire run => FAIL FAST!
+                return photo.DateTimeOriginal.Value.ToString(format);
             }
 
             return string.Empty;
         }
 
-        /// <summary>Renames file according to the <see cref="PhotoOrganizerLib.Enums.RenameType" />.</summary>
+        /// <summary>
+        /// Renames file according to the <see cref="RenameType" />.
+        /// </summary>
         /// <param name="sourcePath">Path to the source file.</param>
-        /// <param name="targetPath">Path to target file.</param>
-        /// <exception cref="System.ArgumentException">Thrown when the rename type is not valid.</exception>
-        /// <exception cref="System.IO.FileNotFoundException">Thrown when the file to be renamed does not exist.</exception>
-        public void RenameFile(string sourcePath, string targetPath)
+        /// <param name="destPath">Path to target file.</param>
+        /// <exception cref="UnauthorizedAccessException">The caller does not have the required permission.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="sourcePath"/> or <paramref name="destPath"/> is in an invalid form.</exception>
+        /// <exception cref="PathTooLongException">The specified path, or filename, or both exceeds the system-defined maximum length.</exception>
+        public void RenameFile(string sourcePath, string destPath)
         {
             try
             {
                 switch (_renameType)
                 {
                     case RenameType.Copy:
-                        File.Copy(sourcePath, targetPath);
+                        File.Copy(sourcePath, destPath);
                         return;
                     case RenameType.Move:
-                        File.Move(sourcePath, targetPath);
+                        File.Move(sourcePath, destPath);
                         return;
-                    case RenameType.Replace:
-                        File.Replace(sourcePath, targetPath, sourcePath + ".backup");
-                        return;
+                    // case RenameType.Replace:
+                    //     File.Replace(sourcePath, destPath, sourcePath + ".backup");
+                    //     return;
                     case RenameType.None:
                     default:
                         return;
@@ -71,11 +85,43 @@ namespace PhotoOrganizerLib.Services
             }
             catch (FileNotFoundException)
             {
-                // TODO log unable to rename file
+                _logger.LogWarning($"Input file not found at { sourcePath }.");
             }
-            catch (Exception)
+            catch (DirectoryNotFoundException)
             {
-                // TODO bail out - we might not be able to recover   
+                _logger.LogWarning("Source or destination path not found.");
+                _logger.LogDebug($"\tSource path: { sourcePath }\n\tDestination path: { destPath }");
+            }
+            catch (IOException)
+            {
+                _logger.LogWarning($"Destination file already exists at { destPath }.");
+                _logger.LogDebug($"Source path: { sourcePath }");
+            }
+            catch (ArgumentNullException)
+            {
+                if (sourcePath is null)
+                {
+                    _logger.LogWarning("Source path is null.");
+                    _logger.LogDebug($"Destination path: { destPath }");
+                }
+                else
+                {
+                    _logger.LogWarning("Destination path is null.");
+                    _logger.LogDebug($"Source path: { sourcePath }");
+                }
+            }
+            catch (ArgumentException)
+            {
+                _logger.LogWarning("Source or destination path is zero-length, contains only whitespace or contains invalid path characters.");
+                _logger.LogWarning($"\tSource path: { sourcePath }\n\tDestination path: { destPath }");
+            }
+            catch (Exception ex)
+            {
+                /// Possible exceptions:
+                /// UnauthorizedAccessException, NotSupportedException, PathTooLongException
+                
+                _logger.LogError($"{ typeof(IRenameService) } has encountered a problem which cannot be handled gracefully.\n{ ex }");
+                throw;
             }
         }
     }

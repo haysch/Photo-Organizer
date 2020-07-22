@@ -1,22 +1,94 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
-using System.Collections.Generic;
 
 namespace PhotoOrganizerLib.Models
 {
-    /// <summary>This class represents an image and contains functionality to extract metadata.</summary>
+    /// <summary>
+    /// This class represents an image.
+    /// </summary>
     public class Photo
     {
-        /// <summary>Gets and sets the hashtable containing the image's metadata.</summary>
-        public Dictionary<string, object> ImageMetadata { get; set; }
-        /// <summary>Gets and sets the name of the image.</summary>
+        /// <summary>
+        /// Gets and sets the name of the image.
+        /// </summary>
+        [Key]
         public string Name { get; set; }
-        /// <summary>Gets and sets the directory path to the file excluding its name.</summary>
+        /// <summary>
+        /// Gets and sets the height of the image.
+        /// </summary>
+        public int Height { get; set; }
+        /// <summary>
+        /// Gets and sets the width of the image.
+        /// </summary>
+        public int Width { get; set; }
+        /// <summary>
+        /// Gets and sets the checksum of the image.
+        /// </summary>
+        public string? Checksum { get; set; }
+        /// <summary>
+        /// Gets and sets the latitude, where the image was taken.
+        /// </summary>
+        public double? Latitude { get; set; }
+        /// <summary>
+        /// Gets and sets the longitude, where the image was taken.
+        /// </summary>
+        public double? Longitude { get; set; }
+        /// <summary>
+        /// Gets and sets the altitude reference, where the image was taken.
+        /// Sea level -or- Below sea level.
+        /// </summary>
+        public string? AltitudeReference { get; set; }
+        /// <summary>
+        /// Gets and sets the altitude, where the image was taken.
+        /// </summary>
+        public short? Altitude { get; set; }
+        /// <summary>
+        /// Gets and sets the make of the camera.
+        /// </summary>
+        public string? Make { get; set; }
+        /// <summary>
+        /// Gets and sets the model of the camera.
+        /// </summary>
+        public string? Model { get; set; }
+        /// <summary>
+        /// Gets and sets the date and time when the image was originally generated.
+        /// </summary>
+        public DateTime? DateTimeOriginal { get; set; }
+        /// <summary>
+        /// Gets and sets the date and time of the image was created.
+        /// </summary>
+        public DateTime? DateTime { get; set; }
+        /// <summary>
+        /// Gets and sets the F-number of the camera.
+        /// </summary>
+        public float? FNumber { get; set; }
+        /// <summary>
+        /// Gets and sets the ISO of the camera.
+        /// </summary>
+        public short? Iso { get; set; }
+        /// <summary>
+        /// Gets and sets the shutter speed of the camera.
+        /// </summary>
+        public string? ShutterSpeed { get; set; }
+        /// <summary>
+        /// Gets and sets the focal length of the camera.
+        /// </summary>
+        public float? FocalLength { get; set; }
+
+        /// <summary>
+        /// Gets and sets the directory path to the file excluding its name.
+        /// </summary>
+        [NotMapped]
         public string DirectoryPath { get; set; }
-        /// <summary>Gets and set the absolute file path to the photo.</summary>
-        public string AbsoluteFilePath
+        /// <summary>
+        /// Gets and set the file path to the photo.
+        /// </summary>
+        [NotMapped]
+        public string FilePath
         {
-            get => Path.Join(DirectoryPath, Name);
+            get => Path.Combine(DirectoryPath, Name);
 
             set
             {
@@ -25,46 +97,28 @@ namespace PhotoOrganizerLib.Models
             }
         }
 
-        /// <summary>Initializing a new instance of the <see cref="PhotoOrganizerLib.Models.Photo" /> class.</summary>
-        public Photo(string absoluteFilePath)
+        /// <summary>
+        /// Initializing a new instance of the <see cref="Photo" /> without a filepath.
+        /// </summary>
+        /// <remarks>Sets Name and DirectoryPath to <see langword="string.Empty" />.</remarks>
+        public Photo()
         {
-            ImageMetadata = new Dictionary<string, object>();
-            AbsoluteFilePath = absoluteFilePath;
-            
+            Name = string.Empty;
+            DirectoryPath = string.Empty;
         }
 
-        /// <summary>Prints image metadata according to input key.</summary>
-        /// <remarks>Only prints metadata if the key exists in the metadata hashtable. Otherwise only image name is printed.</remarks>
-        /// <param name="exifKey">String of metadata key.</param>
-        public void TryPrintSpecificExifData(string exifKey)
+        /// <summary>
+        /// Initializing a new instance of the <see cref="Photo" /> class using the <paramref name="filepath"/>.
+        /// </summary>
+        /// <param name="filepath">
+        /// Absolute filepath to file.
+        /// If <see langword="string.Empty" />, then Name is <see langword="string.Empty" /> and DirectoryPath is <see langword="null" />.
+        /// If <see langword="null" />, then Name and DirectoryPath is <see langword="null" />.
+        /// </param>
+        public Photo(string filepath)
         {
-            if (ImageMetadata.ContainsKey(exifKey))
-            {
-                Console.WriteLine("Image Name: {0}", Name);
-                Console.WriteLine("{0}: {1}", exifKey, ImageMetadata[exifKey]);
-            }
-        }
-
-        /// <summary>Prints list of extracted image metadata.</summary>
-        public void PrintArrayExifData()
-        {
-            Console.WriteLine("======================================");
-            Console.WriteLine("Image Name: {0}", Name);
-
-            foreach (string key in ImageMetadata.Keys)
-            {
-                Console.WriteLine("{0}: {1}", key, ImageMetadata[key]);
-            }
-
-            Console.WriteLine("======================================\n");
-        }
-
-        /// <summary>Adds key-value pair to the metadata dictionary.</summary>
-        /// <param name="key">Name of the key for the entry.</param>
-        /// <param name="value">Object containing the metadata.</param>
-        public void AddMetadata(string key, object value)
-        {
-            ImageMetadata.Add(key, value);
+            Name = Path.GetFileName(filepath);
+            DirectoryPath = Path.GetDirectoryName(filepath);
         }
     }
 }

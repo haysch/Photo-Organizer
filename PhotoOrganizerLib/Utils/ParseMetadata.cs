@@ -1,36 +1,52 @@
-using System.Collections.Generic;
-using System.Linq;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Jpeg;
 using MetadataExtractor.Formats.Png;
-using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Extensions;
+using PhotoOrganizerLib.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PhotoOrganizerLib.Utils
 {
-    /// <summary>Class for parsing <see cref="MetadataExtractor.Directory" /> to <see cref="PhotoOrganizerLib.Models.Photo" /> metadata dictionary.</summary>
+    /// <summary>
+    /// Class for parsing <see cref="Directory" /> to <see cref="Photo" /> metadata dictionary.
+    /// </summary>
     public static class ParseMetadata
     {
-        /// <summary>Parses the list of <see cref="MetadataExtractor.Directory" /> and saves the metadata to the <see cref="PhotoOrganizerLib.Models.Photo" /> object.</summary>
+        /// <summary>
+        /// Parses the list of <see cref="Directory" /> and saves the metadata to the <see cref="Photo" /> object.
+        /// </summary>
         /// <param name="photo">Picture object used for extracting metadata and saving the values.</param>
-        /// <param name="directories">Enumerable of <see cref="MetadataExtractor.Directory" />, containing the different image <see cref="MetadataExtractor.Tag" />s.</param>
+        /// <param name="directories">Enumerable of <see cref="Directory" />, containing the different image <see cref="Tag" />s.</param>
         public static void Parse(Photo photo, IEnumerable<Directory> directories)
         {
-            var subIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-            subIfdDirectory?.Parse(photo);
+            if (directories is null)
+            {
+                // Nothing to do
+                return;
+            }
 
-            var gpsDirectory = directories.OfType<GpsDirectory>().FirstOrDefault();
-            gpsDirectory?.Parse(photo);
+            // TODO: Maybe change to returning a Dictionary<string, object> instead of adding to photo?
+            directories.OfType<ExifSubIfdDirectory>()
+                .FirstOrDefault()?
+                .Parse(photo);
 
-            var ifd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
-            ifd0Directory?.Parse(photo);
+            directories.OfType<GpsDirectory>()
+                .FirstOrDefault()?
+                .Parse(photo);
 
-            var jpegDirectory = directories.OfType<JpegDirectory>().FirstOrDefault();
-            jpegDirectory?.Parse(photo);
+            directories.OfType<ExifIfd0Directory>()
+                .FirstOrDefault()?
+                .Parse(photo);
 
-            var pngDirectory = directories.OfType<PngDirectory>().FirstOrDefault();
-            pngDirectory?.Parse(photo);
+            directories.OfType<JpegDirectory>()
+                .FirstOrDefault()?
+                .Parse(photo);
+
+            directories.OfType<PngDirectory>()
+                .FirstOrDefault()?
+                .Parse(photo);
         }
     }
 }

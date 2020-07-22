@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using PhotoOrganizerLib.Enums;
+using System.Threading.Tasks;
 
 namespace PhotoOrganizerLib.Interfaces
 {
     public interface IOrganizerService
     {
-        void RunOrganizer();
+        Task RunOrganizerAsync(string inputDirectory);
     }
 }

@@ -1,71 +1,83 @@
+using PhotoOrganizerLib.Models;
+using PhotoOrganizerLib.Utils;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using PhotoOrganizerLib.Utils;
+using System.Threading.Tasks;
 using Xunit;
 
-namespace PhotoOrganizerLib.Tests.Utils
+namespace PhotoOrganizerLib.Tests.Utils.Tests
 {
     public class PhotoHandlerTest
     {
-        private static byte[] JpegFormat = new byte[] { 0xff, 0xd8 };
-
         // Max directory depth used for testing
-        private static int MAXDEPTH = 10;
+        private static readonly int MAXDEPTH = 10;
 
         [Fact]
-        public void FindPhotos_InvalidPath()
+        public async Task FindPhotosAsync_InvalidPathAsync()
         {
             var path = @"BlahBlahBuh";
-            var actual = PhotoHandler.FindPhotos(path);
-            Assert.Empty(actual);
-        }
-
-        [Fact]
-        public void FindPhotos_FlatDirectory_SingleFile_UnknownFormat()
-        {
-            var tempDirectory = GetTemporaryDirectory();
-            var tempFileName = CreateTmpFile(tempDirectory);
-
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var photo in PhotoHandler.FindPhotosAsync(path))
+                photoList.Add(photo);
 
             Assert.Empty(photoList);
         }
 
         [Fact]
-        public void FindPhotos_FlatDirectory_SingleFile_JpegFormat()
+        public async Task FindPhotosAsync_FlatDirectory_SingleFile_UnknownFormatAsync()
         {
-            var tempDirectory = GetTemporaryDirectory();
-            var tempFileName = CreateTmpFile(tempDirectory, JpegFormat);
-            var expectedPath = Path.Combine(tempDirectory, tempFileName);
+            var tempDirectory = PathHelper.GetTemporaryDirectory();
+            PathHelper.CreateTmpFile(tempDirectory); // create tmp file with unsupported filetype
 
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var photo in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(photo);
+
+            Assert.Empty(photoList);
+        }
+
+        [Fact]
+        public async Task FindPhotosAsync_FlatDirectory_SingleFile_JpegFormatAsync()
+        {
+            var tempDirectory = PathHelper.GetTemporaryDirectory();
+            var tempPath = PathHelper.CreateImageFile(tempDirectory, ImageFormat.Jpeg);
+            var expectedPath = Path.Combine(tempDirectory, tempPath);
+
+            var photoList = new List<Photo>();
+            await foreach (var p in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(p);
+
             var photo = photoList.FirstOrDefault();
-            var actualPath = photo.AbsoluteFilePath;
+            var actualPath = photo.FilePath;
 
             Assert.Equal(expectedPath, actualPath);
         }
 
         [Fact]
-        public void FindPhotos_FlatDirectory_MultipleFiles_JpegFormat()
+        public async Task FindPhotosAsync_FlatDirectory_MultipleFiles_JpegFormatAsync()
         {
-            var tempDirectory = GetTemporaryDirectory();
+            var tempDirectory = PathHelper.GetTemporaryDirectory();
 
             // Creates the expected paths set from the file creation
             var expectedPaths = new HashSet<string>();
             for (var i = 0; i < 10; i++)
             {
-                var path = Path.Combine(tempDirectory, CreateTmpFile(tempDirectory, JpegFormat));
+                var path = Path.Combine(tempDirectory, PathHelper.CreateImageFile(tempDirectory, ImageFormat.Jpeg));
                 expectedPaths.Add(path);
             }
 
             // Creates set containing the actual paths
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var p in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(p);
+
             var actualPaths = new HashSet<string>();
             foreach (var photo in photoList)
             {
-                actualPaths.Add(photo.AbsoluteFilePath);
+                actualPaths.Add(photo.FilePath);
             }
 
             // Assert the two sets are equal
@@ -74,32 +86,35 @@ namespace PhotoOrganizerLib.Tests.Utils
         }
 
         [Fact]
-        public void FindPhotos_TwoLevelDirectory_SingleFile_JpegFormat()
+        public async Task FindPhotosAsync_TwoLevelDirectory_SingleFile_JpegFormatAsync()
         {
             // Create deeper directory structure
-            var tempDirectory = GetTemporaryDirectory();
+            var tempDirectory = PathHelper.GetTemporaryDirectory();
             var newDirectory = Path.Combine(tempDirectory, Path.GetRandomFileName());
             Directory.CreateDirectory(newDirectory);
 
             // Find expected path from the file creation
-            var tempFileName = CreateTmpFile(newDirectory, JpegFormat);
+            var tempFileName = PathHelper.CreateImageFile(newDirectory, ImageFormat.Jpeg);
             var expectedPath = Path.Combine(newDirectory, tempFileName);
 
             // Find actual path
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var p in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(p);
+
             var photo = photoList.FirstOrDefault();
-            var actualPath = photo.AbsoluteFilePath;
+            var actualPath = photo.FilePath;
 
             // Assert the two paths are equal
             Assert.Equal(expectedPath, actualPath);
         }
 
         [Fact]
-        public void FindPhotos_MultiLevelDirectory_MultipleFiles_JpegFormat()
+        public async Task FindPhotosAsync_MultiLevelDirectory_MultipleFiles_JpegFormatAsync()
         {
             // Create temporary directory
-            var tempDirectory = GetTemporaryDirectory();
-            
+            var tempDirectory = PathHelper.GetTemporaryDirectory();
+
             // Find expected paths when creating files
             var expectedPaths = new HashSet<string>();
             for (var i = 0; i < 10; i++)
@@ -117,7 +132,7 @@ namespace PhotoOrganizerLib.Tests.Utils
                 Directory.CreateDirectory(tempPath);
 
                 // Create file inside the generated directory
-                var tempFileName = CreateTmpFile(tempPath, JpegFormat);
+                var tempFileName = PathHelper.CreateImageFile(tempPath, ImageFormat.Jpeg);
 
                 // Adds path to expectedPaths
                 var expectedPath = Path.Combine(tempPath, tempFileName);
@@ -125,44 +140,19 @@ namespace PhotoOrganizerLib.Tests.Utils
             }
 
             // Find actual paths
-            var photoList = PhotoHandler.FindPhotos(tempDirectory);
+            var photoList = new List<Photo>();
+            await foreach (var p in PhotoHandler.FindPhotosAsync(tempDirectory))
+                photoList.Add(p);
+
             var actualPaths = new HashSet<string>();
             foreach (var photo in photoList)
             {
-                actualPaths.Add(photo.AbsoluteFilePath);
+                actualPaths.Add(photo.FilePath);
             }
 
             // Assert the two sets are equal
             Assert.Subset(expectedPaths, actualPaths);
             Assert.Superset(expectedPaths, actualPaths);
-        }
-
-        private string GetTemporaryDirectory()
-        {
-            // Generates temp directory path
-            var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-
-            // Creates temp directory
-            Directory.CreateDirectory(tempDirectory);
-
-            // Returns temp directory path
-            return tempDirectory;
-        }
-
-        private string CreateTmpFile(string path, byte[] value = null)
-        {
-            if (value is null)
-                value = new byte[2] { 0xff, 0xff };
-
-            // Generates temp filename and path to file
-            var tmpFileName = Guid.NewGuid().ToString();
-            var tmpPath = Path.Combine(path, tmpFileName);
-
-            // Creates the temp file
-            File.WriteAllBytes(tmpPath, value);
-
-            // Returns temp filename
-            return tmpFileName;
         }
     }
 }

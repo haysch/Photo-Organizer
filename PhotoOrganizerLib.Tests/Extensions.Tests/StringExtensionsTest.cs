@@ -1,8 +1,8 @@
+using PhotoOrganizerLib.Extensions;
+using System.IO;
 using Xunit;
 
-using PhotoOrganizerLib.Extensions;
-
-namespace PhotoOrganizerLib.Tests.Extensions
+namespace PhotoOrganizerLib.Tests.Extensions.Tests
 {
     public class StringExtensionsTest
     {
@@ -30,7 +30,7 @@ namespace PhotoOrganizerLib.Tests.Extensions
         public void IsYear_Null()
         {
             string yearString = null;
-            
+
             var actual = yearString.IsYear();
 
             Assert.False(actual);
@@ -60,10 +60,39 @@ namespace PhotoOrganizerLib.Tests.Extensions
         public void IsMonth_Null()
         {
             string monthString = null;
-            
+
             var actual = monthString.IsMonth();
 
             Assert.False(actual);
+        }
+
+        [Fact]
+        public void EnsureDirectoryExists_Empty_NoMessage()
+        {
+            var path = string.Empty;
+
+            var message = Assert.Throws<DirectoryNotFoundException>(() => path.EnsureDirectoryExists()).Message;
+
+            Assert.NotEmpty(message);
+        }
+
+        [Fact]
+        public void EnsureDirectoryExists_Empty_WithMessage()
+        {
+            var path = string.Empty;
+            var expectedMessage = "Path is empty.";
+
+            var message = Assert.Throws<DirectoryNotFoundException>(() => path.EnsureDirectoryExists(expectedMessage)).Message;
+
+            Assert.Equal(expectedMessage, message);
+        }
+
+        [Fact]
+        public void EnsureDirectoryExists_ValidPath_NoMessage()
+        {
+            var path = Path.GetTempPath();
+
+            path.EnsureDirectoryExists();
         }
     }
 }

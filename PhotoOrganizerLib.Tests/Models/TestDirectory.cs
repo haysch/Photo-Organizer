@@ -1,5 +1,5 @@
-using System;
 using MetadataExtractor;
+using System;
 
 namespace PhotoOrganizerLib.Tests.Models
 {

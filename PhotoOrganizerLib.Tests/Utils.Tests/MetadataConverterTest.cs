@@ -1,9 +1,11 @@
-using System;
 using MetadataExtractor;
 using PhotoOrganizerLib.Utils;
+using System;
+using System.Globalization;
+using System.Threading;
 using Xunit;
 
-namespace PhotoOrganizerLib.Tests.Utils
+namespace PhotoOrganizerLib.Tests.Utils.Tests
 {
     public class MetadataConverterTest
     {
@@ -14,7 +16,7 @@ namespace PhotoOrganizerLib.Tests.Utils
 
             Assert.Null(actual);
         }
-        
+
         [Fact]
         public void ComputeGpsDmsToDecimalDegrees_ValidDms_InvalidGpsReference()
         {
@@ -52,8 +54,8 @@ namespace PhotoOrganizerLib.Tests.Utils
 
             Assert.Equal(expected, actual);
         }
-        
-        
+
+
         [Fact]
         public void ComputeGpsDmsToDecimalDegrees_ValidDms_SouthGpsReference()
         {
@@ -73,6 +75,9 @@ namespace PhotoOrganizerLib.Tests.Utils
         [Fact]
         public void ComputeShutterSpeed_LessOrEqualToOneValue()
         {
+            // Align the data formatting for testing
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
             var expected = "0.5 sec"; // round((1 / exp(1 * log(2))) * 10) / 10 = 0.5
 
             var actual = MetadataConverter.ComputeShutterSpeed(1);
@@ -84,9 +89,9 @@ namespace PhotoOrganizerLib.Tests.Utils
         public void ComputeShutterSpeed_GreaterThanOneValue()
         {
             var expected = "1/4 sec"; // exp(2 * log(2)) = 4
-            
+
             var actual = MetadataConverter.ComputeShutterSpeed(2);
-            
+
             Assert.Equal(expected, actual);
         }
     }
