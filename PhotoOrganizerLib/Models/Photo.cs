@@ -5,7 +5,9 @@ using System.IO;
 
 namespace PhotoOrganizerLib.Models
 {
-    /// <summary>This class represents an image and contains functionality to extract metadata.</summary>
+    /// <summary>
+    /// This class represents an image.
+    /// </summary>
     public class Photo
     {
         /// <summary>

@@ -54,6 +54,11 @@ namespace PhotoOrganizerLib.Utils
             }
         }
 
+        /// <summary>
+        /// Method for finding files that are supported by MetadataExtractor.
+        /// </summary>
+        /// <param name="filePath">Path to file to check.</param>
+        /// <returns>Photo object of the <paramref name="filePath" />, or <see langword="null" /> if file type is not supported.</returns>
         private static Photo? FindPhoto(string filePath)
         {
             using var stream = File.OpenRead(filePath);

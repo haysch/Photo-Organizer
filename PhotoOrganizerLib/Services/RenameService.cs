@@ -8,13 +8,17 @@ using System.IO;
 
 namespace PhotoOrganizerLib.Services
 {
-    /// <summary>Renaming class for copying or moving of files.</summary>
+    /// <summary>
+    /// Renaming class for copying or moving of files.
+    /// </summary>
     public class RenameService : IRenameService
     {
         private readonly ILogger<IRenameService> _logger;
         private readonly RenameType _renameType;
 
-        /// <summary>Constructor for renaming class. Sets up type used for renaming files.</summary>
+        /// <summary>
+        /// Constructor for renaming class. Sets up type used for renaming files.
+        /// </summary>
         /// <param name="config">Configuration containing the <see cref="RenameType" /> value.</param>
         /// <remarks>Attempts to parse the rename type from the configuration.</remarks>
         /// <exception cref="ArgumentException">Unable to parse input <see cref="RenameType" />.</exception>
@@ -52,7 +56,9 @@ namespace PhotoOrganizerLib.Services
             return string.Empty;
         }
 
-        /// <summary>Renames file according to the <see cref="RenameType" />.</summary>
+        /// <summary>
+        /// Renames file according to the <see cref="RenameType" />.
+        /// </summary>
         /// <param name="sourcePath">Path to the source file.</param>
         /// <param name="destPath">Path to target file.</param>
         /// <exception cref="UnauthorizedAccessException">The caller does not have the required permission.</exception>

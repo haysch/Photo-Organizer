@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace PhotoOrganizerLib.Services
 {
+    /// <summary>
+    /// Class for organizing media files.
+    /// </summary>
     public class OrganizerService : IOrganizerService
     {
         private readonly ILogger<IOrganizerService> _logger;
@@ -18,6 +21,13 @@ namespace PhotoOrganizerLib.Services
         private readonly PhotoContext _context;
         private readonly ISortService _sortService;
 
+        /// <summary>
+        /// Constructor for setting up organizer service.
+        /// </summary>
+        /// <param name="logger">Logger used for logging.</param>
+        /// <param name="configuration">Configuration object containing information about settings.</param>
+        /// <param name="context">Database context used for storing photo metadata.</param>
+        /// <param name="sortService">Sort service used for sorting photos.</param>
         public OrganizerService(ILogger<IOrganizerService> logger, IConfiguration configuration, PhotoContext context, ISortService sortService)
         {
             _logger = logger;
@@ -26,6 +36,10 @@ namespace PhotoOrganizerLib.Services
             _sortService = sortService;
         }
 
+        /// <summary>
+        /// Runs the organizer by recursively searching every directory from the given <paramref name="inputDirectory" />.
+        /// </summary>
+        /// <param name="inputDirectory">Path to initial directory to search for media files.</param>
         public async Task RunOrganizerAsync(string inputDirectory)
         {
             // if input directory does not exist, throw exception and end run

@@ -39,7 +39,9 @@ namespace PhotoOrganizerLib.Services
             _renameService = renameService;
         }
 
-        /// <summary>Sort photo by extracting its DateTimeOriginal value.</summary>
+        /// <summary>
+        /// Sort photo by extracting its DateTimeOriginal value.
+        /// </summary>
         /// <param name="photo">A <see cref="Photo" /> object.</param>
         public void SortPhoto(Photo photo, string dateTimeFormat = DEFAULT_DATETIME_FORMAT)
         {

@@ -9,10 +9,14 @@ using System.Linq;
 
 namespace PhotoOrganizerLib.Utils
 {
-    /// <summary>Class for parsing <see cref="Directory" /> to <see cref="Photo" /> metadata dictionary.</summary>
+    /// <summary>
+    /// Class for parsing <see cref="Directory" /> to <see cref="Photo" /> metadata dictionary.
+    /// </summary>
     public static class ParseMetadata
     {
-        /// <summary>Parses the list of <see cref="Directory" /> and saves the metadata to the <see cref="Photo" /> object.</summary>
+        /// <summary>
+        /// Parses the list of <see cref="Directory" /> and saves the metadata to the <see cref="Photo" /> object.
+        /// </summary>
         /// <param name="photo">Picture object used for extracting metadata and saving the values.</param>
         /// <param name="directories">Enumerable of <see cref="Directory" />, containing the different image <see cref="Tag" />s.</param>
         public static void Parse(Photo photo, IEnumerable<Directory> directories)

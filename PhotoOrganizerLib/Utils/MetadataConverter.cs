@@ -5,7 +5,9 @@ namespace PhotoOrganizerLib.Utils
 {
     public static class MetadataConverter
     {
-        /// <summary>Converts degrees/minutes/seconds to decimal degrees.</summary>
+        /// <summary>
+        /// Converts degrees/minutes/seconds to decimal degrees.
+        /// </summary>
         /// <returns>Double of the decimal degrees.</returns>
         /// <remarks>If dms is not of size 3 or gpsRef is null, return null.</remarks>
         /// <param name="dms">Rational array containing the degrees/minutes/seconds.</param>
@@ -32,7 +34,9 @@ namespace PhotoOrganizerLib.Utils
             return (degrees + (minutes / 60.0d) + (seconds / 3600.0d)) * refMultiplier;
         }
 
-        /// <summary>Convert apex value from MetadataExtractor to shutter speed format.</summary>
+        /// <summary>
+        /// Convert apex value from MetadataExtractor to shutter speed format.
+        /// </summary>
         /// <remarks>Copied from https://github.com/drewnoakes/metadata-extractor-dotnet/blob/master/MetadataExtractor/TagDescriptor.cs method GetShutterSpeedDescription</remarks>
         public static string ComputeShutterSpeed(float apexValue)
         {
