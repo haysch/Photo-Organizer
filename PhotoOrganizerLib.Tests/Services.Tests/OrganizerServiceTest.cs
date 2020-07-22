@@ -144,48 +144,5 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
                 Assert.NotNull(dbContext.Photos.Find(fn));
             }
         }
-
-        [Fact]
-        public async Task RunOrganizer_NullDatabaseContext()
-        {
-            /// Description
-            /// Generate JPEG files and runs the organizer
-
-            /// Expectation
-            /// ISortService.SortPhoto is called the number of generated files times. Database is null.
-
-            var files = 5;
-
-            // Create temp JPEG files
-            var tempDirectory = PathHelper.GetTemporaryDirectory();
-
-            var filenames = new List<string>();
-            for (var i = 0; i < files; i++)
-            {
-                // Generate faux JPEG files and save names
-                var filepath = PathHelper.CreateImageFile(tempDirectory, ImageFormat.Jpeg);
-                filenames.Add(Path.GetFileName(filepath));
-            }
-
-            // Mock ISortService
-            var sortServiceMock = new Mock<ISortService>();
-
-            // Setup SortPhoto method
-            sortServiceMock.Setup(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()))
-                .Verifiable();
-
-            // Fetch mocked objects
-            var sortService = sortServiceMock.Object;
-
-            // Create IConfiguration
-            var configuration = CreateInMemoryConfiguration("MD5");
-
-            // Init and call OrganizerService
-            var organizerService = new OrganizerService(logger, configuration, null, sortService);
-            await organizerService.RunOrganizerAsync(tempDirectory);
-
-            // Verify mock call
-            sortServiceMock.Verify(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()), Times.Exactly(files));
-        }
     }
 }

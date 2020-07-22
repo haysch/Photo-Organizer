@@ -174,8 +174,8 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
 
             // Create temp photo
             var photoPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            var fs = File.Create(photoPath);
-            fs.Close();
+            File.Create(photoPath)
+                .Close();
 
             var photo = new Photo(photoPath);
 
@@ -222,14 +222,16 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
 
             // Create temp photo
             var photoPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            var fs = File.Create(photoPath);
-            fs.Close();
+            File.Create(photoPath)
+                .Close();
 
             var photo = new Photo(photoPath);
 
             var today = DateTime.Today;
+            var yearString = today.Year.ToString();
+            var monthString = today.Month.ToString("D2");
             var expectedDateTime = today.ToString("yyyyMMdd_HHmmss");
-            var yyyymmPath = Path.Combine(outputPath, today.Year.ToString(), today.Month.ToString());
+            var yyyymmPath = Path.Combine(outputPath, yearString, monthString);
             Directory.CreateDirectory(yyyymmPath);
 
             // Generate a temp IConfiguration object
@@ -274,8 +276,8 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
 
             // Create temp photo
             var photoPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            var fs = File.Create(photoPath);
-            fs.Close();
+            File.Create(photoPath)
+                .Close();
 
             var photo = new Photo(photoPath);
 
@@ -309,15 +311,13 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
 
 
         [Fact]
-        public void SortPhoto_CannotCreateDirectory_yyyymmDirectoryNotExist_DoNotRename()
+        public void SortPhoto_yyyymmDirectoryNotExist_CreateDirectory_RenameFile()
         {
             /// Description
-            /// Tests that it is not possible to rename file if yyyyMM folder does not exist and
-            /// the source path contains an invalid character (':') because Directory.CreateDirectory throws an exception
+            /// Test that it is possible to create directory that does not exist and then rename file.
 
             /// Expectation
-            /// Call renameServiceMock.FindPhotoDateTime exactly ONCE,
-            /// but NEVER call renameServiceMock.RenameFile
+            /// Call renameServiceMock.FindPhotoDateTime and renameServiceMock.RenameFile are called exactly ONCE
 
             // Mock IRenameService
             var renameServiceMock = new Mock<IRenameService>();
@@ -326,14 +326,17 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(outputPath);
 
-            // Create temp photo with file extension that contains ':'
-            var photoPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".ab:c");
-            var fs = File.Create(photoPath);
-            fs.Close();
+            // Create temp photo 
+            var photoPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".abc");
+            File.Create(photoPath)
+                .Close();
 
             var photo = new Photo(photoPath);
 
-            var expectedDateTime = DateTime.Today.ToString("yyyyMMdd_HHmmss");
+            var today = DateTime.Today;
+            var yearString = today.Year.ToString();
+            var monthString = today.Month.ToString("D2");
+            var expectedDateTime = today.ToString("yyyyMMdd_HHmmss");
 
             // Generate a temp IConfiguration object
             var configuration = CreateInMemoryConfiguration(outputPath);
@@ -351,11 +354,44 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             // Construct the sort service and get the output directories structure
             var sortService = new SortService(logger, configuration, renameService);
 
+            // Assert that OutputDirectories does NOT contain new entry
+            Assert.False(sortService.OutputDirectories.ContainsKey(yearString));
+            Assert.False(sortService.OutputDirectories.TryGetValue(yearString, out var monthSetBefore) && monthSetBefore.Contains(monthString));
+
             sortService.SortPhoto(photo);
 
+            // Assert that OutputDirectories contains new entry
+            Assert.True(sortService.OutputDirectories.ContainsKey(yearString));
+            Assert.True(sortService.OutputDirectories.TryGetValue(yearString, out var monthSetAfter) && monthSetAfter.Contains(monthString));
+
             // Verify mock calls
-            renameServiceMock.Verify(mock => mock.RenameFile(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            renameServiceMock.Verify(mock => mock.RenameFile(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             renameServiceMock.Verify(mock => mock.FindPhotoDateTime(It.IsAny<Photo>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public void Constructor_OutputPathNotDefined()
+        {
+            /// Description
+            /// Test that the output path is set to current directory
+
+            /// Expectation
+            /// An unknown directory is created in the current directory
+
+            // Mock IRenameService
+            var renameServiceMock = new Mock<IRenameService>();
+
+            // Get the mocked objects
+            var renameService = renameServiceMock.Object;
+
+            var configuration = new ConfigurationBuilder().Build();
+
+            // Construct the sort service with no output path defined
+            new SortService(logger, configuration, renameService);
+
+            // Assert unknown directory is created in current directory
+            var unknownDirectory = Path.Combine(Directory.GetCurrentDirectory(), UNKNOWN_DIRNAME);
+            Assert.True(Directory.Exists(unknownDirectory));
         }
     }
 }

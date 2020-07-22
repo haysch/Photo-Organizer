@@ -47,7 +47,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var invalidRtString = "bob-the-builder";
             var configuration = CreateInMemoryConfiguration(invalidRtString);
 
-            Assert.Throws<ArgumentException>(() => new RenameService(logger, configuration));
+            new RenameService(logger, configuration);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         {
             var configuration = CreateInMemoryConfiguration(null);
 
-            Assert.Throws<ArgumentException>(() => new RenameService(logger, configuration));
+            new RenameService(logger, configuration);
         }
 
         [Fact]
