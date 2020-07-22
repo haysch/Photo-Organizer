@@ -70,13 +70,13 @@ namespace PhotoOrganizerLib.Services
                 _sortService.SortPhoto(photo);
 
                 // Add photo to database context
-                await _context.Photos.AddAsync(photo);
+                _context?.Photos.Add(photo);
 
                 photoCounter++;
             }
 
             // Save all additions to the database
-            await _context.SaveChangesAsync();
+            _context?.SaveChanges();
 
             _logger.LogInformation($"End organizing. Organized { photoCounter } photos.");
         }
