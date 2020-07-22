@@ -16,6 +16,10 @@ The tool is currently in a very early alpha stage.
 It still needs testing of the main organizer flow, and setting up the CLI for interacting with the organizer.
 Details are still being debated.
 
+### Shortcomings
+
+* The organizer cannot handle photos with the exact same DateTimeOriginal. In such cases the source file will be left alone and a log message will be displayed.
+
 ## Note
 
 The project relies on the [metadata-extractor-dotnet](https://github.com/drewnoakes/metadata-extractor-dotnet) library for extracting image metadata from different sources, which is quite a heavy feat.
