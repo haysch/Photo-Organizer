@@ -32,7 +32,18 @@ namespace PhotoOrganizerLib.Services
             _logger = logger;
             
             // set output path to "output" argument or current directory
-            _outputPath = config.GetValue<string>("output") ?? Directory.GetCurrentDirectory();
+            _outputPath = config.GetValue<string>("output");
+            if (_outputPath is null)
+            {
+                _logger.LogInformation("Output directory is null. Using current directory as output");
+                _outputPath ??= Directory.GetCurrentDirectory();
+            }
+            else
+            {
+                _logger.LogDebug($"Using { _outputPath } as output directory");
+            }
+
+            // Enumerate directories in output path
             OutputDirectories = EnumerateDirectoryStructure(_outputPath);
             _unknownDirectoryExists = TryFindUnknownDirectory(_outputPath);
 
@@ -168,8 +179,12 @@ namespace PhotoOrganizerLib.Services
         private bool TryFindUnknownDirectory(string path)
         {
             var unknownPath = Path.Join(path, UNKNOWN_PATH);
-            var unknownExists = (Directory.Exists(unknownPath) || TryCreateDirectory(unknownPath));
-            _logger.LogInformation($"Unknown directory { unknownPath } does not exist.");
+            var unknownExists = Directory.Exists(unknownPath);
+            if (!unknownExists)
+            {
+                _logger.LogInformation($"Unknown directory { unknownPath } does not exist. Creating directory.");
+                unknownExists = TryCreateDirectory(unknownPath);
+            }
             return unknownExists;
         }
 
