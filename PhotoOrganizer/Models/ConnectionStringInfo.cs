@@ -6,10 +6,6 @@
     public class ConnectionStringInfo
     {
         /// <summary>
-        /// Is the connection trusted?
-        /// </summary>
-        public bool? TrustedConnection { get; set; }
-        /// <summary>
         /// UserId/Username for database.
         /// </summary>
         public string UserId { get; set; }

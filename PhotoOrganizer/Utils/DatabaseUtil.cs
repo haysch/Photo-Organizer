@@ -131,16 +131,6 @@ namespace PhotoOrganizer.Utils
         {
             var connectionStringInfo = new ConnectionStringInfo();
 
-            // If a trusted connection is used, do not ask for username/password
-            //consoleWrapper.Write("Is the connection trusted? (y/N) ");
-            //var keyPressed = consoleWrapper.ReadKey(false).Key;
-            //var trusted = keyPressed == ConsoleKey.Y;
-            //if (trusted)
-            //{
-            //    connectionStringInfo.TrustedConnection = trusted;
-            //}
-            //else
-            //{
             // Ask about login info
             consoleWrapper.Write("User ID: ");
             var userId = consoleWrapper.ReadLine();
@@ -150,7 +140,6 @@ namespace PhotoOrganizer.Utils
 
             connectionStringInfo.UserId = userId;
             connectionStringInfo.Password = password;
-            //}
 
             // Ask the standard questions
             consoleWrapper.Write("Server: ");
