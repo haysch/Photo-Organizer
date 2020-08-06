@@ -27,7 +27,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
             var connectionString = Guid.NewGuid().ToString();
             var memoryCollection = new Dictionary<string, string>
             {
-                { "ConnectionString", connectionString }
+                { "connectionstring", connectionString }
             };
 
             var configuration = SetupInMemoryConfiguration(memoryCollection);
@@ -44,7 +44,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
             var connectionString = "Server=localhost;Port=5432;Database=postgres;User Id=postgres;Password=postgres;";
             var memoryCollection = new Dictionary<string, string>
             {
-                { "ConnectionString", connectionString }
+                { "connectionstring", connectionString }
             };
 
             var configuration = SetupInMemoryConfiguration(memoryCollection);
@@ -61,7 +61,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
         {
             var memoryCollection = new Dictionary<string, string>
             {
-                { "ConnectionString", null }
+                { "connectionstring", null }
             };
 
             var configuration = SetupInMemoryConfiguration(memoryCollection);

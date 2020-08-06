@@ -31,7 +31,7 @@ namespace PhotoOrganizer.Utils
         /// <exception cref="ArgumentException">If the configuration does not containg a "ConnectionString" value and --interactive is not provided.</exception>
         public static string ConstructDbConnectionString(IConfiguration configuration, DatabaseFlag databaseFlag, IConsoleWrapper consoleWrapper, bool interactive = false)
         {
-            var connectionString = configuration.GetValue<string>("ConnectionString");
+            var connectionString = configuration.GetValue<string>("connectionstring");
 
             if (!string.IsNullOrEmpty(connectionString))
             {
