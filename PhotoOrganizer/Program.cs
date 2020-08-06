@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PhotoOrganizer.Enums;
+using PhotoOrganizer.Utils;
 using PhotoOrganizerLib.Data;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Services;
@@ -26,10 +27,14 @@ namespace PhotoOrganizer
             var logger = services.GetRequiredService<ILogger<Program>>();
 
             var inputPath = configuration.GetValue<string>("input");
-            if (inputPath is null)
+            if (string.IsNullOrEmpty(inputPath))
             {
-                logger.LogError($"No input path is specified. Use [--input|-i] /path/to/input/dir parameter. Exiting.");
+                logger.LogError($"No input path is specified. Use --input|-i /path/to/input/dir. Exiting.");
                 return;
+            }
+            else if (!Directory.Exists(inputPath))
+            {
+                throw new DirectoryNotFoundException($"Input directory {inputPath} not found. Exiting.");
             }
             else
             {
@@ -64,29 +69,33 @@ namespace PhotoOrganizer
                 logger.AddConsole();
             });
 
+            // Create ConsoleWrapper for separation of concern
+            var consoleWrapper = new ConsoleWrapper();
             // Configure database
             var databaseFlag = configuration.GetValue<DatabaseFlag>("database");
             services.AddDbContext<PhotoContext>(options =>
             {
+                string connectionString = DatabaseUtil.ConstructDbConnectionString(configuration, databaseFlag, consoleWrapper);
                 switch (databaseFlag)
                 {
+                    case DatabaseFlag.SQLServer:
+                        options.UseSqlServer(connectionString);
+                        break;
                     case DatabaseFlag.MySQL:
-                        // options.UseMySQL("");
+                        options.UseMySQL(connectionString);
                         break;
                     case DatabaseFlag.PostgreSQL:
-                        // options.UseNpgsql("");
+                        options.UseNpgsql(connectionString);
                         break;
                     case DatabaseFlag.SQLite:
                     default:
-                        var outputPath = configuration.GetValue<string>("output") ?? Directory.GetCurrentDirectory();
-                        var dbPath = Path.Combine(outputPath, "PhotoOrganizer.db");
-                        options.UseSqlite($"Data Source={dbPath}");
+                        options.UseSqlite(connectionString);
                         break;
                 }
             });
 
             // Setup DI for services
-            services.AddSingleton<IConfiguration>(configuration)
+            services.AddSingleton(configuration)
                 .AddSingleton<IRenameService, RenameService>()
                 .AddSingleton<ISortService, SortService>()
                 .AddSingleton<IOrganizerService, OrganizerService>();
