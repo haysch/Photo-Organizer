@@ -58,10 +58,10 @@ namespace PhotoOrganizer.Utils
             // connection string is not entered and interactive mode is active
             return databaseFlag switch
             {
-                DatabaseFlag.MySQL      => ConstructMySqlConnectionString(consoleWrapper),
+                DatabaseFlag.MySQL => ConstructMySqlConnectionString(consoleWrapper),
                 DatabaseFlag.PostgreSQL => ConstructNpgsqlConnectionString(consoleWrapper),
-                DatabaseFlag.SQLServer  => ConstructSqlServerConnectionString(consoleWrapper),
-                _                       => ConstructSqliteConnectionString(configuration, consoleWrapper) // SQLite and default
+                DatabaseFlag.SQLServer => ConstructSqlServerConnectionString(consoleWrapper),
+                _ => ConstructSqliteConnectionString(configuration, consoleWrapper) // SQLite and default
             };
         }
 
@@ -198,7 +198,7 @@ namespace PhotoOrganizer.Utils
                     passwordBuilder.Append(keyInfo.KeyChar);
                 }
             }
-            
+
             return passwordBuilder.ToString();
         }
 

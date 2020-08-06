@@ -63,7 +63,7 @@ namespace PhotoOrganizer
         {
             var services = new ServiceCollection();
 
-            services.AddLogging(logger => 
+            services.AddLogging(logger =>
             {
                 logger.ClearProviders();
                 logger.AddConsole();

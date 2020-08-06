@@ -119,7 +119,7 @@ namespace PhotoOrganizerLib.Services
             {
                 /// Possible exceptions:
                 /// UnauthorizedAccessException, NotSupportedException, PathTooLongException
-                
+
                 _logger.LogError($"{ typeof(IRenameService) } has encountered a problem which cannot be handled gracefully.\n{ ex }");
                 throw;
             }

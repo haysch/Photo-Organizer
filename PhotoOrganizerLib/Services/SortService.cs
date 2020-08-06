@@ -30,7 +30,7 @@ namespace PhotoOrganizerLib.Services
         public SortService(ILogger<ISortService> logger, IConfiguration config, IRenameService renameService)
         {
             _logger = logger;
-            
+
             // set output path to "output" argument or current directory
             _outputPath = config.GetValue<string>("output");
             if (_outputPath is null)

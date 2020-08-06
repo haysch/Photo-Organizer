@@ -117,7 +117,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             // Setup SortPhoto method
             sortServiceMock.Setup(mock => mock.SortPhoto(It.IsAny<Photo>(), It.IsAny<string>()))
                 .Verifiable();
-            
+
             // Fetch mocked objects
             var sortService = sortServiceMock.Object;
 

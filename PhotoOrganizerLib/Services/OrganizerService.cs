@@ -8,7 +8,6 @@ using PhotoOrganizerLib.Extensions;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Utils;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PhotoOrganizerLib.Services
