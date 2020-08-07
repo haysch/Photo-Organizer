@@ -28,7 +28,7 @@ namespace PhotoOrganizer.Utils
         /// <param name="consoleWrapper">Wrapper for providing <see cref="Console"/> functionality.</param>
         /// <param name="interactive">Optional flag used for constructing a connection string interactively if none is provided.</param>
         /// <returns>Connection string for the chosen database.</returns>
-        /// <exception cref="ArgumentException">If the configuration does not containg a "ConnectionString" value and --interactive is not provided.</exception>
+        /// <exception cref="ArgumentException">If the configuration does not containg a "connectionstring" value and --interactive is not provided.</exception>
         public static string ConstructDbConnectionString(IConfiguration configuration, DatabaseFlag databaseFlag, IConsoleWrapper consoleWrapper, bool interactive = false)
         {
             var connectionString = configuration.GetValue<string>("connectionstring");

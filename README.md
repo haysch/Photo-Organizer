@@ -20,7 +20,7 @@ As of now, the flow seems to be working as intended but have not been used to so
 
 ### Shortcomings
 
-* The organizer cannot handle photos with the exact same DateTimeOriginal. In such cases the source file will be left alone and a log message will be displayed.
+- The organizer cannot handle photos with the exact same DateTimeOriginal. In such cases the source file will be left alone and a log message will be displayed.
 
 ## Building
 
@@ -28,23 +28,85 @@ TODO - explain how to build executable
 
 ## Usage
 
-The program takes an input path, to search, and optionally an output path, to sort images. 
+The program takes an input path, to search, and optionally an output path, to sort images.
 If no output path is given, the current directory is used.
 
 ```
-photoorganizer (-i|--input) <INPUT_PATH> [-o|--output <OUTPUT_PATH>] [--database|-db {SQLite|MySQL|PostgreSQL|SQLServer}] [--no-database] [--connectionstring <CONNECTIONSTRING>] [--database-name <SQLITE_DATABASE_NAME>] [--hash-algorithm|-ha {MD5|SHA1|SHA256|None}] [--rename-type|-rt {Copy|Move|None}]
+photoorganizer (-i|--input) <INPUT_PATH> [-o|--output <OUTPUT_PATH>] [-d|--database {SQLite|MySQL|PostgreSQL|SQLServer}] [--connectionstring <CONNECTIONSTRING>] [--no-database] [--interactive] [--database-name <SQLITE_DATABASE_NAME>] [-h|--hash-algorithm {MD5|SHA1|SHA256|None}] [-r|--rename-type {Copy|Move|None}]
 ```
 
-### Supported databases
+### Options
 
-The `PhotoOrganizer` program supports the following database:
+- `-i|--input <INPUT_PATH>`
 
-* `SQLite` (default, if no `--database [SQLite|MySQL|PostgreSQL|SQLServer]` flag is provided)
-* `MySQL`
-* `PostgreSQL`
-* `SQLServer`
+  Sets the directory path where the organizer should search for images.
 
-<!-- TODO: If `--no-database` flag is provided, no database will be used and no metadata will be saved. -->
+- `-o|--output <OUTPUT_PATH>`
+
+  Sets the output directory to be used for sorting the images.
+
+- `-d|--database {SQLite|MySQL|PostgreSQL|SQLServer}`
+
+  Sets the database to be used for saving the metadata.
+
+  If the `--database|-db` flag is missing, or an invalid database choice has been provided, SQLite is selected as default.
+  The SQLite database is placed at the output path provided by `-o|--output <OUTPUT_PATH>`.
+
+- `--connectionstring <CONNECTIONSTRING>`
+
+  Define a connection string to be used for the database choice.
+  If no `--connectionstring <CONNECTIONSTRING>` has been provided and `--interactive` is not used, the program will exit.
+
+- `--no-database`
+
+  Disable the use of database when organizing.
+
+  **NOTE:** This means that metadata will NOT be saved.
+
+- `--interactive`
+
+  Enable interactive mode. Used for constructing connection strings.
+
+  - If a connection string has been provided by `--connectionstring <CONNECTIONSTRING>`, this option does nothing.
+  - If a filename for the SQLite database has been provided by `--database-name <SQLITE_DATABASE_NAME>`, the user will not be asked for a filename.
+
+- `--database-name <SQLITE_DATABASE_NAME>`
+
+  Only works if `--database|-db SQLite` is used.
+  Sets the database filename for SQLite.
+
+- `-h|--hash-algorithm {MD5|SHA1|SHA256|None}`
+
+  Hash algorithm used for computing the file checksum when organizing.
+  If `None` is used, no checksum will be computed.
+
+- `-r|--rename-type {Copy|Move|None}`
+
+  Defines what type of renaming will be done when organizing.
+
+  - `Copy`: Copies the file to the target path.
+  - `Move`: Moves the file to the target path.
+  - `None`: No renaming will be done. **Tip:** Great for extracting metadata.
+
+### Metadata extracted
+
+The organizer extracts the following metadata values:
+
+- Height
+- Width
+- Checksum
+- Latitude
+- Longitude
+- AltitudeReference
+- Altitude
+- Make
+- Model
+- DateTimeOriginal
+- DateTime
+- FNumber
+- Iso
+- ShutterSpeed
+- FocalLength
 
 ## Note
 

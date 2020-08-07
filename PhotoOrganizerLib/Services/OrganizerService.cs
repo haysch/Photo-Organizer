@@ -41,7 +41,8 @@ namespace PhotoOrganizerLib.Services
         /// Runs the organizer by recursively searching every directory from the given <paramref name="inputDirectory" />.
         /// </summary>
         /// <param name="inputDirectory">Path to initial directory to search for media files.</param>
-        public async Task RunOrganizerAsync(string inputDirectory)
+        /// <param name="database">Indicates whether a database is used.</param>
+        public async Task RunOrganizerAsync(string inputDirectory, bool database = true)
         {
             // if input directory does not exist, throw exception and end run
             inputDirectory.EnsureDirectoryExists();
@@ -51,7 +52,10 @@ namespace PhotoOrganizerLib.Services
             var checksum = new Checksum(hashAlgorithm);
 
             var photoCounter = 0;
-            await _context.Database.EnsureCreatedAsync();
+            if (database)
+            {
+                await _context.Database.EnsureCreatedAsync();
+            }
 
             _logger.LogInformation($"Begin organizing in { inputDirectory }");
 
@@ -73,7 +77,7 @@ namespace PhotoOrganizerLib.Services
                 _sortService.SortPhoto(photo);
 
                 // Add photo to database context if it does not exist already
-                if (!await _context.Photos.AnyAsync(p => p.Name == photo.Name))
+                if (database && !await _context.Photos.AnyAsync(p => p.Name == photo.Name))
                 {
                     await _context.Photos.AddAsync(photo);
                 }
@@ -81,8 +85,11 @@ namespace PhotoOrganizerLib.Services
                 photoCounter++;
             }
 
-            // Save all additions to the database
-            await _context.SaveChangesAsync();
+            if (database)
+            {
+                // Save all additions to the database
+                await _context.SaveChangesAsync();
+            }
 
             _logger.LogInformation($"End organizing. Organized { photoCounter } photos.");
         }

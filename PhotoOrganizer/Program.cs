@@ -10,6 +10,7 @@ using PhotoOrganizerLib.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PhotoOrganizer
@@ -18,8 +19,12 @@ namespace PhotoOrganizer
     {
         static async Task Main(string[] args)
         {
+            // setup configuration
             var configuration = BuildConfiguration(args);
-            var serviceProvider = ConfigureServices(configuration);
+            var interactive = args.Contains("--interactive");
+            var database = !args.Contains("--no-database"); // if --no-database then false, else true
+
+            var serviceProvider = ConfigureServices(configuration, interactive, database);
 
             using var scope = serviceProvider.CreateScope();
             var services = scope.ServiceProvider;
@@ -29,7 +34,7 @@ namespace PhotoOrganizer
             var inputPath = configuration.GetValue<string>("input");
             if (string.IsNullOrEmpty(inputPath))
             {
-                logger.LogError($"No input path is specified. Use --input|-i /path/to/input/dir. Exiting.");
+                logger.LogError($"No input path is specified. Use -i|--input /path/to/input/dir. Exiting.");
                 return;
             }
             else if (!Directory.Exists(inputPath))
@@ -38,7 +43,7 @@ namespace PhotoOrganizer
             }
             else
             {
-                await organizerService.RunOrganizerAsync(inputPath);
+                await organizerService.RunOrganizerAsync(inputPath, database);
             }
         }
 
@@ -48,9 +53,9 @@ namespace PhotoOrganizer
             {
                 { "-i", "input" },
                 { "-o", "output" },
-                { "-db", "database" },
-                { "-rt", "rename-type" },
-                { "-ha", "hash-algorithm" }
+                { "-d", "database" },
+                { "-r", "rename-type" },
+                { "-h", "hash-algorithm" }
             };
 
             return new ConfigurationBuilder()
@@ -59,7 +64,7 @@ namespace PhotoOrganizer
                 .Build();
         }
 
-        static IServiceProvider ConfigureServices(IConfiguration configuration)
+        static IServiceProvider ConfigureServices(IConfiguration configuration, bool interactive, bool database)
         {
             var services = new ServiceCollection();
 
@@ -73,26 +78,29 @@ namespace PhotoOrganizer
             var consoleWrapper = new ConsoleWrapper();
             // Configure database
             var databaseFlag = configuration.GetValue<DatabaseFlag>("database");
-            services.AddDbContext<PhotoContext>(options =>
+            if (database)
             {
-                string connectionString = DatabaseUtil.ConstructDbConnectionString(configuration, databaseFlag, consoleWrapper);
-                switch (databaseFlag)
+                services.AddDbContext<PhotoContext>(options =>
                 {
-                    case DatabaseFlag.SQLServer:
-                        options.UseSqlServer(connectionString);
-                        break;
-                    case DatabaseFlag.MySQL:
-                        options.UseMySQL(connectionString);
-                        break;
-                    case DatabaseFlag.PostgreSQL:
-                        options.UseNpgsql(connectionString);
-                        break;
-                    case DatabaseFlag.SQLite:
-                    default:
-                        options.UseSqlite(connectionString);
-                        break;
-                }
-            });
+                    string connectionString = DatabaseUtil.ConstructDbConnectionString(configuration, databaseFlag, consoleWrapper, interactive);
+                    switch (databaseFlag)
+                    {
+                        case DatabaseFlag.SQLServer:
+                            options.UseSqlServer(connectionString);
+                            break;
+                        case DatabaseFlag.MySQL:
+                            options.UseMySQL(connectionString);
+                            break;
+                        case DatabaseFlag.PostgreSQL:
+                            options.UseNpgsql(connectionString);
+                            break;
+                        case DatabaseFlag.SQLite:
+                        default:
+                            options.UseSqlite(connectionString);
+                            break;
+                    }
+                });
+            }
 
             // Setup DI for services
             services.AddSingleton(configuration)
