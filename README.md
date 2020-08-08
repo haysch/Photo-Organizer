@@ -20,7 +20,7 @@ As of now, the flow seems to be working as intended but have not been used to so
 
 ### Shortcomings
 
-- The organizer cannot handle photos with the exact same DateTimeOriginal. In such cases the source file will be left alone and a log message will be displayed.
+- The organizer cannot handle photos with the exact same DateTimeOriginal. In such cases the source file will be left alone and a log message will be displayed. E.g. in burst photo shootings multiple images will have the same DateTimeOriginal value, and only the first will be sorted - looking into how to fix this as efficiently as possible.
 
 ## Building
 
@@ -32,8 +32,10 @@ The program takes an input path, to search, and optionally an output path, to so
 If no output path is given, the current directory is used.
 
 ```
-photoorganizer (-i|--input) <INPUT_PATH> [-o|--output <OUTPUT_PATH>] [-d|--database {SQLite|MySQL|PostgreSQL|SQLServer}] [--connectionstring <CONNECTIONSTRING>] [--no-database] [--interactive] [--database-name <SQLITE_DATABASE_NAME>] [-h|--hash-algorithm {MD5|SHA1|SHA256|None}] [-r|--rename-type {Copy|Move|None}]
+photoorganizer (-i|--input) <INPUT_PATH> [-o|--output <OUTPUT_PATH>] [-d|--database {SQLite|MySQL|PostgreSQL|SQLServer}] [--connectionstring <CONNECTIONSTRING>] [--no-database] [--database-name <SQLITE_DATABASE_NAME>] [-h|--hash-algorithm {MD5|SHA1|SHA256|None}] [-r|--rename-type {Copy|Move|None}]
 ```
+
+At the very least, `-i|--input <INPUT_PATH>` has to be provided. The user will be asked about information for constructing connection string, and the rest will be use default values.
 
 ### Options
 
@@ -44,6 +46,7 @@ photoorganizer (-i|--input) <INPUT_PATH> [-o|--output <OUTPUT_PATH>] [-d|--datab
 - `-o|--output <OUTPUT_PATH>`
 
   Sets the output directory to be used for sorting the images.
+  If no `<OUTPUT_PATH>` has been provided, the current directory will be used.
 
 - `-d|--database {SQLite|MySQL|PostgreSQL|SQLServer}`
 
@@ -63,28 +66,21 @@ photoorganizer (-i|--input) <INPUT_PATH> [-o|--output <OUTPUT_PATH>] [-d|--datab
 
   **NOTE:** This means that metadata will NOT be saved.
 
-- `--interactive`
-
-  Enable interactive mode. Used for constructing connection strings.
-
-  - If a connection string has been provided by `--connectionstring <CONNECTIONSTRING>`, this option does nothing.
-  - If a filename for the SQLite database has been provided by `--database-name <SQLITE_DATABASE_NAME>`, the user will not be asked for a filename.
-
 - `--database-name <SQLITE_DATABASE_NAME>`
 
-  Only works if `--database|-db SQLite` is used.
+  Only works if `-d|--database SQLite` is used.
   Sets the database filename for SQLite.
 
 - `-h|--hash-algorithm {MD5|SHA1|SHA256|None}`
 
-  Hash algorithm used for computing the file checksum when organizing.
+  Hash algorithm used for computing the file checksum when organizing. Default choice for checksum is MD5.
   If `None` is used, no checksum will be computed.
 
 - `-r|--rename-type {Copy|Move|None}`
 
   Defines what type of renaming will be done when organizing.
 
-  - `Copy`: Copies the file to the target path.
+  - `Copy`: Copies the file to the target path. Default choice.
   - `Move`: Moves the file to the target path.
   - `None`: No renaming will be done. **Tip:** Great for extracting metadata.
 
