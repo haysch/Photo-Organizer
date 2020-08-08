@@ -26,10 +26,8 @@ namespace PhotoOrganizer.Utils
         /// <param name="configuration">Configuration map containing a potential connection string.</param>
         /// <param name="databaseFlag">Flag used to decide what connection string to construct.</param>
         /// <param name="consoleWrapper">Wrapper for providing <see cref="Console"/> functionality.</param>
-        /// <param name="interactive">Optional flag used for constructing a connection string interactively if none is provided.</param>
         /// <returns>Connection string for the chosen database.</returns>
-        /// <exception cref="ArgumentException">If the configuration does not containg a "connectionstring" value and --interactive is not provided.</exception>
-        public static string ConstructDbConnectionString(IConfiguration configuration, DatabaseFlag databaseFlag, IConsoleWrapper consoleWrapper, bool interactive = false)
+        public static string ConstructDbConnectionString(IConfiguration configuration, DatabaseFlag databaseFlag, IConsoleWrapper consoleWrapper)
         {
             var connectionString = configuration.GetValue<string>("connectionstring");
 
@@ -48,11 +46,6 @@ namespace PhotoOrganizer.Utils
                     _logger.LogError(ex.Message);
                 }
                 return null;
-            }
-            else if (!interactive)
-            {
-                var db = Enum.GetName(typeof(DatabaseFlag), databaseFlag);
-                throw new ArgumentException($"Unable to construct connection string for {db} due to --interactive is not used.");
             }
 
             // connection string is not entered and interactive mode is active

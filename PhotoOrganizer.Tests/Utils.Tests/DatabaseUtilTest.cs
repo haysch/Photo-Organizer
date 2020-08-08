@@ -33,7 +33,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
             var configuration = SetupInMemoryConfiguration(memoryCollection);
             var consoleWrapper = new TestConsoleWrapper(null, null);
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.MySQL, consoleWrapper, false);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.MySQL, consoleWrapper);
 
             Assert.Null(actualConnectionString);
         }
@@ -50,27 +50,10 @@ namespace PhotoOrganizer.Tests.Utils.Tests
             var configuration = SetupInMemoryConfiguration(memoryCollection);
             var consoleWrapper = new TestConsoleWrapper(null, null);
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.PostgreSQL, consoleWrapper, false);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.PostgreSQL, consoleWrapper);
 
             Assert.NotNull(actualConnectionString);
             Assert.Equal(connectionString, actualConnectionString);
-        }
-
-        [Fact]
-        public void NullConnectionString_Noninteractive_Throw()
-        {
-            var memoryCollection = new Dictionary<string, string>
-            {
-                { "connectionstring", null }
-            };
-
-            var configuration = SetupInMemoryConfiguration(memoryCollection);
-            var consoleWrapper = new TestConsoleWrapper(null, null);
-
-            foreach (DatabaseFlag dbFlag in Enum.GetValues(typeof(DatabaseFlag)))
-            {
-                Assert.Throws<ArgumentException>(() => DatabaseUtil.ConstructDbConnectionString(configuration, dbFlag, consoleWrapper, false));
-            }
         }
 
         [Fact]
@@ -93,7 +76,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
                 DataSource = databasePath
             }.ConnectionString;
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.SQLite, consoleWrapper, true);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.SQLite, consoleWrapper);
 
             Assert.Equal(expectedConnectionString, actualConnectionString);
         }
@@ -117,7 +100,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
                 DataSource = databasePath
             }.ConnectionString;
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.SQLite, consoleWrapper, true);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.SQLite, consoleWrapper);
 
             Assert.Equal(expectedConnectionString, actualConnectionString);
         }
@@ -142,7 +125,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
                 DataSource = databasePath
             }.ConnectionString;
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.SQLite, consoleWrapper, true);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.SQLite, consoleWrapper);
 
             Assert.Equal(expectedConnectionString, actualConnectionString);
         }
@@ -184,7 +167,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
 
             var expectedConnectionString = mysqlCsBuilder.ConnectionString;
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.MySQL, consoleWrapper, true);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.MySQL, consoleWrapper);
 
             Assert.Equal(expectedConnectionString, actualConnectionString);
         }
@@ -229,7 +212,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
 
             var expectedConnectionString = npgsqlCsBuilder.ConnectionString;
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.PostgreSQL, consoleWrapper, true);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.PostgreSQL, consoleWrapper);
 
             Assert.Equal(expectedConnectionString, actualConnectionString);
         }
@@ -275,7 +258,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
 
             var expectedConnectionString = npgsqlCsBuilder.ConnectionString;
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.PostgreSQL, consoleWrapper, true);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.PostgreSQL, consoleWrapper);
 
             Assert.Equal(expectedConnectionString, actualConnectionString);
         }
@@ -316,7 +299,7 @@ namespace PhotoOrganizer.Tests.Utils.Tests
 
             var expectedConnectionString = npgsqlCsBuilder.ConnectionString;
 
-            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.SQLServer, consoleWrapper, true);
+            var actualConnectionString = DatabaseUtil.ConstructDbConnectionString(configuration, DatabaseFlag.SQLServer, consoleWrapper);
 
             Assert.Equal(expectedConnectionString, actualConnectionString);
         }
