@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Extensions;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
@@ -30,6 +31,7 @@ namespace PhotoOrganizerLib.Services
         public SortService(ILogger<ISortService> logger, IConfiguration config, IRenameService renameService)
         {
             _logger = logger;
+            _renameService = renameService;
 
             // set output path to "output" argument or current directory
             _outputPath = config.GetValue<string>("output");
@@ -46,8 +48,6 @@ namespace PhotoOrganizerLib.Services
             // Enumerate directories in output path
             OutputDirectories = EnumerateDirectoryStructure(_outputPath);
             _unknownDirectoryExists = TryFindUnknownDirectory(_outputPath);
-
-            _renameService = renameService;
         }
 
         /// <summary>
@@ -79,6 +79,11 @@ namespace PhotoOrganizerLib.Services
             CultureInfo? provider = null,
             DateTimeStyles dateTimeStyles = DateTimeStyles.None)
         {
+            if (_renameService.RenameType == RenameType.None)
+            {
+                return;
+            }
+
             // set provider to default invariant, if provider is null
             provider ??= CultureInfo.InvariantCulture;
 
@@ -181,6 +186,11 @@ namespace PhotoOrganizerLib.Services
         /// <returns>Indicates whether it was possible to find, or create, the unknown directory.</returns>
         private bool TryFindUnknownDirectory(string path)
         {
+            if (_renameService.RenameType == RenameType.None)
+            {
+                return false;
+            }
+
             var unknownPath = Path.Join(path, UNKNOWN_PATH);
             var unknownExists = Directory.Exists(unknownPath);
             if (!unknownExists)
