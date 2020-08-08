@@ -16,10 +16,12 @@ namespace PhotoOrganizerLib.Services
         private readonly ILogger<IRenameService> _logger;
         private readonly RenameType _renameType;
 
+        public RenameType RenameType { get => _renameType; }
+
         /// <summary>
         /// Constructor for renaming class. Sets up type used for renaming files.
         /// </summary>
-        /// <param name="configuration">Configuration containing the <see cref="RenameType" /> value.</param>
+        /// <param name="configuration">Configuration containing the <see cref="Enums.RenameType" /> value.</param>
         /// <remarks>Attempts to parse the rename type from the configuration.</remarks>
         public RenameService(ILogger<IRenameService> logger, IConfiguration configuration)
         {
@@ -56,7 +58,7 @@ namespace PhotoOrganizerLib.Services
         }
 
         /// <summary>
-        /// Renames file according to the <see cref="RenameType" />.
+        /// Renames file according to the <see cref="Enums.RenameType" />.
         /// </summary>
         /// <param name="sourcePath">Path to the source file.</param>
         /// <param name="destPath">Path to target file.</param>
