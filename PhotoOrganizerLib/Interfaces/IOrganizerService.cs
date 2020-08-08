@@ -4,6 +4,6 @@ namespace PhotoOrganizerLib.Interfaces
 {
     public interface IOrganizerService
     {
-        Task RunOrganizerAsync(string inputDirectory, bool database = false);
+        Task RunOrganizerAsync(string inputDirectory);
     }
 }

@@ -76,10 +76,9 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             // Setup DbContextOptions
             using var dbContext = new PhotoContext(DbOptions);
             await dbContext.Database.EnsureDeletedAsync();
-            await dbContext.Database.EnsureCreatedAsync();
 
             // Init and call OrganizerService
-            var organizerService = new OrganizerService(logger, configuration, dbContext, sortService);
+            var organizerService = new OrganizerService(logger, configuration, sortService, dbContext);
             await organizerService.RunOrganizerAsync(tempDirectory);
 
             // Verify mock call
@@ -127,10 +126,9 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             // Setup DbContextOptions
             using var dbContext = new PhotoContext(DbOptions);
             await dbContext.Database.EnsureDeletedAsync();
-            await dbContext.Database.EnsureCreatedAsync();
 
             // Init and call OrganizerService
-            var organizerService = new OrganizerService(logger, configuration, dbContext, sortService);
+            var organizerService = new OrganizerService(logger, configuration, sortService, dbContext);
             await organizerService.RunOrganizerAsync(tempDirectory);
 
             // Verify mock call
