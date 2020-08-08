@@ -21,10 +21,9 @@ namespace PhotoOrganizer
         {
             // setup configuration
             var configuration = BuildConfiguration(args);
-            var interactive = args.Contains("--interactive");
             var database = !args.Contains("--no-database"); // if --no-database then false, else true
 
-            var serviceProvider = ConfigureServices(configuration, interactive, database);
+            var serviceProvider = ConfigureServices(configuration, database);
 
             using var scope = serviceProvider.CreateScope();
             var services = scope.ServiceProvider;
@@ -43,7 +42,7 @@ namespace PhotoOrganizer
             }
             else
             {
-                await organizerService.RunOrganizerAsync(inputPath, database);
+                await organizerService.RunOrganizerAsync(inputPath);
             }
         }
 
@@ -64,7 +63,7 @@ namespace PhotoOrganizer
                 .Build();
         }
 
-        static IServiceProvider ConfigureServices(IConfiguration configuration, bool interactive, bool database)
+        static IServiceProvider ConfigureServices(IConfiguration configuration, bool database)
         {
             var services = new ServiceCollection();
 
@@ -74,15 +73,15 @@ namespace PhotoOrganizer
                 logger.AddConsole();
             });
 
-            // Create ConsoleWrapper for separation of concern
-            var consoleWrapper = new ConsoleWrapper();
             // Configure database
-            var databaseFlag = configuration.GetValue<DatabaseFlag>("database");
             if (database)
             {
+                // Create ConsoleWrapper for separation of concern
+                var consoleWrapper = new ConsoleWrapper();
+                var databaseFlag = configuration.GetValue<DatabaseFlag>("database");
                 services.AddDbContext<PhotoContext>(options =>
                 {
-                    string connectionString = DatabaseUtil.ConstructDbConnectionString(configuration, databaseFlag, consoleWrapper, interactive);
+                    string connectionString = DatabaseUtil.ConstructDbConnectionString(configuration, databaseFlag, consoleWrapper);
                     switch (databaseFlag)
                     {
                         case DatabaseFlag.SQLServer:
