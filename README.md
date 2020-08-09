@@ -24,7 +24,21 @@ As of now, the flow seems to be working as intended but have not been used to so
 
 ## Building
 
-TODO - explain how to build executable
+### Self-contained executable
+
+```
+dotnet publish ./PhotoOrganizer/PhotoOrganizer.csproj -c <CONFIGURATION> -r <RID> --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true [-o <OUTPUT_DIRECTORY>]
+```
+
+Publishes the console app as a trimmed self-contained single executable for a defined runtime, e.g. portable runtimes like `win-x64`, `linux-x64` or `osx-x64`. Outputs default to `./PhotoOrganizer/bin/<CONFIGURATION>/<TFM>/<RID>/publish/`, otherwise use `-o|--output <OUTPUT_DIRECTORY>`.
+
+### Framework-dependent executable
+
+```
+dotnet publish ./PhotoOrganizer/PhotoOrganizer.csproj -c <CONFIGURATION> -r <RID> --self-contained false -p:PublishSingleFile=true [-o <OUTPUT_DIRECTORY>]
+```
+
+Publishes the console app as a single executable for a defined runtime, e.g. portable runtimes like `win-x64`, `linux-x64` or `osx-x64`. Outputs default to `./PhotoOrganizer/bin/<CONFIGURATION>/<TFM>/<RID>/publish/`, otherwise use `-o|--output <OUTPUT_DIRECTORY>`.
 
 ## Usage
 
@@ -32,28 +46,28 @@ The program takes an input path, to search, and optionally an output path, to so
 If no output path is given, the current directory is used.
 
 ```
-photoorganizer (-i|--input) <INPUT_PATH> [-o|--output <OUTPUT_PATH>] [-d|--database {SQLite|MySQL|PostgreSQL|SQLServer}] [--connectionstring <CONNECTIONSTRING>] [--no-database] [--database-name <SQLITE_DATABASE_NAME>] [-h|--hash-algorithm {MD5|SHA1|SHA256|None}] [-r|--rename-type {Copy|Move|None}]
+photoorganizer (-i|--input) <INPUT_DIRECTORY> [-o|--output <OUTPUT_DIRECTORY>] [-d|--database {SQLite|MySQL|PostgreSQL|SQLServer}] [--connectionstring <CONNECTIONSTRING>] [--no-database] [--database-name <SQLITE_DATABASE_NAME>] [-h|--hash-algorithm {MD5|SHA1|SHA256|None}] [-r|--rename-type {Copy|Move|None}]
 ```
 
-At the very least, `-i|--input <INPUT_PATH>` has to be provided. The user will be asked about information for constructing connection string, and the rest will be use default values.
+At the very least, `-i|--input <INPUT_DIRECTORY>` has to be provided. The user will be asked about information for constructing connection string, and the rest will be use default values.
 
 ### Options
 
-- `-i|--input <INPUT_PATH>`
+- `-i|--input <INPUT_DIRECTORY>`
 
   Sets the directory path where the organizer should search for images.
 
-- `-o|--output <OUTPUT_PATH>`
+- `-o|--output <OUTPUT_DIRECTORY>`
 
   Sets the output directory to be used for sorting the images.
-  If no `<OUTPUT_PATH>` has been provided, the current directory will be used.
+  If no `<OUTPUT_DIRECTORY>` has been provided, the current directory will be used.
 
 - `-d|--database {SQLite|MySQL|PostgreSQL|SQLServer}`
 
   Sets the database to be used for saving the metadata.
 
   If the `--database|-db` flag is missing, or an invalid database choice has been provided, SQLite is selected as default.
-  The SQLite database is placed at the output path provided by `-o|--output <OUTPUT_PATH>`.
+  The SQLite database is placed at the output path provided by `-o|--output <OUTPUT_DIRECTORY>`.
 
 - `--connectionstring <CONNECTIONSTRING>`
 
