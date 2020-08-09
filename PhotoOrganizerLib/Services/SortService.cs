@@ -16,10 +16,10 @@ namespace PhotoOrganizerLib.Services
         private readonly ILogger<ISortService> _logger;
         private readonly string _outputPath;
         private readonly IRenameService _renameService;
-        private readonly bool _unknownDirectoryExists;
+        private bool _unknownDirectoryExists;
 
         // Default values
-        private readonly string UNKNOWN_PATH = "unknown";
+        private const string UNKNOWN_PATH = "unknown";
         private const string DEFAULT_DATETIME_FORMAT = "yyyyMMdd_HHmmss";
 
         // REMARK currently only accepts DateTime with YYYY and MM (e.g. yyyy/mm/Photo.jpg)
@@ -37,17 +37,17 @@ namespace PhotoOrganizerLib.Services
             _outputPath = config.GetValue<string>("output");
             if (_outputPath is null)
             {
-                _logger.LogInformation("Output directory is null. Using current directory as output");
+                _logger.LogInformation("Output directory is null. Using current directory as output directory.");
                 _outputPath ??= Directory.GetCurrentDirectory();
             }
             else
             {
-                _logger.LogDebug($"Using { _outputPath } as output directory");
+                _logger.LogDebug($"Using { _outputPath } as output directory.");
             }
 
             // Enumerate directories in output path
             OutputDirectories = EnumerateDirectoryStructure(_outputPath);
-            _unknownDirectoryExists = TryFindUnknownDirectory(_outputPath);
+            _unknownDirectoryExists = false;
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace PhotoOrganizerLib.Services
         /// <param name="sourcePath">Path to file.</param>
         private void SortUnknownFile(string sourcePath)
         {
-            if (_unknownDirectoryExists)
+            if (_unknownDirectoryExists || TryFindUnknownDirectory(_outputPath))
             {
                 var fileName = Path.GetFileName(sourcePath);
                 var unknownPath = Path.Join(_outputPath, UNKNOWN_PATH, fileName);
@@ -192,13 +192,13 @@ namespace PhotoOrganizerLib.Services
             }
 
             var unknownPath = Path.Join(path, UNKNOWN_PATH);
-            var unknownExists = Directory.Exists(unknownPath);
-            if (!unknownExists)
+            _unknownDirectoryExists = Directory.Exists(unknownPath);
+            if (!_unknownDirectoryExists)
             {
                 _logger.LogInformation($"Unknown directory { unknownPath } does not exist. Creating directory.");
-                unknownExists = TryCreateDirectory(unknownPath);
+                _unknownDirectoryExists = TryCreateDirectory(unknownPath);
             }
-            return unknownExists;
+            return _unknownDirectoryExists;
         }
 
         /// <summary>

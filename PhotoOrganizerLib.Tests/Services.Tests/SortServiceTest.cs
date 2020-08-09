@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Services;
@@ -29,7 +30,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         }
 
         [Fact]
-        public void ConstructorTest_OutputDirectoriesNotEmpty_And_UnknownDirectoryExists()
+        public void ConstructorTest_OutputDirectoriesNotEmpty_And_UnknownDirectoryDoesNotExist()
         {
             /// Description:
             /// Tests whether it is possible to construct an dictionary that contains the existing yyyy/mm folders.
@@ -98,9 +99,9 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
                 Assert.Superset(expectedOutputDirectories[key], actualOutputDirectories[key]);
             }
 
-            // Assert unknown directory exists
+            // Assert unknown directory does not exist
             var unknownDirectory = Path.Combine(outputPath, UNKNOWN_DIRNAME);
-            Assert.True(Directory.Exists(unknownDirectory));
+            Assert.False(Directory.Exists(unknownDirectory));
         }
 
         [Fact]
@@ -152,7 +153,12 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
 
             sortService.SortDateTime("bob.jpg", "bob-the-builder");
 
+            // Verify mock method called
             renameServiceMock.Verify(mock => mock.RenameFile(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+
+            // Assert that unknown directory exists
+            var unknownDirectoryPath = Path.Combine(outputPath, UNKNOWN_DIRNAME);
+            Assert.True(Directory.Exists(unknownDirectoryPath));
         }
 
         [Fact]
@@ -202,6 +208,10 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             // Verify mock calls
             renameServiceMock.Verify(mock => mock.RenameFile(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             renameServiceMock.Verify(mock => mock.FindPhotoDateTime(It.IsAny<Photo>(), It.IsAny<string>()), Times.Once);
+
+            // Assert that unknown directory does not exist
+            var unknownDirectoryPath = Path.Combine(outputPath, UNKNOWN_DIRNAME);
+            Assert.False(Directory.Exists(unknownDirectoryPath));
         }
 
         [Fact]
@@ -255,6 +265,10 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             // Verify mock calls
             renameServiceMock.Verify(mock => mock.RenameFile(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             renameServiceMock.Verify(mock => mock.FindPhotoDateTime(It.IsAny<Photo>(), It.IsAny<string>()), Times.Once);
+
+            // Assert that unknown directory does not exist
+            var unknownDirectoryPath = Path.Combine(outputPath, UNKNOWN_DIRNAME);
+            Assert.False(Directory.Exists(unknownDirectoryPath));
         }
 
         [Fact]
@@ -307,6 +321,10 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             // Verify mock calls
             renameServiceMock.Verify(mock => mock.RenameFile(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             renameServiceMock.Verify(mock => mock.FindPhotoDateTime(It.IsAny<Photo>(), It.IsAny<string>()), Times.Once);
+
+            // Assert that unknown directory does not exist
+            var unknownDirectoryPath = Path.Combine(outputPath, UNKNOWN_DIRNAME);
+            Assert.False(Directory.Exists(unknownDirectoryPath));
         }
 
 
@@ -367,6 +385,10 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             // Verify mock calls
             renameServiceMock.Verify(mock => mock.RenameFile(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             renameServiceMock.Verify(mock => mock.FindPhotoDateTime(It.IsAny<Photo>(), It.IsAny<string>()), Times.Once);
+
+            // Assert that unknown directory does not exist
+            var unknownDirectoryPath = Path.Combine(outputPath, UNKNOWN_DIRNAME);
+            Assert.False(Directory.Exists(unknownDirectoryPath));
         }
 
         [Fact]
@@ -390,8 +412,48 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             new SortService(logger, configuration, renameService);
 
             // Assert unknown directory is created in current directory
-            var unknownDirectory = Path.Combine(Directory.GetCurrentDirectory(), UNKNOWN_DIRNAME);
-            Assert.True(Directory.Exists(unknownDirectory));
+            var unknownDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), UNKNOWN_DIRNAME);
+            Assert.True(Directory.Exists(unknownDirectoryPath));
+        }
+
+        [Fact]
+        public void SortUnknownFile_NoneRenameType()
+        {
+            /// Description
+            /// Test that the unknown directory is not created when RenameType is None.
+
+            /// Expectation
+            /// Unknown directory does not exist
+
+            // Mock IRenameService
+            var renameServiceMock = new Mock<IRenameService>();
+
+            // Mock RenameType
+            renameServiceMock.SetupGet(mock => mock.RenameType)
+                .Returns(RenameType.None)
+                .Verifiable();
+
+            // Creates a temp directory for testing
+            var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(outputPath);
+
+            // Generate a temp IConfiguration object
+            var configuration = CreateInMemoryConfiguration(outputPath);
+
+            // Get the mocked objects
+            var renameService = renameServiceMock.Object;
+
+            // Construct the sort service and get the output directories structure
+            var sortService = new SortService(logger, configuration, renameService);
+
+            sortService.SortDateTime("bob.jpg", "bob-the-builder");
+
+            // Verify RenameType is called once
+            renameServiceMock.VerifyGet(mock => mock.RenameType, Times.Once);
+
+            // Assert unknown directory is not created
+            var unknownDirectoryPath = Path.Combine(outputPath, UNKNOWN_DIRNAME);
+            Assert.False(Directory.Exists(unknownDirectoryPath));
         }
     }
 }
