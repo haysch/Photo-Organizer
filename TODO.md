@@ -6,6 +6,6 @@ This project is still heavily under development since the underlying functionali
 - [x] Rename image
 - [x] Add sorting in designated output folder structure
 - [x] Setup main flow for organizing photos
-- [x] Add functionality to save metadata to SQLite/SQL database
+- [x] Add functionality to save metadata to SQLite/Relational database
 - [] Functionality for fetching/displaying information from the database
 - [] Refactor the `Photo` naming - something ... better?
