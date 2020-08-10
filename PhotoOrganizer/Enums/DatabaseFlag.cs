@@ -17,6 +17,10 @@
         /// <summary>
         /// Mark PostgreSQL as database choice.
         /// </summary>
-        PostgreSQL
+        PostgreSQL,
+        /// <summary>
+        /// Mark SQLServer as database choice.
+        /// </summary>
+        SQLServer
     }
 }

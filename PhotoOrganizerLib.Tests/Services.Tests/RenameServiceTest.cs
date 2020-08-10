@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
 using PhotoOrganizerLib.Services;
@@ -31,13 +32,16 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         [Fact]
         public void Constructor_SupportedRenameTypeString()
         {
-            var renameTypeList = new List<string> { "copy", "move", "none" };
+            var renameTypeList = new List<string> { "copy", "move", "none", "CoPy", "noNE" };
 
             foreach (var rt in renameTypeList)
             {
                 var configuration = CreateInMemoryConfiguration(rt);
 
-                new RenameService(logger, configuration);
+                var renameService = new RenameService(logger, configuration);
+                var expectedRenameType = Enum.Parse(typeof(RenameType), rt, true);
+
+                Assert.Equal(expectedRenameType, renameService.RenameType);
             }
         }
 
@@ -47,7 +51,10 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
             var invalidRtString = "bob-the-builder";
             var configuration = CreateInMemoryConfiguration(invalidRtString);
 
-            new RenameService(logger, configuration);
+            var renameService = new RenameService(logger, configuration);
+            var expectedRenameType = RenameType.Copy;
+
+            Assert.Equal(expectedRenameType, renameService.RenameType);
         }
 
         [Fact]
@@ -55,7 +62,10 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
         {
             var configuration = CreateInMemoryConfiguration(null);
 
-            new RenameService(logger, configuration);
+            var renameService = new RenameService(logger, configuration);
+            var expectedRenameType = RenameType.Copy;
+
+            Assert.Equal(expectedRenameType, renameService.RenameType);
         }
 
         [Fact]
