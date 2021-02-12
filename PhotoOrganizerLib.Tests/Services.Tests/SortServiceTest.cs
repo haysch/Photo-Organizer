@@ -413,7 +413,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
 
             // Assert unknown directory is created in current directory
             var unknownDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), UNKNOWN_DIRNAME);
-            Assert.True(Directory.Exists(unknownDirectoryPath));
+            Assert.False(Directory.Exists(unknownDirectoryPath));
         }
 
         [Fact]

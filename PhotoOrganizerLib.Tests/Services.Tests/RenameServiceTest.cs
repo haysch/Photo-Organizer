@@ -249,7 +249,7 @@ namespace PhotoOrganizerLib.Tests.Services.Tests
 
             // "Copy" source to target
             var destPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            renameService.RenameFile(sourcePath, destPath);
+            Assert.Throws<IOException>(() => renameService.RenameFile(sourcePath, destPath));
 
             Assert.True(File.Exists(sourcePath));
             Assert.False(File.Exists(destPath));

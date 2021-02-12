@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using PhotoOrganizerLib.Enums;
 using PhotoOrganizerLib.Interfaces;
 using PhotoOrganizerLib.Models;
+using PhotoOrganizerLib.Utils;
 using System;
 using System.IO;
 
@@ -96,8 +97,25 @@ namespace PhotoOrganizerLib.Services
             }
             catch (IOException)
             {
-                _logger.LogWarning($"Destination file already exists at { destPath }.");
-                _logger.LogDebug($"Source path: { sourcePath }");
+                var checksumState = Checksum.CompareChecksum(sourcePath, destPath);
+
+                switch (checksumState)
+                {
+                    case CompareState.Same:
+                        _logger.LogDebug($"Destination file with same checksum already exists at { destPath } with source path { sourcePath }.");
+                        break;
+
+                    case CompareState.Different:
+                        _logger.LogDebug($"Destination file with different checksum already exists at { destPath } with source path { sourcePath }.");
+
+                        // Append `-NUM` to filename
+                        RecRenameSameNamedFile(sourcePath, destPath, 1);
+                        break;
+
+                    default:
+                        _logger.LogWarning($"Could not match checksum of destination path at { destPath } with source path { sourcePath }.");
+                        break;
+                }
             }
             catch (ArgumentNullException)
             {
@@ -124,6 +142,24 @@ namespace PhotoOrganizerLib.Services
 
                 _logger.LogError($"{ typeof(IRenameService) } has encountered a problem which cannot be handled gracefully.\n{ ex }");
                 throw;
+            }
+        }
+
+        private void RecRenameSameNamedFile(string sourcePath, string destinationPath, int current)
+        {
+            var filepath = Path.GetDirectoryName(destinationPath);
+            var filename = Path.GetFileNameWithoutExtension(destinationPath);
+            var fileExt = Path.GetExtension(destinationPath);
+            var newDestPath = Path.Join(filepath, filename) + $"-{current}" + fileExt;
+
+            if (File.Exists(newDestPath))
+            {
+                // try next
+                RecRenameSameNamedFile(sourcePath, destinationPath, current + 1);
+            }
+            else
+            {
+                RenameFile(sourcePath, newDestPath);
             }
         }
     }

@@ -76,5 +76,35 @@ namespace PhotoOrganizerLib.Utils
         {
             _hashAlgorithm?.Dispose();
         }
+
+        public static CompareState CompareChecksum(string sourcePath, string destinationPath)
+        {
+            var checksum = new Checksum(Algorithm.MD5);
+            
+            using var sourceStream = File.OpenRead(sourcePath);
+            using var destinationStream = File.OpenRead(destinationPath);
+
+            var sourceChecksum = checksum.ComputeChecksum(sourceStream);
+            var destinationChecksum = checksum.ComputeChecksum(destinationStream);
+
+            sourceStream.Close();
+            destinationStream.Close();
+
+            CompareState compareState;
+            if (sourceChecksum is null || destinationChecksum is null)
+            {
+                compareState = CompareState.Invalid;
+            }
+            else if (sourceChecksum == destinationChecksum)
+            {
+                compareState = CompareState.Same;
+            }
+            else
+            {
+                compareState = CompareState.Different;
+            }
+
+            return compareState;
+        }
     }
 }
